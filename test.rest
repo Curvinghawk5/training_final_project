@@ -1,1 +1,5 @@
-GET http://localhost:3000/ HTTP/1.1
+# GET http://localhost:3000/price/NVDA HTTP/1.1
+
+# GET http://localhost:3000/search/Google HTTP/1.1
+
+# GET http://localhost:3000/search/news/Nvidia HTTP/1.1
