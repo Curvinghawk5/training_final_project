@@ -10,12 +10,18 @@ async function getAllUsers() {
 }
 async function verifyLogin(user) {
     return await (sql.Users).findAll({
+        attributes: ['uuid'],
         where: {username: user.username, password: user.password}
     });
 }
-
+async function getPortfolio(user) {
+    return await (sql.Portfolio).findAll({
+        where: {owner_uuid: user.uuid}
+    });
+}
 module.exports = {
     createUser,
     getAllUsers,
-    verifyLogin
+    verifyLogin,
+    getPortfolio
 }

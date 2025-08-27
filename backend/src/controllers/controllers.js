@@ -80,10 +80,10 @@ async function createUser(req, res) {
 async function loginUser(req, res) {
     const user = req.body;
     try {
-    const auth = await model.verifyLogin(user);
-    if(!auth)  return res.status(401).json({error: "Invalid Credentials"});
+    const uuid = await model.verifyLogin(user);
+    if(!uuid)  return res.status(401).json({error: "Invalid Credentials"});
 
-    const payload = {id: user.id, username: user.email};
+    const payload = {id: uuid, username: user.username};
     const token = jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: "1h"});
     res.status(200).json({message: "success", token: token});
     } catch (err)
@@ -105,7 +105,14 @@ async function getAllUsers(req, res) {
 }
 
 async function getUsersPortfolio(req, res) {
-    
+    try {
+    const portfolios = await model.getPortfolio(req.user);
+            res.status(200).json(portfolios);
+    } catch (err)
+        {
+            res.status(500).json({ error: err.message });
+            console.error("Error returning users:", err);
+        }
 }
 
 module.exports = {

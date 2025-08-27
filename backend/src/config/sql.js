@@ -37,9 +37,41 @@ const Users = seq.define('user', {
     timestamps: false
 });
 
+const Portfolio = seq.define('portfolio', {
+    uuid: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true
+    },
+    owner_uuid: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        foreignKey: true
+    },
+    name: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    value: {
+        type: DataTypes.FLOAT(2,2),
+        allowNull: false,
+        defaultValue: 0
+    },
+    prefered_currency: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: "usd"
+    }
+},
+{
+    tableName: 'portfolio',
+    timestamps: false
+});
+
 seq.sync();
 
 module.exports = {
     seq,
-    Users
+    Users,
+    Portfolio
 }
