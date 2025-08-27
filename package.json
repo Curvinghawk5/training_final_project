@@ -1,0 +1,19 @@
+{
+  "name": "training_final_project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Curvinghawk5/training_final_project.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Curvinghawk5/training_final_project/issues"
+  },
+  "homepage": "https://github.com/Curvinghawk5/training_final_project#readme"
+}
