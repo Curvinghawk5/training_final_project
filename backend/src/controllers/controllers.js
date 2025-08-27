@@ -105,7 +105,7 @@ async function getAllUsers(req, res) {
 }
 
 async function getUsersPortfolio(req, res) {
-
+    
 }
 
 module.exports = {
