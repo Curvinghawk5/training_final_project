@@ -20,7 +20,7 @@ const swaggerOptions = {
       },
     ],
   },
-  apis: ["./routes/*.js", "./app.js"],
+  apis: ["./backend/src/routes/*.js", "./app.js"],
 };
 
 const swaggerDoc = swaggerJSDoc(swaggerOptions);
@@ -33,7 +33,8 @@ app.use(express.json());
 app.use(express.static("frontend/public"));
 app.use("/css", express.static("frontend/css"));
 app.use("/js", express.static("frontend/js"));
-app.use("/images", express.static("frontend/images"));
+app.use("/images", express.static("frontend/assets/images"));
+app.use("/fonts", express.static("frontend/assets/fonts"));
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
