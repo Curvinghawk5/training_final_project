@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login</title>
+  <link rel="stylesheet" href="public/auth.css" />
+</head>
+<body>
+  <main class="auth">
+    <!-- LEFT: hero image with overlay -->
+    <aside class="auth-hero login" aria-hidden="true">
+      <div class="hero-content">
+        <h2 class="hero-heading"></h2>
+        <p class="hero-sub"></p>
+      </div>
+    </aside>
+
+    <!-- RIGHT: login form -->
+    <section class="auth-form">
+      <header>
+        <h1>Hello, Welcome Back</h1>
+        <p>Sign in to your account.</p>
+      </header>
+
+      <form id="loginForm" aria-label="Sign in form" novalidate>
+        <label class="field">
+          <span>Email</span>
+          <input type="email" name="email" placeholder="name@example.com" required />
+        </label>
+
+        <label class="field">
+          <span>Password</span>
+          <input type="password" name="password" placeholder="••••••••" minlength="6" required />
+        </label>
+
+        <div class="row between">
+          <label class="checkbox">
+            <input type="checkbox" name="remember" />
+            <span>Remember me</span>
+          </label>
+          <a href="#" class="muted small">Forgot password?</a>
+        </div>
+
+        <button class="btn primary" type="submit">Login</button>
+
+        <p class="muted small mt">
+          Don’t have an account?
+          <a href="register.html">Register</a>
+        </p>
+
+        <p id="formError" class="error" role="alert" hidden></p>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    // Detect API base depending on Live Server vs backend
+    const API_BASE = (location.port === '5500' || location.port === '5173')
+        ? 'http://localhost:3000'
+        : '';
+  
+    const form = document.getElementById('loginForm');
+    const errorEl = document.getElementById('formError');
+  
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorEl.hidden = true; errorEl.textContent = '';
+  
+      const data = {
+        email: form.email.value.trim(),
+        password: form.password.value
+      };
+  
+      if (!data.email || !data.password) {
+        showError('Please enter email and password.');
+        return;
+      }
+  
+      // disable button while processing
+      const btn = form.querySelector('button[type="submit"]');
+      btn.disabled = true;
+  
+      try {
+        const res = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+  
+        const payload = await res.json().catch(() => ({}));
+  
+        if (!res.ok) {
+          showError(payload.error || payload.message || 'Login failed');
+          return;
+        }
+  
+        // Save token + user
+        if (payload.token) localStorage.setItem('token', payload.token);
+        if (payload.user)  localStorage.setItem('user', JSON.stringify(payload.user));
+  
+        // Instead of redirecting, show dashboard section
+        document.getElementById('login-section').style.display = 'none';
+        document.getElementById('dashboard-section').style.display = 'block';
+  
+        // Fetch portfolio data after login
+        fetchPortfolio();
+  
+      } catch (err) {
+        showError('Network error — is the API running on http://localhost:3000?');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  
+    function showError(msg) {
+      errorEl.textContent = msg;
+      errorEl.hidden = false;
+    }
+  
+    // Fetch and render user portfolio
+    async function fetchPortfolio() {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+  
+      try {
+        const res = await fetch(`${API_BASE}/user/portfolio`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const portfolio = await res.json();
+  
+        // Render portfolio into .dashboard-app
+        const container = document.querySelector('.dashboard-app');
+        container.innerHTML = ''; // clear old content
+  
+        if (!portfolio || portfolio.length === 0) {
+          container.innerHTML = '<p>No holdings yet.</p>';
+          return;
+        }
+  
+        // Build a simple table
+        const table = document.createElement('table');
+        table.innerHTML = `
+          <thead>
+            <tr>
+              <th>Ticker</th>
+              <th>Quantity</th>
+              <th>Price</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        `;
+  
+        const tbody = table.querySelector('tbody');
+  
+        portfolio.forEach(item => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${item.ticker}</td>
+            <td>${item.quantity}</td>
+            <td>${item.price}</td>
+          `;
+          tbody.appendChild(row);
+        });
+  
+        container.appendChild(table);
+  
+      } catch (err) {
+        console.error('Failed to fetch portfolio:', err);
+      }
+    }
+  </script>
+  
+  
+  
+
+
+</body>
+</html>
