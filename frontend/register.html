@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Register</title>
+  <link rel="stylesheet" href="public/auth.css" />
+</head>
+<body>
+
+  <!-- Register Section (hidden by default in SPA) -->
+  <section id="register-section" style="display: none;">
+    <main class="auth">
+      <!-- LEFT: hero image with overlay -->
+      <aside class="auth-hero register" aria-hidden="true">
+        <div class="hero-content">
+        </div>
+      </aside>
+
+      <!-- RIGHT: register form -->
+      <section class="auth-form">
+        <header>
+          <h1>Create Account</h1>
+          <p>Sign up to get started.</p>
+        </header>
+
+        <form id="registerForm" aria-label="Register form" novalidate>
+          <label class="field">
+            <span>Name</span>
+            <input type="text" name="name" placeholder="Your full name" required />
+          </label>
+
+          <label class="field">
+            <span>Email</span>
+            <input type="email" name="email" placeholder="name@example.com" required />
+          </label>
+
+          <label class="field">
+            <span>Password</span>
+            <input type="password" name="password" placeholder="Choose a password" minlength="6" required />
+          </label>
+
+          <label class="field">
+            <span>Confirm Password</span>
+            <input type="password" name="confirmPassword" placeholder="Re-enter your password" minlength="6" required />
+          </label>
+
+          <button class="btn primary" type="submit">Register</button>
+
+          <p class="muted small mt">
+            Already have an account?
+            <a href="#" onclick="showLogin()">Login</a>
+          </p>
+
+          <p id="formError" class="error" role="alert" hidden></p>
+        </form>
+      </section>
+    </main>
+  </section>
+
+  <script>
+    const API_BASE = (location.port === '5500' || location.port === '5173')
+        ? 'http://localhost:3000'
+        : '';
+  
+    const form = document.getElementById('registerForm');
+    const errorEl = document.getElementById('formError');
+  
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorEl.hidden = true; errorEl.textContent = '';
+  
+      const data = {
+        name: form.name.value.trim(),
+        email: form.email.value.trim(),
+        password: form.password.value,
+        confirmPassword: form.confirmPassword.value
+      };
+  
+      // basic validation
+      if (!data.name || !data.email || !data.password || !data.confirmPassword) {
+        showError('All fields are required.'); return;
+      }
+      if (data.password.length < 6) { showError('Password must be at least 6 characters.'); return; }
+      if (data.password !== data.confirmPassword) { showError('Passwords do not match.'); return; }
+  
+      // disable button while processing
+      const btn = form.querySelector('button[type="submit"]');
+      btn.disabled = true;
+  
+      try {
+        const res = await fetch(`${API_BASE}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+  
+        const payload = await res.json().catch(() => ({}));
+  
+        if (!res.ok) {
+          showError(payload.error || payload.message || 'Register failed');
+          return;
+        }
+  
+        // Save token and user
+        if (payload.token) localStorage.setItem('token', payload.token);
+        if (payload.user)  localStorage.setItem('user', JSON.stringify(payload.user));
+  
+        // Instead of redirecting, show dashboard section
+        document.getElementById('register-section').style.display = 'none';
+        document.getElementById('dashboard-section').style.display = 'block';
+  
+      } catch (err) {
+        showError('Network error — is the API running on http://localhost:3000?');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  
+    function showError(msg){
+      errorEl.textContent = msg;
+      errorEl.hidden = false;
+    }
+
+    // Helper: go back to login section
+    function showLogin() {
+      document.getElementById('register-section').style.display = 'none';
+      document.getElementById('login-section').style.display = 'block';
+    }
+  </script>
+
+</body>
+</html>
+
