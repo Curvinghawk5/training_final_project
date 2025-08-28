@@ -1,22 +1,56 @@
-const express = require('express')
-const app = express()
-const port = 3000
-const routes = require('./routes/routes');
+const express = require("express");
+const swaggerUi = require("swagger-ui-express");
+const swaggerJSDoc = require("swagger-jsdoc");
+const app = express();
+const port = 3000;
+
+// Swagger configuration
+const swaggerOptions = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Training Final Project API",
+      version: "1.0.0",
+      description: "API documentation for the training final project",
+    },
+    servers: [
+      {
+        url: `http://localhost:${port}`,
+        description: "Development server",
+      },
+    ],
+  },
+  apis: ["./routes/*.js", "./app.js"],
+};
+
+const swaggerDoc = swaggerJSDoc(swaggerOptions);
+
+const routes = require("./backend/src/routes/routes");
 
 app.use(express.json());
+
+// Serve static files from frontend directory
+app.use(express.static("frontend/public"));
+app.use("/css", express.static("frontend/css"));
+app.use("/js", express.static("frontend/js"));
+app.use("/images", express.static("frontend/images"));
+
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
-app.use('/', routes);
+app.use("/api", routes);
 
 app.use((req, res, next) => {
-    req.requestTime = new Date().toISOString();
-    next();
+  req.requestTime = new Date().toISOString();
+  next();
 });
 
 app.use((req, res, next) => {
-    //always log first and then catch error afterwards
-    console.log(`${req.requestTime} with method ${req.method} and path ${req.path} from ${req.get('User-Agent')}`);
-    next();
+  console.log(
+    `${req.requestTime} with method ${req.method} and path ${
+      req.path
+    } from ${req.get("User-Agent")}`
+  );
+  next();
 });
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+app.listen(port, () => console.log(`Example app listening on port ${port}!`));

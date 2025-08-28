@@ -4,7 +4,12 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "test"
+    "test": "test",
+    "start": "node app.js",
+    "start:backend": "node app.js",
+    "start:frontend": "npx http-server ./frontend -p 5173 -c-1",
+    "dev": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "dev:separate": "concurrently \"npm run start:backend\" \"npm run start:frontend\""
   },
   "repository": {
     "type": "git",
@@ -15,5 +20,16 @@
   "bugs": {
     "url": "https://github.com/Curvinghawk5/training_final_project/issues"
   },
-  "homepage": "https://github.com/Curvinghawk5/training_final_project#readme"
+  "homepage": "https://github.com/Curvinghawk5/training_final_project#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "mysql2": "^3.14.3",
+    "sequelize": "^6.37.7",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
+  }
 }
