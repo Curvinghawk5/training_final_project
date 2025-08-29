@@ -13,9 +13,14 @@ const YahooFinance = require("yahoo-finance2").default;
     @return {object} - The current ask and bid price of the company
 */
 async function getCurrentPrice(req, res) {
-    const {tag} = req.params;                       //Get tag from params
-    const result = await YahooFinance.quote(tag);   //Get info from Yahoo
-    res.status(200).json({ask: result.ask, bid: result.bid, currency: result.currency});
+    const {tag} = req.params;       //Get tag from params
+    try {
+        const result = await YahooFinance.quote(tag);   //Get info from Yahoo
+        res.status(200).json({ask: result.ask, bid: result.bid, currency: result.currency});
+    } catch (error) {
+        console.error("Error fetching stock price: ", error);
+        res.status(500).json({error: "Internal Server Error"});
+    }
 }
 
 
@@ -41,9 +46,15 @@ async function searchForCompany(req, res) {
     @return {object} - The news articles from the search query
 */
 async function searchNews(req, res) {
-    const search = req.params.query;                    //Get query from params
-    const result = await YahooFinance.search(search);   //Search Yahoo
-    res.status(200).json(result.news);
+    const search = req.params.query;    //Get query from params
+    try {
+        const result = await YahooFinance.search(search);   //Search Yahoo
+        res.status(200).json(result.news);
+    } catch (error) {
+        console.error("Error fetching news articles: ", error);
+        res.status(500).json({error: "Internal Server Error"});
+        return;
+    }
 }
 
 /*
@@ -54,7 +65,14 @@ async function searchNews(req, res) {
 */
 async function searchFincancials(req, res) {
     const {query} = req.params;                         //Get query from params
-    const result = await YahooFinance.search(query);    //Search Yahoo
+    let result;
+    try {
+        result = await YahooFinance.search(query);    //Search Yahoo
+    } catch (error) {
+        console.error("Error fetching financial data: ", error);
+        res.status(500).json({error: "Internal Server Error"});
+        return;
+    }
     const quotes = [];                                  //Final output
     //For each result from query
     for(let i = 0; i< (result.quotes).length; i++) {
@@ -68,6 +86,8 @@ async function searchFincancials(req, res) {
             quotes.push(quote);
         } catch (err) {
             console.error("Unable to get quote: ", err);
+            res.status(500).json({error: "Internal Server Error "});
+            break;
         }
     }
     res.status(200).json(quotes);

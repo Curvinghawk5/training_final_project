@@ -1,5 +1,6 @@
 const { Sequelize, DataTypes } = require("sequelize");
 require("dotenv").config();
+const bcrypt = require("bcrypt");
 
 ////////////////////////////////////////////////////////////
 /////////////All SQL database stuff stored here/////////////
@@ -50,6 +51,10 @@ const Users = seq.define('user', {
     tableName: 'user',
     timestamps: false
 });
+Users.addHook(
+    "beforeCreate",
+    user => (user.password = bcrypt.hashSync(user.password, 10))
+);
 
 //Portfolio Table
 const Portfolio = seq.define('portfolio', {

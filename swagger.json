@@ -1,3 +1,857 @@
 {
-    
+    "openapi": "3.0.3",
+    "info": {
+        "title": "Numberboxd",
+        "description": "B-TEC Letterboxd",
+        "version": "0.0.1"
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    },
+    "security": [
+        { "bearerAuth": [] }
+    ],
+    "paths": {
+        "/price/{tag}": {
+            "get": {
+                "summary": "Price of a stock by tag",
+                "description": "Gets the price of a stock by its tag",
+                "parameters": [{
+                    "name": "tag",
+                    "in": "path",
+                    "required": true,
+                    "description": "The tag of the desired stock",
+                    "schema": {
+                        "type": "string",
+                        "example": "AAPL"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "The price of the stock",
+                        "content": {
+                            "application/json": {
+                                "schema":{
+                                    "type": "object",
+                                    "properties": {
+                                       "ask": {
+                                            "type": "float",
+                                            "example": 150.00
+                                        },
+                                        "bid": {
+                                            "type": "float",
+                                            "example": 148.00
+                                        },
+                                        "currency": {
+                                            "type": "string",
+                                            "example": "USD"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/search/{query}": {
+            "get": {
+                "summary": "Search for a company",
+                "description": "Return a list of companies that match the search query",
+                "parameters": [{
+                    "name": "query",
+                    "in": "path",
+                    "required": true,
+                    "description": "The search query",
+                    "schema": {
+                        "type": "string",
+                        "example": "Apple"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "A list of all the films with the desired rating",
+                        "content": {
+                            "application/json": {
+                                "schema":{
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "exchange": {
+                                                "type": "string",
+                                                "example": "NMA"
+                                            },
+                                            "shortname": {
+                                                "type": "string",
+                                                "example": "Alphabet Inc."
+                                            },
+                                            "quoteType": {
+                                                "type": "string",
+                                                "example": "EQUITY"
+                                            },
+                                            "symbol": {
+                                                "type": "string",
+                                                "example": "GOOG"
+                                            },
+                                            "index": {
+                                                "type": "string",
+                                                "example": "quotes"
+                                            },
+                                            "score": {
+                                                "type": "integer",
+                                                "example": "11469500"
+                                            },
+                                            "typeDisp": {
+                                                "type": "string",
+                                                "example": "Equity"
+                                            },
+                                            "longname": {
+                                                "type": "string",
+                                                "example": "Alphabet Inc."
+                                            },
+                                            "exchDisp": {
+                                                "type": "string",
+                                                "example": "NASDAQ"
+                                            },
+                                            "sector": {
+                                                "type": "string",
+                                                "example": "Communication Services"
+                                            },
+                                            "sectorDisp": {
+                                                "type": "string",
+                                                "example": "Communication Services"
+                                            },
+                                            "industry": {
+                                                "type": "string",
+                                                "example": "Internet Content & Information"
+                                            },
+                                            "industryDisp": {
+                                                "type": "string",
+                                                "example": "Internet Content & Information"
+                                            },
+                                            "dispSecIndFlag": {
+                                                "type": "boolean",
+                                                "example": true
+                                            },
+                                            "isYahooFinance": {
+                                                "type": "boolean",
+                                                "example": false
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/search/news/{query}": {
+            "get": {
+                "summary": "Searches news articles",
+                "description": "Searches the full news database using a query and returns matches",
+                "parameters": [{
+                    "name": "query",
+                    "in": "path",
+                    "required": true,
+                    "description": "The query to search for",
+                    "schema": {
+                        "type": "string",
+                        "example": "Nvidia"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "A list of all the films retrieved from the oMDB database through the search function",
+                        "content": {
+                            "application/json": {
+                                "schema":{
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "uuid": {
+                                                "type": "string",
+                                                "example": "24be04ac-27d7-319a-8536-fbf24fd60cf0"
+                                            },
+                                            "title": {
+                                                "type": "string",
+                                                "example": "Nvidia Stock Slips. Why Wall Street Still Loves the Shares."
+                                            },
+                                            "publisher": {
+                                                "type": "string",
+                                                "example": "Barrons.com"
+                                            },
+                                            "link": {
+                                                "type": "string",
+                                                "example": "https://finance.yahoo.com/m/24be04ac-27d7-319a-8536-fbf24fd60cf0/nvidia-stock-slips.-why-wall.html"
+                                            },
+                                            "providerPublishTime": {
+                                                "type": "date",
+                                                "example": "2025-08-29T13:09:00.000Z"
+                                            },
+                                            "type": {
+                                                "type": "string",
+                                                "example": "STORY"
+                                            },
+                                            "thumbnail": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "resolutions": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "url": {
+                                                                "type": "string",
+                                                                "example": "https://s.yimg.com/uu/api/res/1.2/ltSA5e8dLs0k0.Ankq1TYg--~B/aD02NDA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/Barrons.com/a2eec71faee37dc2dbfe4c321372f23d"
+                                                            },
+                                                            "width": {
+                                                                "type": "integer",
+                                                                "example": 1280
+                                                            },
+                                                            "height": {
+                                                                "type": "integer",
+                                                                "example": 640
+                                                            },
+                                                            "tag": {
+                                                                "type": "string",
+                                                                "example": "original"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "relatedTickers": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "example": "BABAF"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/search/financial/{query}": {
+            "get": {
+                "summary": "Get financial data by query",
+                "description": "Retrieve financial data using the provided query",
+                "parameters": [{
+                    "name": "query",
+                    "in": "path",
+                    "required": true,
+                    "description": "The search query for financial data",
+                    "schema": {
+                        "type": "string",
+                        "example": "AAPL"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "A list of financial data matching the query",
+                        "content": {
+                            "application/json": {
+                                "schema":{
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "language": {
+                                                "type": "string",
+                                                "example": "en-US"
+                                            },
+                                            "region": {
+                                                "type": "string",
+                                                "example": "US"
+                                            },
+                                            "quoteType": {
+                                                "type": "string",
+                                                "example": "EQUITY"
+                                            },
+                                            "typeDisp": {
+                                                "type": "string",
+                                                "example": "Equity"
+                                            },
+                                            "quoteSourceName": {
+                                                "type": "string",
+                                                "example": "Nasdaq Real Time Price"
+                                            },
+                                            "triggerable": {
+                                                "type": "boolean",
+                                                "example": true
+                                            },
+                                            "customPriceAlertConfidence": {
+                                                "type": "string",
+                                                "example": "HIGH"
+                                            },
+                                            "currency": {
+                                                "type": "string",
+                                                "example": "USD"
+                                            },
+                                            "regularMarketChangePercent": {
+                                                "type": "float",
+                                                "example": "0.12470268"
+                                            },
+                                            "regularMarketPrice": {
+                                                "type": "float",
+                                                "example": "232.85"
+                                            },
+                                            "marketState": {
+                                                "type": "string",
+                                                "example": "REGULAR"
+                                            },
+                                            "corporateActions": {
+                                                "type": "Array"
+                                            },
+                                            "regularMarketTime": {
+                                                "type": "date",
+                                                "example": "2025-08-29T14:45:50.000Z"
+                                            },
+                                            "exchangeTimezoneShortName": {
+                                                "type": "string",
+                                                "example": "EDT"
+                                            },
+                                            "market": {
+                                                "type": "string",
+                                                "example": "us_market"
+                                            },
+                                            "esgPopulated": {
+                                                "type": "boolean",
+                                                "example": false
+                                            },
+                                            "gmtOffSetMilliseconds": {
+                                                "type": "integer",
+                                                "example": -14400000
+                                            },
+                                            "exchange": {
+                                                "type": "string",
+                                                "example": "NMS"
+                                            },
+                                            "messageBoardId": {
+                                                "type": "string",
+                                                "example": "finmb_24937"
+                                            },
+                                            "exchangeTimezoneName": {
+                                                "type": "string",
+                                                "example": "America/New_York"
+                                            },
+                                            "shortName": {
+                                                "type": "string",
+                                                "example": "Apple Inc."
+                                            },
+                                            "longName": {
+                                                "type": "string",
+                                                "example": "Apple Inc."
+                                            },
+                                            "hasPrePostMarketData": {
+                                                "type": "boolean",
+                                                "example": true
+                                            },
+                                            "firstTradeDateMilliseconds": {
+                                                "type": "date",
+                                                "example": "1980-12-12T14:30:00.000Z"
+                                            },
+                                            "priceHint": {
+                                                "type": "integer",
+                                                "example": 2
+                                            },
+                                            "regularMarketChange": {
+                                                "type": "integer",
+                                                "example": 0.29000854
+                                            },
+                                            "regularMarketDayHigh": {
+                                                "type": "string",
+                                                "example": 233.3613
+                                            },
+                                            "regularMarketDayRange": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "low": {
+                                                        "type": "float",
+                                                        "example": 231.37
+                                                    },
+                                                    "high": {
+                                                        "type": "float",
+                                                        "example": 233.3613
+                                                    }
+                                                }
+                                            },
+                                            "regularMarketDayLow": {
+                                                "type": "float",
+                                                "example": 231.37
+                                            },
+                                            "regularMarketVolume": {
+                                                "type": "float",
+                                                "example": 9950026
+                                            },
+                                            "regularMarketPreviousClose": {
+                                                "type": "float",
+                                                "example": 232.56
+                                            },
+                                            "bid": {
+                                                "type": "float",
+                                                "example": 231.02
+                                            },
+                                            "ask": {
+                                                "type": "float",
+                                                "example": 233.01
+                                            },
+                                            "bidSize": {
+                                                "type": "integer",
+                                                "example": 3
+                                            },
+                                            "askSize": {
+                                                "type": "integer",
+                                                "example": 10
+                                            },
+                                            "fullExchangeName": {
+                                                "type": "string",
+                                                "example": "NasdaqGS"
+                                            },
+                                            "financialCurrency": {
+                                                "type": "string",
+                                                "example": "USD"
+                                            },
+                                            "regularMarketOpen": {
+                                                "type": "float",
+                                                "example": 232.56
+                                            },
+                                            "averageDailyVolume3Month": {
+                                                "type": "integer",
+                                                "example": 54441203
+                                            },
+                                            "averageDailyVolume10Day": {
+                                                "type": "integer",
+                                                "example": 40314310
+                                            },
+                                            "fiftyTwoWeekLowChange": {
+                                                "type": "float",
+                                                "example": 63.64
+                                            },
+                                            "fiftyTwoWeekLowChangePercent": {
+                                                "type": "float",
+                                                "example": 0.3761007
+                                            },
+                                            "fiftyTwoWeekRange": {
+                                                "type": "objecy",
+                                                "properties": {
+                                                    "low": {
+                                                        "type": "float",
+                                                        "example": 169.21
+                                                    },
+                                                    "high": {
+                                                        "type": "float",
+                                                        "example": 260.1
+                                                    }
+                                                }
+                                            },
+                                            "fiftyTwoWeekHighChange": {
+                                                "type": "float",
+                                                "example": -27.25
+                                            },
+                                            "fiftyTwoWeekHighChangePercent": {
+                                                "type": "float",
+                                                "example": -0.1047674
+                                            },
+                                            "fiftyTwoWeekLow": {
+                                                "type": "float",
+                                                "example": 169.21
+                                            },
+                                            "fiftyTwoWeekHigh": {
+                                                "type": "float",
+                                                "example": 260.1
+                                            },
+                                            "fiftyTwoWeekChangePercent": {
+                                                "type": "float",
+                                                "example": 1.5545845
+                                            },
+                                            "dividendDate": {
+                                                "type": "date",
+                                                "example": "2025-08-14T00:00:00.000Z"
+                                            },
+                                            "earningsTimestamp": {
+                                                "type": "date",
+                                                "example": "2025-07-31T20:00:00.000Z"
+                                            },
+                                            "earningsTimestampStart": {
+                                                "type": "date",
+                                                "example": "2025-10-30T20:00:00.000Z"
+                                            },
+                                            "earningsTimestampEnd": {
+                                                "type": "date",
+                                                "example": "2025-10-30T20:00:00.000Z"
+                                            },
+                                            "earningsCallTimestampStart": {
+                                                "type": "integer",
+                                                "example": "1753995600"
+                                            },
+                                            "earningsCallTimestampEnd": {
+                                                "type": "integer",
+                                                "example": "1753995600"
+                                            },
+                                            "isEarningsDateEstimate": {
+                                                "type": "boolean",
+                                                "example": true
+                                            },
+                                            "trailingAnnualDividendRate": {
+                                                "type": "float",
+                                                "example": 1.01
+                                            },
+                                            "trailingPE": {
+                                                "type": "float",
+                                                "example": 35.38754
+                                            },
+                                            "dividendRate": {
+                                                "type": "float",
+                                                "example": 1.04
+                                            },
+                                            "trailingAnnualDividendYield": {
+                                                "type": "float",
+                                                "example": 0.0043429653
+                                            },
+                                            "dividendYield": {
+                                                "type": "float",
+                                                "example": 0.45
+                                            },
+                                            "epsTrailingTwelveMonths": {
+                                                "type": "float",
+                                                "example": 6.58
+                                            },
+                                            "epsForward": {
+                                                "type": "float",
+                                                "example": 8.31
+                                            },
+                                            "epsCurrentYear": {
+                                                "type": "float",
+                                                "example": 7.38566
+                                            },
+                                            "priceEpsCurrentYear": {
+                                                "type": "float",
+                                                "example": 31.527311
+                                            },
+                                            "sharesOutstanding": {
+                                                "type": "integer",
+                                                "example": 14840399872
+                                            },
+                                            "bookValue": {
+                                                "type": "float",
+                                                "example": 4.431
+                                            },
+                                            "fiftyDayAverage": {
+                                                "type": "float",
+                                                "example": 214.8364
+                                            },
+                                            "fiftyDayAverageChange": {
+                                                "type": "float",
+                                                "example": 18.01361
+                                            },
+                                            "fiftyDayAverageChangePercent": {
+                                                "type": "float",
+                                                "example": 0.083848044
+                                            },
+                                            "twoHundredDayAverage": {
+                                                "type": "float",
+                                                "example": 221.141
+                                            },
+                                            "twoHundredDayAverageChange": {
+                                                "type": "float",
+                                                "example": 11.709
+                                            },
+                                            "twoHundredDayAverageChangePercent": {
+                                                "type": "float",
+                                                "example": 0.052948117
+                                            },
+                                            "marketCap": {
+                                                "type": "integer",
+                                                "example": 3455587188736
+                                            },
+                                            "forwardPE": {
+                                                "type": "float",
+                                                "example": 28.020456
+                                            },
+                                            "priceToBook": {
+                                                "type": "float",
+                                                "example": 52.550213
+                                            },
+                                            "sourceInterval": {
+                                                "type": "integer",
+                                                "example": 15
+                                            },
+                                            "exchangeDataDelayedBy": {
+                                                "type": "integer",
+                                                "example": 0
+                                            },
+                                            "averageAnalystRating": {
+                                                "type": "string",
+                                                "example": "2.0 - Buy"
+                                            },
+                                            "tradeable": {
+                                                "type": "boolean",
+                                                "example": false
+                                            },
+                                            "cryptoTradeable": {
+                                                "type": "boolean",
+                                                "example": false
+                                            },
+                                            "displayName": {
+                                                "type": "string",
+                                                "example": "Apple"
+                                            },
+                                            "symbol": {
+                                                "type": "string",
+                                                "example": "AAPL"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "summary": "Registers a new user",
+                "description": "Creates a new user account",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "username": {
+                                        "type": "string",
+                                        "example": "Bob"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password123"
+                                    },
+                                    "fname": {
+                                        "type": "string",
+                                        "example": "Bob"
+                                    },
+                                    "lname": {
+                                        "type": "string",
+                                        "example": "McBobface"
+                                    }
+                                },
+                                "required": ["username", "password", "fname", "lname"]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User successfully created"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/auth/users": {
+            "get": {
+                "summary": "Get all users (Admin)",
+                "description": "Retrieve a list of all users (Requires Admin Authorisation)",
+                "security": [{ "bearerAuth": [] }],
+                "responses": {
+                    "200": {
+                        "description": "All users retrieved",
+                        "content": {
+                            "application/json": {
+                                "schema":{
+                                    "type": "object",
+                                    "properties": {
+                                       "uuid": {
+                                            "type": "uuid",
+                                            "example": "e9e49e73-41ff-4894-ad58-1139c7d09f00"
+                                        },
+                                        "username": {
+                                            "type": "string",
+                                            "example": "testUsername"
+                                        },
+                                        "password": {
+                                            "type": "hashed",
+                                            "example": "$2b$10$EIXZQ1z5Q5Q5Q5Q5Q5Q5QO"
+                                        },
+                                        "fname": {
+                                            "type": "string",
+                                            "example": "Bob"
+                                        },
+                                        "lname": {
+                                            "type": "string",
+                                            "example": "McBobface"
+                                        },
+                                        "money": {
+                                            "type": "Float",
+                                            "example": 150.00
+                                        },
+                                        "prefered_currency": {
+                                            "type": "string",
+                                            "example": "usd"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "summary": "User login",
+                "description": "Authenticate a user and return a JWT token",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "username": {
+                                        "type": "string",
+                                        "example": "Bob"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password123"
+                                    }
+                                },
+                                "required": ["username", "password"]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User logged in successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/buy/{tag}": {
+            "post": {
+                "summary": "Buy a stock",
+                "description": "Purchase a stock by its tag",
+                "parameters": [{
+                    "name": "tag",
+                    "in": "path",
+                    "required": true,
+                    "description": "The tag of the desired stock",
+                    "schema": {
+                        "type": "string",
+                        "example": "AAPL"
+                    }
+                }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "stockAmount": {
+                                        "type": "float",
+                                        "example": 10
+                                    },
+                                    "priceAmount": {
+                                        "type": "float",
+                                        "example": 200.50
+                                    },
+                                    "currency": {
+                                        "type": "string",
+                                        "example": "usd"
+                                    },
+                                    "portfolio_uuid": {
+                                        "type": "uuid",
+                                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                                    }
+                                },
+                                "required": ["currency", "portfolio_uuid"],
+                                "oneOf": [
+                                    { "required": ["stockAmount"] },
+                                    { "required": ["priceAmount"] }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Stock bought successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Bought 10 shares for 2001 usd of Google at 200.10 usd per share"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        }
+    }
 }

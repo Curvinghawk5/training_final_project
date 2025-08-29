@@ -18,7 +18,7 @@ require("dotenv").config();
 async function createUser(req, res) {
     const user = req.body;      //User info from body
     authModel.createUser(user)
-        .then(nU => res.status(201).json(nU))
+        .then(nU => res.status(201).json({message: "User created"}))
         .catch(err => {
             res.status(500).json({ error: err.message });
             console.error("Error creating new film:", err);
@@ -60,7 +60,7 @@ async function loginUser(req, res) {
     res.status(200).json({message: "success", token: token});
     } catch (err) {
         res.status(500).json({ error: err.message });
-        console.error("Error returning users:", err);
+        console.error("Error logging in users:", err);
     }
 }
 

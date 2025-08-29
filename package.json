@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
     "start": "node app.js",
     "start:backend": "node app.js",
     "start:frontend": "npx http-server ./frontend -p 5173 -c-1",
@@ -23,6 +23,7 @@
   "homepage": "https://github.com/Curvinghawk5/training_final_project#readme",
   "dependencies": {
     "axios": "^1.11.0",
+    "bcrypt": "^6.0.0",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
@@ -32,7 +33,7 @@
     "yahoo-finance2": "^2.13.3"
   },
   "devDependencies": {
-    "jest": "^30.1.0",
-    "concurrently": "^9.2.1"
+    "concurrently": "^9.2.1",
+    "jest": "^30.1.0"
   }
 }
