@@ -1154,3 +1154,709 @@ body[data-theme="dark"] {
 [data-theme="dark"] .stock-row:hover {
   background: rgba(156, 128, 255, 0.06);
 }
+
+/* Portfolios Page Styles */
+.portfolios-page {
+  margin: 0;
+  padding: 0;
+}
+
+.portfolios-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.header-content {
+  flex: 1;
+}
+
+.portfolios-header .page-title {
+  font-family: "Trap", "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 8px 0;
+}
+
+.portfolios-header .page-description {
+  font-family: "Trap", "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: var(--color-muted);
+  font-size: 16px;
+  margin: 0;
+}
+
+.add-portfolio-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--color-brand) 0%, #1f9ea8 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 24px;
+  font-family: "Trap", "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(41, 157, 145, 0.2);
+}
+
+.add-portfolio-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(41, 157, 145, 0.3);
+  background: linear-gradient(135deg, #239189 0%, #1a8891 100%);
+}
+
+.add-portfolio-btn:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(41, 157, 145, 0.25);
+}
+
+.add-icon {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.btn-text {
+  font-weight: 600;
+}
+
+/* Portfolio Cards Grid */
+.portfolios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+
+/* Portfolio Card */
+.portfolio-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  position: relative;
+  overflow: hidden;
+}
+
+.portfolio-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-brand) 0%, #1f9ea8 100%);
+}
+
+.portfolio-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  border-color: rgba(41, 157, 145, 0.3);
+}
+
+/* Portfolio Card Header */
+.portfolio-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.portfolio-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.portfolio-name {
+  font-family: "Trap", "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.portfolio-risk {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.portfolio-risk.conservative {
+  background: rgba(34, 197, 94, 0.15);
+  color: #059669;
+}
+
+.portfolio-risk.moderate {
+  background: rgba(251, 191, 36, 0.15);
+  color: #d97706;
+}
+
+.portfolio-risk.aggressive {
+  background: rgba(239, 68, 68, 0.15);
+  color: #dc2626;
+}
+
+.portfolio-menu {
+  margin-left: 16px;
+}
+
+.portfolio-menu-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: rgba(107, 114, 128, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-muted);
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.portfolio-menu-btn:hover {
+  background: rgba(107, 114, 128, 0.2);
+  color: var(--color-text);
+}
+
+/* Portfolio Description */
+.portfolio-description {
+  margin-bottom: 20px;
+}
+
+.portfolio-description p {
+  font-family: "Trap", "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: var(--color-muted);
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Portfolio Value */
+.portfolio-value {
+  margin-bottom: 20px;
+  padding: 16px;
+  background: rgba(41, 157, 145, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(41, 157, 145, 0.1);
+}
+
+.current-value {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.value-label {
+  font-family: "Trap", "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: var(--color-muted);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.value-amount {
+  font-family: "Trap", "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.return-info {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.return-amount, .return-percent {
+  font-family: "Trap", "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.return-amount.positive, .return-percent.positive {
+  color: var(--color-positive);
+}
+
+.return-amount.negative, .return-percent.negative {
+  color: var(--color-negative);
+}
+
+/* Portfolio Stats */
+.portfolio-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: rgba(107, 114, 128, 0.05);
+  border-radius: 12px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label {
+  font-family: "Trap", "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-family: "Trap", "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: var(--color-text);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* Portfolio Performance */
+.portfolio-performance {
+  margin-bottom: 20px;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.performance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.performance-label {
+  font-family: "Trap", "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.performance-period {
+  font-family: "Trap", "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: var(--color-text);
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(41, 157, 145, 0.1);
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.performance-chart {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chart-placeholder {
+  flex: 1;
+  height: 40px;
+  background: rgba(107, 114, 128, 0.1);
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.chart-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60%;
+  border-radius: 4px 4px 0 0;
+}
+
+.chart-line.positive {
+  background: linear-gradient(to top, rgba(34, 197, 94, 0.3), rgba(34, 197, 94, 0.7));
+}
+
+.chart-line.negative {
+  background: linear-gradient(to top, rgba(239, 68, 68, 0.3), rgba(239, 68, 68, 0.7));
+}
+
+.performance-value {
+  font-family: "Trap", "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.performance-value.positive {
+  color: var(--color-positive);
+}
+
+.performance-value.negative {
+  color: var(--color-negative);
+}
+
+/* Portfolio Actions */
+.portfolio-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-view, .btn-edit, .btn-add-stock {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-family: "Trap", "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-view {
+  background: var(--color-brand);
+  color: #ffffff;
+}
+
+.btn-view:hover {
+  background: #239189;
+  transform: translateY(-1px);
+}
+
+.btn-edit {
+  background: rgba(107, 114, 128, 0.1);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.btn-edit:hover {
+  background: rgba(107, 114, 128, 0.2);
+  transform: translateY(-1px);
+}
+
+.btn-add-stock {
+  background: rgba(251, 191, 36, 0.1);
+  color: #d97706;
+  border: 1px solid rgba(251, 191, 36, 0.2);
+}
+
+.btn-add-stock:hover {
+  background: rgba(251, 191, 36, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal {
+  background: var(--color-surface);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid var(--color-border);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 24px 0 24px;
+  margin-bottom: 20px;
+}
+
+.modal-header h3 {
+  font-family: "Trap", "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.modal-close-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: rgba(107, 114, 128, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-muted);
+  font-size: 18px;
+  transition: all 0.2s ease;
+}
+
+.modal-close-btn:hover {
+  background: rgba(107, 114, 128, 0.2);
+  color: var(--color-text);
+}
+
+.modal-form {
+  padding: 0 24px 24px 24px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-family: "Trap", "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 8px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-family: "Trap", "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-size: 14px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  transition: all 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px rgba(41, 157, 145, 0.1);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: var(--color-muted);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.btn-secondary,
+.btn-primary {
+  flex: 1;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 8px;
+  font-family: "Trap", "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary {
+  background: rgba(107, 114, 128, 0.1);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.btn-secondary:hover {
+  background: rgba(107, 114, 128, 0.2);
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-brand) 0%, #1f9ea8 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(41, 157, 145, 0.2);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #239189 0%, #1a8891 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(41, 157, 145, 0.3);
+}
+
+/* Dark Mode Support for Portfolios */
+[data-theme="dark"] .add-portfolio-btn {
+  background: linear-gradient(135deg, var(--color-brand) 0%, #a855f7 100%);
+  box-shadow: 0 4px 12px rgba(156, 128, 255, 0.2);
+}
+
+[data-theme="dark"] .add-portfolio-btn:hover {
+  background: linear-gradient(135deg, #8b5cf6 0%, #9333ea 100%);
+  box-shadow: 0 6px 20px rgba(156, 128, 255, 0.3);
+}
+
+[data-theme="dark"] .portfolio-card {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+[data-theme="dark"] .portfolio-card::before {
+  background: linear-gradient(90deg, var(--color-brand) 0%, #a855f7 100%);
+}
+
+[data-theme="dark"] .portfolio-card:hover {
+  border-color: rgba(156, 128, 255, 0.3);
+}
+
+[data-theme="dark"] .portfolio-value {
+  background: rgba(156, 128, 255, 0.08);
+  border-color: rgba(156, 128, 255, 0.2);
+}
+
+[data-theme="dark"] .portfolio-stats {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .portfolio-performance {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .performance-period {
+  background: rgba(156, 128, 255, 0.15);
+  color: var(--color-brand);
+}
+
+[data-theme="dark"] .btn-view {
+  background: var(--color-brand);
+}
+
+[data-theme="dark"] .btn-view:hover {
+  background: #8b5cf6;
+}
+
+[data-theme="dark"] .btn-primary {
+  background: linear-gradient(135deg, var(--color-brand) 0%, #a855f7 100%);
+  box-shadow: 0 4px 12px rgba(156, 128, 255, 0.2);
+}
+
+[data-theme="dark"] .btn-primary:hover {
+  background: linear-gradient(135deg, #8b5cf6 0%, #9333ea 100%);
+  box-shadow: 0 6px 16px rgba(156, 128, 255, 0.3);
+}
+
+[data-theme="dark"] .modal {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+[data-theme="dark"] .form-group input,
+[data-theme="dark"] .form-group textarea,
+[data-theme="dark"] .form-group select {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .form-group input:focus,
+[data-theme="dark"] .form-group textarea:focus,
+[data-theme="dark"] .form-group select:focus {
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px rgba(156, 128, 255, 0.1);
+}
+
+/* Responsive Design for Portfolios */
+@media (max-width: 1200px) {
+  .portfolios-grid {
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .portfolios-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+  
+  .portfolios-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .portfolio-card {
+    padding: 20px;
+  }
+  
+  .portfolio-actions {
+    flex-direction: column;
+  }
+  
+  .modal {
+    margin: 20px;
+    max-width: calc(100vw - 40px);
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .portfolio-card {
+    padding: 16px;
+  }
+  
+  .portfolio-value {
+    padding: 12px;
+  }
+  
+  .portfolio-stats {
+    padding: 12px;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .performance-chart {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .chart-placeholder {
+    height: 30px;
+  }
+}
