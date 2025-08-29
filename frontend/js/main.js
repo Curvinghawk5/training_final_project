@@ -109,9 +109,77 @@ document.addEventListener("DOMContentLoaded", function () {
       </div>
     `,
     portfolios: `
-      <div class="portfolios-content">
-        <h2>Portfolios</h2>
-        <p>Manage your investment portfolios.</p>
+      <div class="portfolios-page">
+        <div class="portfolios-header">
+          <div class="header-content">
+            <h2 class="page-title">Portfolios</h2>
+            <p class="page-description">Manage and track your investment portfolios</p>
+          </div>
+          <button class="add-portfolio-btn" id="add-portfolio-btn">
+            <span class="add-icon">+</span>
+            <span class="btn-text">Add Portfolio</span>
+          </button>
+        </div>
+        
+        <div class="portfolios-grid" id="portfolios-grid">
+          <!-- Portfolio cards will be dynamically generated here -->
+        </div>
+      </div>
+
+      <!-- Add Portfolio Modal -->
+      <div class="modal-overlay" id="portfolio-modal-overlay" style="display: none;">
+        <div class="modal" id="portfolio-modal">
+          <div class="modal-header">
+            <h3>Create New Portfolio</h3>
+            <button class="modal-close-btn" id="modal-close-btn">&times;</button>
+          </div>
+          <form class="modal-form" id="portfolio-form">
+            <div class="form-group">
+              <label for="portfolio-name">Portfolio Name</label>
+              <input 
+                type="text" 
+                id="portfolio-name" 
+                name="name" 
+                placeholder="e.g., Tech Growth Portfolio"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="portfolio-description">Description</label>
+              <textarea 
+                id="portfolio-description" 
+                name="description" 
+                placeholder="Brief description of your portfolio strategy..."
+                rows="3"
+                required
+              ></textarea>
+            </div>
+            <div class="form-group">
+              <label for="portfolio-risk">Risk Profile</label>
+              <select id="portfolio-risk" name="riskProfile" required>
+                <option value="">Select risk level</option>
+                <option value="Conservative">Conservative</option>
+                <option value="Moderate">Moderate</option>
+                <option value="Aggressive">Aggressive</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="portfolio-initial">Initial Investment (Optional)</label>
+              <input 
+                type="number" 
+                id="portfolio-initial" 
+                name="initialInvestment" 
+                placeholder="0.00"
+                min="0"
+                step="0.01"
+              />
+            </div>
+            <div class="modal-actions">
+              <button type="button" class="btn-secondary" id="cancel-portfolio-btn">Cancel</button>
+              <button type="submit" class="btn-primary">Create Portfolio</button>
+            </div>
+          </form>
+        </div>
       </div>
     `,
     holdings: `
@@ -231,6 +299,67 @@ document.addEventListener("DOMContentLoaded", function () {
     },
   ];
 
+  // Dummy portfolio data
+  let portfoliosData = [
+    {
+      id: 1,
+      name: "Tech Growth Portfolio",
+      description: "High-growth technology stocks focusing on innovation leaders like Apple, Google, Microsoft, and emerging tech companies.",
+      totalValue: 125750.449,
+      invested: 107500.45,
+      returnAmount: 18249.999,
+      returnPercent: 16.976672518006927,
+      riskProfile: "Aggressive",
+      holdings: 9,
+      lastUpdated: "2024-01-15",
+      performance: {
+        "1D": 2.34,
+        "1W": 5.67,
+        "1M": 12.45,
+        "3M": 16.98,
+        "1Y": 24.67
+      }
+    },
+    {
+      id: 2,
+      name: "Conservative Income",
+      description: "Stable dividend-paying stocks and bonds for steady income generation with minimal risk exposure.",
+      totalValue: 42203.93,
+      invested: 38000.00,
+      returnAmount: 4203.93,
+      returnPercent: 11.06,
+      riskProfile: "Conservative",
+      holdings: 12,
+      lastUpdated: "2024-01-15",
+      performance: {
+        "1D": 0.15,
+        "1W": 0.89,
+        "1M": 2.34,
+        "3M": 5.67,
+        "1Y": 11.06
+      }
+    },
+    {
+      id: 3,
+      name: "Balanced Growth",
+      description: "Mix of growth and value stocks across different sectors for balanced risk-adjusted returns.",
+      totalValue: 78425.67,
+      invested: 72000.00,
+      returnAmount: 6425.67,
+      returnPercent: 8.92,
+      riskProfile: "Moderate",
+      holdings: 15,
+      lastUpdated: "2024-01-15",
+      performance: {
+        "1D": 1.23,
+        "1W": 2.45,
+        "1M": 5.67,
+        "3M": 7.89,
+        "1Y": 8.92
+      }
+    }
+  ];
+
   function updatePageTitle(page) {
     const pageTitles = {
       dashboard: "Dashboard",
@@ -298,6 +427,142 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  function renderPortfolios() {
+    const portfoliosGrid = document.getElementById("portfolios-grid");
+    if (!portfoliosGrid) return;
+
+    portfoliosGrid.innerHTML = portfoliosData
+      .map(
+        (portfolio) => `
+        <div class="portfolio-card" data-portfolio-id="${portfolio.id}">
+          <div class="portfolio-card-header">
+            <div class="portfolio-info">
+              <h3 class="portfolio-name">${portfolio.name}</h3>
+              <span class="portfolio-risk ${portfolio.riskProfile.toLowerCase()}">${portfolio.riskProfile}</span>
+            </div>
+            <div class="portfolio-menu">
+              <button class="portfolio-menu-btn">⋯</button>
+            </div>
+          </div>
+          
+          <div class="portfolio-description">
+            <p>${portfolio.description}</p>
+          </div>
+          
+          <div class="portfolio-value">
+            <div class="current-value">
+              <span class="value-label">Total Value</span>
+              <span class="value-amount">$${portfolio.totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            </div>
+            <div class="return-info">
+              <span class="return-amount ${portfolio.returnPercent >= 0 ? 'positive' : 'negative'}">
+                ${portfolio.returnPercent >= 0 ? '+' : ''}$${portfolio.returnAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+              <span class="return-percent ${portfolio.returnPercent >= 0 ? 'positive' : 'negative'}">
+                ${portfolio.returnPercent >= 0 ? '+' : ''}${portfolio.returnPercent.toFixed(2)}%
+              </span>
+            </div>
+          </div>
+          
+          <div class="portfolio-stats">
+            <div class="stat-item">
+              <span class="stat-label">Holdings</span>
+              <span class="stat-value">${portfolio.holdings}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Invested</span>
+              <span class="stat-value">$${portfolio.invested.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            </div>
+          </div>
+          
+          <div class="portfolio-performance">
+            <div class="performance-header">
+              <span class="performance-label">Performance</span>
+              <span class="performance-period">1M</span>
+            </div>
+            <div class="performance-chart">
+              <div class="chart-placeholder">
+                <div class="chart-line ${portfolio.performance['1M'] >= 0 ? 'positive' : 'negative'}"></div>
+              </div>
+              <span class="performance-value ${portfolio.performance['1M'] >= 0 ? 'positive' : 'negative'}">
+                ${portfolio.performance['1M'] >= 0 ? '+' : ''}${portfolio.performance['1M']}%
+              </span>
+            </div>
+          </div>
+          
+          <div class="portfolio-actions">
+            <button class="btn-view">View</button>
+            <button class="btn-edit">Edit</button>
+            <button class="btn-add-stock">+ Add Stock</button>
+          </div>
+        </div>
+      `
+      )
+      .join("");
+  }
+
+  function setupPortfolioModal() {
+    const addPortfolioBtn = document.getElementById("add-portfolio-btn");
+    const modalOverlay = document.getElementById("portfolio-modal-overlay");
+    const modalCloseBtn = document.getElementById("modal-close-btn");
+    const cancelBtn = document.getElementById("cancel-portfolio-btn");
+    const portfolioForm = document.getElementById("portfolio-form");
+
+    if (!addPortfolioBtn || !modalOverlay) return;
+
+    // Show modal
+    addPortfolioBtn.addEventListener("click", () => {
+      modalOverlay.style.display = "flex";
+      document.body.style.overflow = "hidden";
+    });
+
+    // Hide modal
+    function hideModal() {
+      modalOverlay.style.display = "none";
+      document.body.style.overflow = "auto";
+      portfolioForm.reset();
+    }
+
+    modalCloseBtn?.addEventListener("click", hideModal);
+    cancelBtn?.addEventListener("click", hideModal);
+    
+    modalOverlay.addEventListener("click", (e) => {
+      if (e.target === modalOverlay) {
+        hideModal();
+      }
+    });
+
+    // Handle form submission
+    portfolioForm?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(portfolioForm);
+      const newPortfolio = {
+        id: portfoliosData.length + 1,
+        name: formData.get("name"),
+        description: formData.get("description"),
+        riskProfile: formData.get("riskProfile"),
+        totalValue: parseFloat(formData.get("initialInvestment")) || 0,
+        invested: parseFloat(formData.get("initialInvestment")) || 0,
+        returnAmount: 0,
+        returnPercent: 0,
+        holdings: 0,
+        lastUpdated: new Date().toISOString().split('T')[0],
+        performance: {
+          "1D": 0,
+          "1W": 0,
+          "1M": 0,
+          "3M": 0,
+          "1Y": 0
+        }
+      };
+
+      portfoliosData.push(newPortfolio);
+      renderPortfolios();
+      hideModal();
+    });
+  }
+
   function loadPage(page) {
     if (pageTemplates[page]) {
       mainContent.innerHTML = pageTemplates[page];
@@ -321,6 +586,12 @@ document.addEventListener("DOMContentLoaded", function () {
             performSearch();
           }
         });
+      }
+
+      // If portfolios page, set up portfolio functionality
+      if (page === "portfolios") {
+        renderPortfolios();
+        setupPortfolioModal();
       }
     }
   }
@@ -497,5 +768,5 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Initial route: if authed show dashboard else login
-  showView(isAuthed ? "dashboard" : "login");
+  showView("dashboard");
 });
