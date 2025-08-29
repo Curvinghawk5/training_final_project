@@ -1,31 +1,9 @@
-const express = require("express");
-const swaggerUi = require("swagger-ui-express");
-const swaggerJSDoc = require("swagger-jsdoc");
+const express = require('express');
 const app = express();
 const port = 3000;
-
-// Swagger configuration
-const swaggerOptions = {
-  definition: {
-    openapi: "3.0.0",
-    info: {
-      title: "Training Final Project API",
-      version: "1.0.0",
-      description: "API documentation for the training final project",
-    },
-    servers: [
-      {
-        url: `http://localhost:${port}`,
-        description: "Development server",
-      },
-    ],
-  },
-  apis: ["./backend/src/routes/*.js", "./app.js"],
-};
-
-const swaggerDoc = swaggerJSDoc(swaggerOptions);
-
-const routes = require("./backend/src/routes/routes");
+const routes = require('./backend/src/routes/routes');
+const swaggerUi = require("swagger-ui-express");
+const swaggerDoc = require("./swagger.json");
 
 app.use(express.json());
 

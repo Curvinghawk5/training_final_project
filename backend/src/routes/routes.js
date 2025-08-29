@@ -1,54 +1,31 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
+const controller = require("../controllers/controllers");
+const authenticationToken = require('../middleware/validation');
 
-/**
- * @swagger
- * /api/:
- *   get:
- *     summary: API health check endpoint
- *     description: Returns a simple API health check message
- *     responses:
- *       200:
- *         description: API is running
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: "API is running!"
- */
-router.get('/', (req, res) => {
-    res.json({ message: 'API is running!' });
-});
+router.get("/price/:tag", controller.getCurrentPrice);
+router.get("/search/financial/:query", controller.searchFincancials);
+router.get("/search/:query", controller.searchForCompany);
+router.get("/search/news/:query", controller.searchNews);
+router.get("/convert", controller.convertCurrencyTest);
+router.post("/buy/:tag", authenticationToken.authenticateToken, controller.buyStocks);
+router.post("/sell/:tag", authenticationToken.authenticateToken, controller.sellStocks);
+router.post("/auth/register", controller.createUser);
+router.get("/auth/users", controller.getAllUsers);
+router.post("/auth/login", controller.loginUser);
+router.get("/user/portfolio", authenticationToken.authenticateToken, controller.getUsersPortfolio);
+router.post("/user/portfolio", authenticationToken.authenticateToken, controller.createPortfolio);
+router.patch("/user/portfolio/update", authenticationToken.authenticateToken, controller.modifyPortfolio);
+router.delete("/user/portfolio/:portfolio_uuid", authenticationToken.authenticateToken, controller.deletePortfolio)
+router.get("/user/portfolio/value/:portfolio_uuid", authenticationToken.authenticateToken, controller.getPortfolioValue)
 
-/**
- * @swagger
- * /api/health:
- *   get:
- *     summary: API health check
- *     description: Returns API health status
- *     responses:
- *       200:
- *         description: API is healthy
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "healthy"
- *                 timestamp:
- *                   type: string
- *                   example: "2024-01-01T00:00:00.000Z"
- */
-router.get('/health', (req, res) => {
-    res.json({ 
-        status: 'healthy', 
-        timestamp: new Date().toISOString() 
-    });
-});
+router.get("/user/portfolio/return/:portfolio_uuid", authenticationToken.authenticateToken, controller.getPortfolioReturn)
+router.get("/user/portfolio/return/percentage/:portfolio_uuid", authenticationToken.authenticateToken, controller.getPortfolioReturnPercentage)
+
+router.post("/user/deposit", authenticationToken.authenticateToken, controller.depositMoney)
+router.post("/user/withdraw", authenticationToken.authenticateToken, controller.withdrawtMoney)
+router.get("/user/balance", authenticationToken.authenticateToken, controller.getBalacne)
+router.get("/user/shares/:portfolio_uuid", authenticationToken.authenticateToken, controller.getShares)
+router.get("/user/logs", authenticationToken.authenticateToken, controller.getLogs)
 
 module.exports = router;
