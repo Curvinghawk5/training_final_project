@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
     "start": "node app.js",
     "start:backend": "node app.js",
     "start:frontend": "npx http-server ./frontend -p 5173 -c-1",

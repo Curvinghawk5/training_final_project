@@ -373,60 +373,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }`;
   }
 
-  function renderStockResults(searchTerm = "") {
-    let filteredData = dummyStockData;
-    if (searchTerm) {
-      filteredData = dummyStockData.filter(
-        (stock) =>
-          stock.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          stock.symbol.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    filteredData = filteredData.slice(0, 10);
-
-    if (filteredData.length > 0) {
-      resultsContainer.style.display = "block";
-      resultsCount.textContent = `${filteredData.length} result${
-        filteredData.length !== 1 ? "s" : ""
-      }`;
-
-      tableBody.innerHTML = filteredData
-        .map(
-          (stock) => `
-        <tr class="stock-row">
-          <td class="stock-name">
-            <div class="stock-info">
-              <span class="stock-symbol">${stock.symbol}</span>
-              <span class="stock-company">${stock.name}</span>
-            </div>
-          </td>
-          <td class="stock-value">$${stock.value.toFixed(2)}</td>
-          <td class="stock-change ${
-            stock.change >= 0 ? "positive" : "negative"
-          }">
-            ${stock.change >= 0 ? "+" : ""}${stock.change.toFixed(2)}
-          </td>
-          <td class="stock-percent ${
-            stock.changePercent >= 0 ? "positive" : "negative"
-          }">
-            ${stock.changePercent >= 0 ? "+" : ""}${stock.changePercent.toFixed(
-            2
-          )}%
-          </td>
-          <td class="stock-open">$${stock.open.toFixed(2)}</td>
-          <td class="stock-high">$${stock.high.toFixed(2)}</td>
-          <td class="stock-low">$${stock.low.toFixed(2)}</td>
-          <td class="stock-prev">$${stock.prev.toFixed(2)}</td>
-        </tr>
-      `
-        )
-        .join("");
-    } else {
-      resultsContainer.style.display = "none";
-    }
-  }
-
   function renderPortfolios() {
     const portfoliosGrid = document.getElementById("portfolios-grid");
     if (!portfoliosGrid) return;
@@ -563,6 +509,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+
   function loadPage(page) {
     if (pageTemplates[page]) {
       mainContent.innerHTML = pageTemplates[page];
@@ -570,8 +517,67 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // If stocks page, set up search functionality
       if (page === "stocks") {
+        // Get elements AFTER the page HTML is loaded
+        const resultsContainer = document.getElementById("stocks-results");
+        const tableBody = document.getElementById("stocks-table-body");
+        const resultsCount = document.getElementById("results-count");
         const searchInput = document.getElementById("stock-search-input");
         const searchBtn = document.getElementById("stock-search-btn");
+
+        // Updated renderStockResults function with proper element access
+        function renderStockResults(searchTerm = "") {
+          let filteredData = dummyStockData;
+          if (searchTerm) {
+            filteredData = dummyStockData.filter(
+              (stock) =>
+                stock.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                stock.symbol.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+          }
+
+          filteredData = filteredData.slice(0, 10);
+
+          if (filteredData.length > 0) {
+            resultsContainer.style.display = "block";
+            resultsCount.textContent = `${filteredData.length} result${
+              filteredData.length !== 1 ? "s" : ""
+            }`;
+
+            tableBody.innerHTML = filteredData
+              .map(
+                (stock) => `
+              <tr class="stock-row">
+                <td class="stock-name">
+                  <div class="stock-info">
+                    <span class="stock-symbol">${stock.symbol}</span>
+                    <span class="stock-company">${stock.name}</span>
+                  </div>
+                </td>
+                <td class="stock-value">$${stock.value.toFixed(2)}</td>
+                <td class="stock-change ${
+                  stock.change >= 0 ? "positive" : "negative"
+                }">
+                  ${stock.change >= 0 ? "+" : ""}${stock.change.toFixed(2)}
+                </td>
+                <td class="stock-percent ${
+                  stock.changePercent >= 0 ? "positive" : "negative"
+                }">
+                  ${stock.changePercent >= 0 ? "+" : ""}${stock.changePercent.toFixed(
+                  2
+                )}%
+                </td>
+                <td class="stock-open">$${stock.open.toFixed(2)}</td>
+                <td class="stock-high">$${stock.high.toFixed(2)}</td>
+                <td class="stock-low">$${stock.low.toFixed(2)}</td>
+                <td class="stock-prev">$${stock.prev.toFixed(2)}</td>
+              </tr>
+            `
+              )
+              .join("");
+          } else {
+            resultsContainer.style.display = "none";
+          }
+        }
 
         function performSearch() {
           const searchTerm = searchInput.value.trim();
@@ -621,14 +627,120 @@ document.addEventListener("DOMContentLoaded", function () {
       registerSection.style.display = view === "register" ? "block" : "none";
     if (dashboardSection)
       dashboardSection.style.display = view === "dashboard" ? "block" : "none";
+
+    if (view === "login" || view === "register") {
+      document.body.classList.add("auth-page");
+    } else {
+      document.body.classList.remove("auth-page");
+    }
   }
 
   const API_BASE =
     location.port === "5500" || location.port === "5173"
-      ? "http://localhost:3000"
-      : "";
+      ? "http://localhost:3000/api"
+      : "/api";
 
-  const isAuthed = !!localStorage.getItem("token");
+  // Authentication 
+  const AUTH_TOKEN_KEY = 'auth_token';
+  const USER_DATA_KEY = 'user_data';
+
+  function isAuthenticated() {
+    const token = sessionStorage.getItem(AUTH_TOKEN_KEY);
+    if (!token) return false;
+    
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const currentTime = Date.now() / 1000;
+      return payload.exp > currentTime;
+    } catch {
+      return false;
+    }
+  }
+
+  // Store authentication data
+  function storeAuthData(token, userData = null) {
+    sessionStorage.setItem(AUTH_TOKEN_KEY, token);
+    if (userData) {
+      sessionStorage.setItem(USER_DATA_KEY, JSON.stringify(userData));
+    }
+  }
+
+  // Clear authentication data
+  function clearAuthData() {
+    sessionStorage.removeItem(AUTH_TOKEN_KEY);
+    sessionStorage.removeItem(USER_DATA_KEY);
+  }
+
+  // Get stored user data
+  function getUserData() {
+    const userData = sessionStorage.getItem(USER_DATA_KEY);
+    return userData ? JSON.parse(userData) : null;
+  }
+
+  // Get auth token for API requests
+  function getAuthToken() {
+    return sessionStorage.getItem(AUTH_TOKEN_KEY);
+  }
+
+  // Make authenticated API request
+  async function authenticatedFetch(url, options = {}) {
+    const token = getAuthToken();
+    if (!token) {
+      throw new Error('No authentication token');
+    }
+    
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      ...options.headers
+    };
+    
+    return fetch(url, { ...options, headers });
+  }
+
+  // Update user display in dashboard
+  function updateUserDisplay() {
+    const userData = getUserData();
+    if (userData) {
+      const greeting = document.querySelector(".greeting");
+      if (greeting) {
+        const displayName = userData.firstName || userData.username;
+        greeting.textContent = `Hello ${displayName}`;
+      }
+      
+      // Update profile name
+      const profileName = document.querySelector(".profile-name");
+      if (profileName) {
+        const fullName = userData.firstName && userData.lastName 
+          ? `${userData.firstName} ${userData.lastName}` 
+          : userData.username;
+        profileName.textContent = fullName;
+      }
+      
+      // Update avatar initial
+      const avatar = document.querySelector(".avatar");
+      if (avatar) {
+        const initial = userData.firstName ? userData.firstName.charAt(0).toUpperCase() 
+                       : userData.username.charAt(0).toUpperCase();
+        avatar.textContent = initial;
+      }
+    }
+  }
+
+  // Check authentication on page load and periodically
+  function checkAuthStatus() {
+    if (!isAuthenticated()) {
+      clearAuthData();
+      if (document.getElementById("dashboard-section").style.display !== "none") {
+        showView("login");
+      }
+    }
+  }
+
+  // Check auth status every 5 minutes
+  setInterval(checkAuthStatus, 5 * 60 * 1000);
+
+  const isAuthed = isAuthenticated();
   showView(isAuthed ? "dashboard" : "login");
 
   const goToRegister = document.getElementById("go-to-register");
@@ -655,11 +767,12 @@ document.addEventListener("DOMContentLoaded", function () {
       loginErrorEl.textContent = "";
 
       const data = {
-        email: loginForm.email.value.trim(),
+        username: loginForm.username.value.trim(),
         password: loginForm.password.value,
       };
-      if (!data.email || !data.password) {
-        loginErrorEl.textContent = "Please enter email and password.";
+      
+      if (!data.username || !data.password) {
+        loginErrorEl.textContent = "Please enter username and password.";
         loginErrorEl.hidden = false;
         return;
       }
@@ -676,12 +789,16 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!res.ok)
           throw new Error(payload.error || payload.message || "Login failed");
 
-        if (payload.token) localStorage.setItem("token", payload.token);
-        if (payload.user)
-          localStorage.setItem("user", JSON.stringify(payload.user));
-
-        showView("dashboard");
-        loadPage("dashboard");
+        if (payload.token) {
+          // Store user data for display
+          const userData = { username: data.username };
+          storeAuthData(payload.token, userData);
+          showView("dashboard");
+          loadPage("dashboard");
+          updateUserDisplay();
+        } else {
+          throw new Error("No token received");
+        }
       } catch (err) {
         loginErrorEl.textContent = err.message || "Login failed";
         loginErrorEl.hidden = false;
@@ -700,32 +817,36 @@ document.addEventListener("DOMContentLoaded", function () {
       registerErrorEl.hidden = true;
       registerErrorEl.textContent = "";
 
-      const data = {
-        name: registerForm.name.value.trim(),
-        email: registerForm.email.value.trim(),
-        password: registerForm.password.value,
-        confirmPassword: registerForm.confirmPassword.value,
-      };
-      if (
-        !data.name ||
-        !data.email ||
-        !data.password ||
-        !data.confirmPassword
-      ) {
+      // Collect form data
+      const firstName = registerForm.firstName.value.trim();
+      const lastName = registerForm.lastName.value.trim();
+      const username = registerForm.username.value.trim();
+      const password = registerForm.password.value;
+      const confirmPassword = registerForm.confirmPassword.value;
+      
+      // Validation
+      if (!firstName || !lastName || !username || !password || !confirmPassword) {
         registerErrorEl.textContent = "All fields are required.";
         registerErrorEl.hidden = false;
         return;
       }
-      if (data.password.length < 6) {
+      if (password.length < 6) {
         registerErrorEl.textContent = "Password must be at least 6 characters.";
         registerErrorEl.hidden = false;
         return;
       }
-      if (data.password !== data.confirmPassword) {
+      if (password !== confirmPassword) {
         registerErrorEl.textContent = "Passwords do not match.";
         registerErrorEl.hidden = false;
         return;
       }
+
+      const data = {
+        username: username,
+        password: password,
+        firstName: firstName, 
+        lastName: lastName
+      };
 
       const btn = registerForm.querySelector('button[type="submit"]');
       btn.disabled = true;
@@ -737,18 +858,34 @@ document.addEventListener("DOMContentLoaded", function () {
         });
         const payload = await res.json().catch(() => ({}));
         if (!res.ok)
-          throw new Error(
-            payload.error || payload.message || "Register failed"
-          );
+          throw new Error(payload.error || payload.message || "Registration failed");
 
-        if (payload.token) localStorage.setItem("token", payload.token);
-        if (payload.user)
-          localStorage.setItem("user", JSON.stringify(payload.user));
-
-        showView("dashboard");
-        loadPage("dashboard");
+        // After successful registration, automatically log in
+        const loginData = { username: username, password: password };
+        const loginRes = await fetch(`${API_BASE}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(loginData),
+        });
+        const loginPayload = await loginRes.json().catch(() => ({}));
+        
+        if (loginRes.ok && loginPayload.token) {
+          // Store user data including firstName/lastName for future use
+          const userData = { 
+            username: username,
+            firstName: firstName,
+            lastName: lastName
+          };
+          storeAuthData(loginPayload.token, userData);
+          showView("dashboard");
+          loadPage("dashboard");
+          updateUserDisplay();
+        } else {
+          // Registration successful but auto-login failed, redirect to login
+          showView("login");
+        }
       } catch (err) {
-        registerErrorEl.textContent = err.message || "Register failed";
+        registerErrorEl.textContent = err.message || "Registration failed";
         registerErrorEl.hidden = false;
       } finally {
         btn.disabled = false;
@@ -761,12 +898,13 @@ document.addEventListener("DOMContentLoaded", function () {
   if (logoutLink) {
     logoutLink.addEventListener("click", (e) => {
       e.preventDefault();
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      clearAuthData();
       showView("login");
     });
   }
 
-  // Initial route: if authed show dashboard else login
-  showView("dashboard");
+  // Initial setup
+  if (isAuthed) {
+    updateUserDisplay();
+  }
 });
