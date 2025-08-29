@@ -1,10 +1,10 @@
 # GET http://localhost:3000/price/GOOG HTTP/1.1
 
-# GET http://localhost:3000/search/GOOG HTTP/1.1
+# GET http://localhost:3000/search/news/Google HTTP/1.1
 
 # GET http://localhost:3000/search/Nvidia HTTP/1.1
 
-GET http://localhost:3000/search/financial/GOOG HTTP/1.1
+# GET http://localhost:3000/search/financial/GOOG HTTP/1.1
 
 # GET http://localhost:3000/convert HTTP/1.1
 
@@ -63,8 +63,8 @@ GET http://localhost:3000/search/financial/GOOG HTTP/1.1
 #     "portfolio_uuid": "f9662e54-b24f-4799-9309-39fc6149f09e"
 # }
 
-GET http://localhost:3000/user/shares/f9662e54-b24f-4799-9309-39fc6149f09e HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6W3sidXVpZCI6ImU5ZTQ5ZTczLTQxZmYtNDg5NC1hZDU4LTExMzljN2QwOWYwMCJ9XSwidXNlcm5hbWUiOiJ0ZXN0VXNlcm5hbWUiLCJpYXQiOjE3NTYzODg2MTcsImV4cCI6MTc1NjQ3NTAxN30.IEUmZTSlWE856sNx6oKiYwsQdOpnhVUhUbIhHNDYvjY
+# GET http://localhost:3000/user/shares/f9662e54-b24f-4799-9309-39fc6149f09e HTTP/1.1
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6W3sidXVpZCI6ImU5ZTQ5ZTczLTQxZmYtNDg5NC1hZDU4LTExMzljN2QwOWYwMCJ9XSwidXNlcm5hbWUiOiJ0ZXN0VXNlcm5hbWUiLCJpYXQiOjE3NTYzODg2MTcsImV4cCI6MTc1NjQ3NTAxN30.IEUmZTSlWE856sNx6oKiYwsQdOpnhVUhUbIhHNDYvjY
 
 # POST http://localhost:3000/sell/GOOG HTTP/1.1
 # Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6W3sidXVpZCI6ImU5ZTQ5ZTczLTQxZmYtNDg5NC1hZDU4LTExMzljN2QwOWYwMCJ9XSwidXNlcm5hbWUiOiJ0ZXN0VXNlcm5hbWUiLCJpYXQiOjE3NTYzODg2MTcsImV4cCI6MTc1NjQ3NTAxN30.IEUmZTSlWE856sNx6oKiYwsQdOpnhVUhUbIhHNDYvjY
@@ -76,3 +76,5 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6W3sidXVpZCI6I
 #     "currency": "usd",
 #     "portfolio_uuid": "f9662e54-b24f-4799-9309-39fc6149f09e"
 # }
+
+# GET http://localhost:3000/sync HTTP/1.1

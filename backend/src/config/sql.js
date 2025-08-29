@@ -1,12 +1,18 @@
 const { Sequelize, DataTypes } = require("sequelize");
 require("dotenv").config();
 
-    const seq = new Sequelize('database', process.env.DB_USER, process.env.DB_PASSWORD, {
-        host: process.env.DB_HOST,
-        dialect: "mysql",
-        logging: false //Tell sequelize to STFU
-    });
+////////////////////////////////////////////////////////////
+/////////////All SQL database stuff stored here/////////////
+////////////////////////////////////////////////////////////
 
+//Initialise Sequelize
+const seq = new Sequelize('database', process.env.DB_USER, process.env.DB_PASSWORD, {
+    host: process.env.DB_HOST,
+    dialect: "mysql",
+    logging: false //Tell sequelize to **** (aka be quiet)
+});
+
+//Users table
 const Users = seq.define('user', {
     uuid: {
         type: DataTypes.UUID,
@@ -18,6 +24,14 @@ const Users = seq.define('user', {
         allowNull: false
     },
     password: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    fname: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    lname: {
         type: DataTypes.STRING,
         allowNull: false
     },
@@ -37,6 +51,7 @@ const Users = seq.define('user', {
     timestamps: false
 });
 
+//Portfolio Table
 const Portfolio = seq.define('portfolio', {
     uuid: {
         type: DataTypes.UUID,
@@ -78,6 +93,7 @@ const Portfolio = seq.define('portfolio', {
     timestamps: false
 });
 
+//Shares table
 const Shares = seq.define('shares', {
     id: {
         type: DataTypes.INTEGER,
@@ -134,6 +150,7 @@ const Shares = seq.define('shares', {
     timestamps: false
 });
 
+//Transaction log table
 const TransactionLog = seq.define('transaction_log', {
     id: {
         type: DataTypes.INTEGER,
