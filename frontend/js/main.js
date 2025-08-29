@@ -304,7 +304,8 @@ document.addEventListener("DOMContentLoaded", function () {
     {
       id: 1,
       name: "Tech Growth Portfolio",
-      description: "High-growth technology stocks focusing on innovation leaders like Apple, Google, Microsoft, and emerging tech companies.",
+      description:
+        "High-growth technology stocks focusing on innovation leaders like Apple, Google, Microsoft, and emerging tech companies.",
       totalValue: 125750.449,
       invested: 107500.45,
       returnAmount: 18249.999,
@@ -317,15 +318,16 @@ document.addEventListener("DOMContentLoaded", function () {
         "1W": 5.67,
         "1M": 12.45,
         "3M": 16.98,
-        "1Y": 24.67
-      }
+        "1Y": 24.67,
+      },
     },
     {
       id: 2,
       name: "Conservative Income",
-      description: "Stable dividend-paying stocks and bonds for steady income generation with minimal risk exposure.",
+      description:
+        "Stable dividend-paying stocks and bonds for steady income generation with minimal risk exposure.",
       totalValue: 42203.93,
-      invested: 38000.00,
+      invested: 38000.0,
       returnAmount: 4203.93,
       returnPercent: 11.06,
       riskProfile: "Conservative",
@@ -336,15 +338,16 @@ document.addEventListener("DOMContentLoaded", function () {
         "1W": 0.89,
         "1M": 2.34,
         "3M": 5.67,
-        "1Y": 11.06
-      }
+        "1Y": 11.06,
+      },
     },
     {
       id: 3,
       name: "Balanced Growth",
-      description: "Mix of growth and value stocks across different sectors for balanced risk-adjusted returns.",
+      description:
+        "Mix of growth and value stocks across different sectors for balanced risk-adjusted returns.",
       totalValue: 78425.67,
-      invested: 72000.00,
+      invested: 72000.0,
       returnAmount: 6425.67,
       returnPercent: 8.92,
       riskProfile: "Moderate",
@@ -355,76 +358,14 @@ document.addEventListener("DOMContentLoaded", function () {
         "1W": 2.45,
         "1M": 5.67,
         "3M": 7.89,
-        "1Y": 8.92
-      }
-    }
+        "1Y": 8.92,
+      },
+    },
   ];
 
   function updatePageTitle(page) {
-    const pageTitles = {
-      dashboard: "Dashboard",
-      stocks: "Stocks",
-      portfolios: "Portfolios",
-      holdings: "Holdings",
-      transactions: "Transactions",
-    };
-    greeting.textContent = `Hello {firstName} - ${
-      pageTitles[page] || "Dashboard"
-    }`;
-  }
-
-  function renderStockResults(searchTerm = "") {
-    let filteredData = dummyStockData;
-    if (searchTerm) {
-      filteredData = dummyStockData.filter(
-        (stock) =>
-          stock.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          stock.symbol.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    filteredData = filteredData.slice(0, 10);
-
-    if (filteredData.length > 0) {
-      resultsContainer.style.display = "block";
-      resultsCount.textContent = `${filteredData.length} result${
-        filteredData.length !== 1 ? "s" : ""
-      }`;
-
-      tableBody.innerHTML = filteredData
-        .map(
-          (stock) => `
-        <tr class="stock-row">
-          <td class="stock-name">
-            <div class="stock-info">
-              <span class="stock-symbol">${stock.symbol}</span>
-              <span class="stock-company">${stock.name}</span>
-            </div>
-          </td>
-          <td class="stock-value">$${stock.value.toFixed(2)}</td>
-          <td class="stock-change ${
-            stock.change >= 0 ? "positive" : "negative"
-          }">
-            ${stock.change >= 0 ? "+" : ""}${stock.change.toFixed(2)}
-          </td>
-          <td class="stock-percent ${
-            stock.changePercent >= 0 ? "positive" : "negative"
-          }">
-            ${stock.changePercent >= 0 ? "+" : ""}${stock.changePercent.toFixed(
-            2
-          )}%
-          </td>
-          <td class="stock-open">$${stock.open.toFixed(2)}</td>
-          <td class="stock-high">$${stock.high.toFixed(2)}</td>
-          <td class="stock-low">$${stock.low.toFixed(2)}</td>
-          <td class="stock-prev">$${stock.prev.toFixed(2)}</td>
-        </tr>
-      `
-        )
-        .join("");
-    } else {
-      resultsContainer.style.display = "none";
-    }
+    const firstName = getDisplayFirstName();
+    greeting.textContent = firstName ? `Hello ${firstName}` : "Hello";
   }
 
   function renderPortfolios() {
@@ -438,7 +379,9 @@ document.addEventListener("DOMContentLoaded", function () {
           <div class="portfolio-card-header">
             <div class="portfolio-info">
               <h3 class="portfolio-name">${portfolio.name}</h3>
-              <span class="portfolio-risk ${portfolio.riskProfile.toLowerCase()}">${portfolio.riskProfile}</span>
+              <span class="portfolio-risk ${portfolio.riskProfile.toLowerCase()}">${
+          portfolio.riskProfile
+        }</span>
             </div>
             <div class="portfolio-menu">
               <button class="portfolio-menu-btn">⋯</button>
@@ -452,14 +395,28 @@ document.addEventListener("DOMContentLoaded", function () {
           <div class="portfolio-value">
             <div class="current-value">
               <span class="value-label">Total Value</span>
-              <span class="value-amount">$${portfolio.totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span class="value-amount">$${portfolio.totalValue.toLocaleString(
+                "en-US",
+                { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+              )}</span>
             </div>
             <div class="return-info">
-              <span class="return-amount ${portfolio.returnPercent >= 0 ? 'positive' : 'negative'}">
-                ${portfolio.returnPercent >= 0 ? '+' : ''}$${portfolio.returnAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <span class="return-amount ${
+                portfolio.returnPercent >= 0 ? "positive" : "negative"
+              }">
+                ${
+                  portfolio.returnPercent >= 0 ? "+" : ""
+                }$${portfolio.returnAmount.toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}
               </span>
-              <span class="return-percent ${portfolio.returnPercent >= 0 ? 'positive' : 'negative'}">
-                ${portfolio.returnPercent >= 0 ? '+' : ''}${portfolio.returnPercent.toFixed(2)}%
+              <span class="return-percent ${
+                portfolio.returnPercent >= 0 ? "positive" : "negative"
+              }">
+                ${
+                  portfolio.returnPercent >= 0 ? "+" : ""
+                }${portfolio.returnPercent.toFixed(2)}%
               </span>
             </div>
           </div>
@@ -471,7 +428,10 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
             <div class="stat-item">
               <span class="stat-label">Invested</span>
-              <span class="stat-value">$${portfolio.invested.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span class="stat-value">$${portfolio.invested.toLocaleString(
+                "en-US",
+                { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+              )}</span>
             </div>
           </div>
           
@@ -482,10 +442,16 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
             <div class="performance-chart">
               <div class="chart-placeholder">
-                <div class="chart-line ${portfolio.performance['1M'] >= 0 ? 'positive' : 'negative'}"></div>
+                <div class="chart-line ${
+                  portfolio.performance["1M"] >= 0 ? "positive" : "negative"
+                }"></div>
               </div>
-              <span class="performance-value ${portfolio.performance['1M'] >= 0 ? 'positive' : 'negative'}">
-                ${portfolio.performance['1M'] >= 0 ? '+' : ''}${portfolio.performance['1M']}%
+              <span class="performance-value ${
+                portfolio.performance["1M"] >= 0 ? "positive" : "negative"
+              }">
+                ${portfolio.performance["1M"] >= 0 ? "+" : ""}${
+          portfolio.performance["1M"]
+        }%
               </span>
             </div>
           </div>
@@ -525,7 +491,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     modalCloseBtn?.addEventListener("click", hideModal);
     cancelBtn?.addEventListener("click", hideModal);
-    
+
     modalOverlay.addEventListener("click", (e) => {
       if (e.target === modalOverlay) {
         hideModal();
@@ -535,7 +501,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Handle form submission
     portfolioForm?.addEventListener("submit", (e) => {
       e.preventDefault();
-      
+
       const formData = new FormData(portfolioForm);
       const newPortfolio = {
         id: portfoliosData.length + 1,
@@ -547,14 +513,14 @@ document.addEventListener("DOMContentLoaded", function () {
         returnAmount: 0,
         returnPercent: 0,
         holdings: 0,
-        lastUpdated: new Date().toISOString().split('T')[0],
+        lastUpdated: new Date().toISOString().split("T")[0],
         performance: {
           "1D": 0,
           "1W": 0,
           "1M": 0,
           "3M": 0,
-          "1Y": 0
-        }
+          "1Y": 0,
+        },
       };
 
       portfoliosData.push(newPortfolio);
@@ -570,8 +536,67 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // If stocks page, set up search functionality
       if (page === "stocks") {
+        // Get elements AFTER the page HTML is loaded
+        const resultsContainer = document.getElementById("stocks-results");
+        const tableBody = document.getElementById("stocks-table-body");
+        const resultsCount = document.getElementById("results-count");
         const searchInput = document.getElementById("stock-search-input");
         const searchBtn = document.getElementById("stock-search-btn");
+
+        // Updated renderStockResults function with proper element access
+        function renderStockResults(searchTerm = "") {
+          let filteredData = dummyStockData;
+          if (searchTerm) {
+            filteredData = dummyStockData.filter(
+              (stock) =>
+                stock.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                stock.symbol.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+          }
+
+          filteredData = filteredData.slice(0, 10);
+
+          if (filteredData.length > 0) {
+            resultsContainer.style.display = "block";
+            resultsCount.textContent = `${filteredData.length} result${
+              filteredData.length !== 1 ? "s" : ""
+            }`;
+
+            tableBody.innerHTML = filteredData
+              .map(
+                (stock) => `
+              <tr class="stock-row">
+                <td class="stock-name">
+                  <div class="stock-info">
+                    <span class="stock-symbol">${stock.symbol}</span>
+                    <span class="stock-company">${stock.name}</span>
+                  </div>
+                </td>
+                <td class="stock-value">$${stock.value.toFixed(2)}</td>
+                <td class="stock-change ${
+                  stock.change >= 0 ? "positive" : "negative"
+                }">
+                  ${stock.change >= 0 ? "+" : ""}${stock.change.toFixed(2)}
+                </td>
+                <td class="stock-percent ${
+                  stock.changePercent >= 0 ? "positive" : "negative"
+                }">
+                  ${
+                    stock.changePercent >= 0 ? "+" : ""
+                  }${stock.changePercent.toFixed(2)}%
+                </td>
+                <td class="stock-open">$${stock.open.toFixed(2)}</td>
+                <td class="stock-high">$${stock.high.toFixed(2)}</td>
+                <td class="stock-low">$${stock.low.toFixed(2)}</td>
+                <td class="stock-prev">$${stock.prev.toFixed(2)}</td>
+              </tr>
+            `
+              )
+              .join("");
+          } else {
+            resultsContainer.style.display = "none";
+          }
+        }
 
         function performSearch() {
           const searchTerm = searchInput.value.trim();
@@ -611,9 +636,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // Load dashboard by default
-  loadPage("dashboard");
-
   function showView(view) {
     if (loginSection)
       loginSection.style.display = view === "login" ? "block" : "none";
@@ -621,6 +643,12 @@ document.addEventListener("DOMContentLoaded", function () {
       registerSection.style.display = view === "register" ? "block" : "none";
     if (dashboardSection)
       dashboardSection.style.display = view === "dashboard" ? "block" : "none";
+
+    if (view === "login" || view === "register") {
+      document.body.classList.add("auth-page");
+    } else {
+      document.body.classList.remove("auth-page");
+    }
   }
 
   const API_BASE =
@@ -628,8 +656,145 @@ document.addEventListener("DOMContentLoaded", function () {
       ? "http://localhost:3000"
       : "";
 
-  const isAuthed = !!localStorage.getItem("token");
+  // Authentication
+  const AUTH_TOKEN_KEY = "auth_token";
+  const USER_DATA_KEY = "user_data";
+
+  function isAuthenticated() {
+    const token = sessionStorage.getItem(AUTH_TOKEN_KEY);
+    if (!token) return false;
+
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      const currentTime = Date.now() / 1000;
+      return payload.exp > currentTime;
+    } catch {
+      return false;
+    }
+  }
+
+  // Store authentication data
+  function storeAuthData(token, userData = null) {
+    sessionStorage.setItem(AUTH_TOKEN_KEY, token);
+    if (userData) {
+      sessionStorage.setItem(USER_DATA_KEY, JSON.stringify(userData));
+    }
+  }
+
+  // Clear authentication data
+  function clearAuthData() {
+    sessionStorage.removeItem(AUTH_TOKEN_KEY);
+    sessionStorage.removeItem(USER_DATA_KEY);
+  }
+
+  // Get stored user data
+  function getUserData() {
+    const userData = sessionStorage.getItem(USER_DATA_KEY);
+    return userData ? JSON.parse(userData) : null;
+  }
+
+  // Helpers for displaying user names
+  function capitalizeWord(str) {
+    if (!str || typeof str !== "string") return "";
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  }
+
+  function formatFullName(firstName, lastName) {
+    const parts = [];
+    if (firstName) parts.push(capitalizeWord(firstName));
+    if (lastName) parts.push(capitalizeWord(lastName));
+    return parts.join(" ");
+  }
+
+  function getDisplayFirstName() {
+    const userData = getUserData();
+    if (!userData) return "";
+    const first =
+      userData.firstName ||
+      userData.fName ||
+      userData.fname ||
+      userData.username ||
+      "";
+    return capitalizeWord(first);
+  }
+
+  // Get auth token for API requests
+  function getAuthToken() {
+    return sessionStorage.getItem(AUTH_TOKEN_KEY);
+  }
+
+  // Make authenticated API request
+  async function authenticatedFetch(url, options = {}) {
+    const token = getAuthToken();
+    if (!token) {
+      throw new Error("No authentication token");
+    }
+
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+      ...options.headers,
+    };
+
+    return fetch(url, { ...options, headers });
+  }
+
+  // Update user display in dashboard
+  function updateUserDisplay() {
+    const userData = getUserData();
+    if (userData) {
+      const greeting = document.querySelector(".greeting");
+      if (greeting) {
+        const firstName = getDisplayFirstName();
+        greeting.textContent = firstName ? `Hello ${firstName}` : "Hello";
+      }
+
+      // Update profile name
+      const profileName = document.querySelector(".profile-name");
+      if (profileName) {
+        const firstName =
+          userData.firstName || userData.fName || userData.fname;
+        const lastName = userData.lastName || userData.lName || userData.lname;
+        const hasAnyName = Boolean(firstName) || Boolean(lastName);
+        const fullName = hasAnyName
+          ? formatFullName(firstName, lastName)
+          : capitalizeWord(userData.username);
+        profileName.textContent = fullName;
+      }
+
+      // Update avatar initial
+      const avatar = document.querySelector(".avatar");
+      if (avatar) {
+        const firstName =
+          userData.firstName || userData.fName || userData.fname;
+        const initial = firstName
+          ? firstName.charAt(0).toUpperCase()
+          : userData.username.charAt(0).toUpperCase();
+        avatar.textContent = initial;
+      }
+    }
+  }
+
+  // Check authentication on page load and periodically
+  function checkAuthStatus() {
+    if (!isAuthenticated()) {
+      clearAuthData();
+      if (
+        document.getElementById("dashboard-section").style.display !== "none"
+      ) {
+        showView("login");
+      }
+    }
+  }
+
+  // Check auth status every 5 minutes
+  setInterval(checkAuthStatus, 5 * 60 * 1000);
+
+  const isAuthed = isAuthenticated();
   showView(isAuthed ? "dashboard" : "login");
+  if (isAuthed) {
+    loadPage("dashboard");
+  }
 
   const goToRegister = document.getElementById("go-to-register");
   if (goToRegister)
@@ -655,11 +820,12 @@ document.addEventListener("DOMContentLoaded", function () {
       loginErrorEl.textContent = "";
 
       const data = {
-        email: loginForm.email.value.trim(),
+        username: loginForm.username.value.trim(),
         password: loginForm.password.value,
       };
-      if (!data.email || !data.password) {
-        loginErrorEl.textContent = "Please enter email and password.";
+
+      if (!data.username || !data.password) {
+        loginErrorEl.textContent = "Please enter username and password.";
         loginErrorEl.hidden = false;
         return;
       }
@@ -676,12 +842,16 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!res.ok)
           throw new Error(payload.error || payload.message || "Login failed");
 
-        if (payload.token) localStorage.setItem("token", payload.token);
-        if (payload.user)
-          localStorage.setItem("user", JSON.stringify(payload.user));
-
-        showView("dashboard");
-        loadPage("dashboard");
+        if (payload.token) {
+          // Store user data for display
+          const userData = { username: data.username };
+          storeAuthData(payload.token, userData);
+          showView("dashboard");
+          loadPage("dashboard");
+          updateUserDisplay();
+        } else {
+          throw new Error("No token received");
+        }
       } catch (err) {
         loginErrorEl.textContent = err.message || "Login failed";
         loginErrorEl.hidden = false;
@@ -700,32 +870,42 @@ document.addEventListener("DOMContentLoaded", function () {
       registerErrorEl.hidden = true;
       registerErrorEl.textContent = "";
 
-      const data = {
-        name: registerForm.name.value.trim(),
-        email: registerForm.email.value.trim(),
-        password: registerForm.password.value,
-        confirmPassword: registerForm.confirmPassword.value,
-      };
+      // Collect form data
+      const firstName = registerForm.firstName.value.trim();
+      const lastName = registerForm.lastName.value.trim();
+      const username = registerForm.username.value.trim();
+      const password = registerForm.password.value;
+      const confirmPassword = registerForm.confirmPassword.value;
+
+      // Validation
       if (
-        !data.name ||
-        !data.email ||
-        !data.password ||
-        !data.confirmPassword
+        !firstName ||
+        !lastName ||
+        !username ||
+        !password ||
+        !confirmPassword
       ) {
         registerErrorEl.textContent = "All fields are required.";
         registerErrorEl.hidden = false;
         return;
       }
-      if (data.password.length < 6) {
+      if (password.length < 6) {
         registerErrorEl.textContent = "Password must be at least 6 characters.";
         registerErrorEl.hidden = false;
         return;
       }
-      if (data.password !== data.confirmPassword) {
+      if (password !== confirmPassword) {
         registerErrorEl.textContent = "Passwords do not match.";
         registerErrorEl.hidden = false;
         return;
       }
+
+      const data = {
+        username: username,
+        password: password,
+        fname: firstName,
+        lname: lastName,
+      };
 
       const btn = registerForm.querySelector('button[type="submit"]');
       btn.disabled = true;
@@ -738,17 +918,35 @@ document.addEventListener("DOMContentLoaded", function () {
         const payload = await res.json().catch(() => ({}));
         if (!res.ok)
           throw new Error(
-            payload.error || payload.message || "Register failed"
+            payload.error || payload.message || "Registration failed"
           );
 
-        if (payload.token) localStorage.setItem("token", payload.token);
-        if (payload.user)
-          localStorage.setItem("user", JSON.stringify(payload.user));
+        // After successful registration, automatically log in
+        const loginData = { username: username, password: password };
+        const loginRes = await fetch(`${API_BASE}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(loginData),
+        });
+        const loginPayload = await loginRes.json().catch(() => ({}));
 
-        showView("dashboard");
-        loadPage("dashboard");
+        if (loginRes.ok && loginPayload.token) {
+          // Store user data including firstName/lastName for future use
+          const userData = {
+            username: username,
+            firstName: firstName,
+            lastName: lastName,
+          };
+          storeAuthData(loginPayload.token, userData);
+          showView("dashboard");
+          loadPage("dashboard");
+          updateUserDisplay();
+        } else {
+          // Registration successful but auto-login failed, redirect to login
+          showView("login");
+        }
       } catch (err) {
-        registerErrorEl.textContent = err.message || "Register failed";
+        registerErrorEl.textContent = err.message || "Registration failed";
         registerErrorEl.hidden = false;
       } finally {
         btn.disabled = false;
@@ -761,12 +959,13 @@ document.addEventListener("DOMContentLoaded", function () {
   if (logoutLink) {
     logoutLink.addEventListener("click", (e) => {
       e.preventDefault();
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      clearAuthData();
       showView("login");
     });
   }
 
-  // Initial route: if authed show dashboard else login
-  showView("dashboard");
+  // Initial setup
+  if (isAuthed) {
+    updateUserDisplay();
+  }
 });
