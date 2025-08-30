@@ -11,5 +11,7 @@ Content-Type: application/json
 
 # {
 #     "username": "testUsername",
-#     "password": "testPassword"
+#     "password": "testPassword",
+#     "fname": "Bob",
+#     "lname": "McBobface"
 # }

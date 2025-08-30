@@ -1,4 +1,5 @@
 const sql = require("../config/sql");
+const bcrypt = require("bcrypt");
 
 /////////////////////////////////////////////////////////////
 //These handle all model functions related to authenticaion//
@@ -32,7 +33,11 @@ async function createUser(user) {
     @return {object} - An array of all user objects
 */
 async function getAllUsers() {
-    return await (sql.Users).findAll();
+    try {
+        return await (sql.Users).findAll();
+    } catch(err) {
+        console.error("Error getting all users: ", err);
+    }
 }
 
 /*
@@ -41,10 +46,24 @@ async function getAllUsers() {
     @return {object} - An array containing the user object if found, empty array if not
 */
 async function verifyLogin(user) {
-    return await (sql.Users).findAll({
-        attributes: ['uuid'],
-        where: {username: user.username, password: user.password}
-    });
+    try {
+        //Get user with username
+        const userFind = await (sql.Users).findOne({
+            where: {username: user.username}
+        });
+        try {
+            //Verify unhased password
+            const isMatch = await bcrypt.compare(user.password, userFind.password);
+            if (!isMatch) {
+                return;
+            }
+        } catch(err) {
+            console.error("Error checking password: ", err);
+        }
+        return userFind.uuid;
+    } catch(err) {
+        console.error("Error verifying user: ", err);
+    }
 }
 
 module.exports = {

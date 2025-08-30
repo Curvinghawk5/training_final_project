@@ -19,7 +19,7 @@ function authenticateToken(req, res, next) {
         if(err) return res.status(401).json({error: "Invalid token"});
 
         req.user = user;
-        req.user.uuid = user.id[0].uuid;    //Get the users uuid to make easier to use
+        req.user.uuid = user.id    //Get the users uuid to make easier to use
         next();
     });
 }

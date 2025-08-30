@@ -4,7 +4,7 @@
 
 # GET http://localhost:3000/search/news/Nvidia HTTP/1.1
 
-GET http://localhost:3000/search/financial/APPL HTTP/1.1
+# GET http://localhost:3000/search/financial/APPL HTTP/1.1
 
 # GET http://localhost:3000/convert HTTP/1.1
 
@@ -37,3 +37,12 @@ GET http://localhost:3000/search/financial/APPL HTTP/1.1
 
 # GET http://localhost:3000/user/portfolio HTTP/1.1
 # Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6W3sidXVpZCI6IjQ4YjZjMjRiLTgyODQtNGZiZS1iMGIyLTJiMDJkMDQ4NDZiYSJ9XSwidXNlcm5hbWUiOiJ0ZXN0VXNlcm5hbWUiLCJpYXQiOjE3NTYzMDc2MTMsImV4cCI6MTc1NjMxMTIxM30.vzIeHmrwltaq3l1VBl-U_qcAg6JJLoxFeqa3f8A44ww
+
+POST http://localhost:3000/user/portfolio HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjFjYjA1ZWU0LWI2ZDYtNDM0Yy05ZGNhLTZkMjYzYzllZDE5OSIsInVzZXJuYW1lIjoidGVzdFVzZXJuYW1lIiwiaWF0IjoxNzU2NTY5Mzg2LCJleHAiOjE3NTY2NTU3ODZ9.cFMIQdiuQ_D-JVZ_4YgFka7bH0IkVc4EVb9NIqPiCCc
+Content-Type: application/json
+
+{
+    "name": "TestPortfolio",
+    "isDefault": ""
+}
