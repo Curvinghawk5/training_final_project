@@ -19,6 +19,7 @@ async function getFirstName(uuid) {
         });
     } catch (err) {
         console.error("Error getting first name: ", err)
+        return;
     }
 }
 
@@ -35,6 +36,7 @@ async function getLastName(uuid) {
         });
     } catch (err) {
         console.error("Error getting last name: ", err)
+        return;
     }
 }
 
@@ -51,6 +53,7 @@ async function getFullName(uuid) {
         });
     } catch (err) {
         console.error("Error getting full name: ", err)
+        return;
     }
 }
 
@@ -78,12 +81,18 @@ async function spendMoney(amount, uuid) {
         money -= amount;
 
         //Update money
-        return await (sql.Users).update(
-            { money: money },
-            { where: {uuid: uuid} }
-        );
+        try {
+            return await (sql.Users).update(
+                { money: money },
+                { where: {uuid: uuid} }
+            );
+        } catch (err) {
+            console.error("Error updating money:", err);
+            return;
+        }
     } catch (err) {
         console.error("Error spending money:", err);
+        return;
     }
 }
 
@@ -106,12 +115,18 @@ async function gainMoney(amount, uuid) {
         money += amount;
 
         //Update money
-        return await (sql.Users).update(
-            { money: money },
-            { where: {uuid: uuid} }
-        );
+        try {
+            return await (sql.Users).update(
+                { money: money },
+                { where: {uuid: uuid} }
+            );
+        } catch (err) {
+            console.error("Error updating money:", err);
+            return;
+        }
     } catch (err) {
         console.error("Error spending money:", err);
+        return;
     }
 }
 
@@ -132,7 +147,8 @@ async function getBalance(uuid) {
             where: {uuid: uuid}
         });
     } catch (err) {
-        console.error("Error getting balance: ", err)
+        console.error("Error getting balance: ", err);
+        return;
     }
 }
 
@@ -152,6 +168,7 @@ async function getAllShares(owner_uuid, portfolio_uuid) {
             });
         } catch (err) {
             console.error("Error getting portfolio shares: ", err);
+            return;
         }
     }
     //Get all shares in a portfolio
@@ -162,6 +179,7 @@ async function getAllShares(owner_uuid, portfolio_uuid) {
             });
         } catch (err) {
             console.error("Error getting all users shares: ", err);
+            return;
         }
     }
 }
@@ -178,6 +196,7 @@ async function getAllLogs(owner_uuid) {
         });
     } catch (err) {
         console.error("Error getting transaction logs: ", err);
+        return;
     }
 }
 
@@ -187,11 +206,17 @@ async function getAllLogs(owner_uuid) {
     @returns {Promise<string>} - The user's preferred currency UUID
 */
 async function getUserPreferedCurrencyUUID(uuid) {
-    let user = await (sql.Users).findOne({
-        attributes: ['prefered_currency'],
-        where: {uuid : uuid}
-    });
-    return user.prefered_currency;
+    try {
+        let user = await (sql.Users).findOne({
+            attributes: ['prefered_currency'],
+            where: {uuid : uuid}
+        });
+        return user.prefered_currency;
+    }
+    catch (err) {
+        console.error("Error getting user's prefered currency: ", err);
+        return;
+    }
 }
 
 module.exports = {

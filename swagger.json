@@ -1,8 +1,8 @@
 {
     "openapi": "3.0.3",
     "info": {
-        "title": "Numberboxd",
-        "description": "B-TEC Letterboxd",
+        "title": "Crownline",
+        "description": "Crownline Stock API - Provides stock prices, company search, news articles, and financial data.",
         "version": "0.0.1"
     },
     "components": {

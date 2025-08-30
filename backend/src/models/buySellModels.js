@@ -25,6 +25,7 @@ async function getUserMoney(uuid) {
     }
     catch (err) {
         console.error("Error getting user money:", err);
+        return;
     }
 }
 
@@ -47,10 +48,11 @@ async function verifyStock(tag, uuid, portfolio_uuid) {
             where: {owner_uuid: uuid, tag: tag, portfolio_uuid: portfolio_uuid}
         });
         //Return result
-        if(stock) return true;
+        if(stock.length > 0) return true;
         else return false;
     } catch (err) {
         console.error("Error getting portfolios:", err);
+        return;
     }
 }
 
@@ -72,7 +74,6 @@ async function verifyStockPrice(tag, uuid, portfolio_uuid, amount) {
         });
         //Verify amount currently owned
         if( amount > stockPrice) {
-            console.log("Amount trying to sell is greater than amount owned, Adjusting...");
             return stockPrice;
         }
         else {
@@ -80,6 +81,7 @@ async function verifyStockPrice(tag, uuid, portfolio_uuid, amount) {
         }
     } catch (err) {
         console.error("Error verifying price: ", err);
+        return;
     }
 }
 
@@ -100,15 +102,16 @@ async function verifyStockAmount(tag, uuid, portfolio_uuid, amount) {
             where: {owner_uuid: uuid, tag: tag, portfolio_uuid: portfolio_uuid}
         });
         //Verify amount currently owned
-        if( amount > stockAmount) {
+        if( amount > stockAmount.amount_owned) {
             console.log("Amount trying to sell is greater than amount owned, Adjusting...");
-            return stockAmount;
+            return stockAmount.amount_owned;
         }
         else {
             return amount;
         }
     } catch (err) {
         console.error("Error verifying amount: ", err);
+        return;
     }
 }
 
@@ -148,13 +151,16 @@ async function buyStock(tag, cost, amount, owner_uuid, portfolio_uuid) {
                     return await middlewareModels.updatePortfolioValue(stock.portfolio_uuid);
                 } catch (err) {
                     console.error("Error updating portfolio: ", err);
+                    return;
                 }
             } catch (err) {
                 console.error("Error updating shares tables: ", err);
+                return;
             }
         }
     } catch(err) {
         console.error("Error buying more stocks: ", err);
+        return;
     }
     //User does not already own that stock
     try {
@@ -177,6 +183,7 @@ async function buyStock(tag, cost, amount, owner_uuid, portfolio_uuid) {
         return await (sql.Shares).create(share);
     } catch (err) {
         console.error("Error buying share:", err);
+        return;
     }
 }
 
@@ -221,6 +228,7 @@ async function sellStock(tag, uuid, portfolio_uuid, stockAmount) {
         }
     } catch (err) {
         console.error("Error verifying amount: ", err);
+        return;
     }
 }
 
@@ -257,7 +265,13 @@ async function logTransaction(sell, amount, stockAmount, price_per, currency, ta
         portfolio_uuid: portfolio_uuid,
         owner_uuid: owner_uuid
     };
-    return await (sql.TransactionLog).create(newLog);
+    try {
+        return await (sql.TransactionLog).create(newLog);
+    }
+    catch (err) {
+        console.error("Error logging transaction: ", err);
+        return;
+    }
 }
 
 module.exports = {

@@ -22,9 +22,11 @@ async function createUser(user) {
         }
         else{
             console.error("User of that username already exists");
+            return;
         }
     } catch(err) {
-        console.error("Error regisetering user");
+        console.error("Error registering user: ", err);
+        return;
     }
 }
 
@@ -37,6 +39,7 @@ async function getAllUsers() {
         return await (sql.Users).findAll();
     } catch(err) {
         console.error("Error getting all users: ", err);
+        return;
     }
 }
 
@@ -59,10 +62,12 @@ async function verifyLogin(user) {
             }
         } catch(err) {
             console.error("Error checking password: ", err);
+            return;
         }
         return userFind.uuid;
     } catch(err) {
         console.error("Error verifying user: ", err);
+        return;
     }
 }
 

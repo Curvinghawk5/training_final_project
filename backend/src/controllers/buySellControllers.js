@@ -25,28 +25,46 @@ async function buyStocks(req, res) {
     var {stockAmount, priceAmount, currency, portfolio_uuid} = req.body;    //Get other info
     //Validate info (can have EITHER stock amount to buy or price to buy)
     if((stockAmount && priceAmount) || (!stockAmount && !priceAmount)) {
-        res.status(400).json({message: "Please input either stock amount or price amount"});
+        res.status(400).json({error: "Please input either stock amount or price amount"});
+        return;
     }
     //Verify the user actually has a protfolio to buy to
     try {
         if(!(await portfolioModel.hasAPortfolio(owner_uuid))) {
-            res.status(400).json({message: "No portfolio!"});
+            res.status(400).json({error: "No portfolio!"});
+            return;
         }
     } catch (err) {
-        res.status(500).json({error: err});
-        console.log("Error getting portfolios");
+        res.status(500).json({error: "Internal Server Error"});
+        console.log("Error getting portfolios: ", err);
+        return;
     }
     //Get financial info from Yahoo
-    const result = await YahooFinance.quote(tag);
-    const searchResult = await YahooFinance.search(tag);
+    let result;
+    let searchResult;
+    try {
+        result = await YahooFinance.quote(tag);
+    } catch (err) {
+        res.status(500).json({error: "Internal Server Error"});
+        console.log("Error getting stock info: ", err);
+        return;
+    }
+    try {
+        searchResult = await YahooFinance.search(tag);
+    } catch (err) {
+        res.status(500).json({error: "Internal Server Error"});
+        console.log("Error getting stock info: ", err);
+        return;
+    }
 
     //If no portfolio defined, get default one
     if(!portfolio_uuid || portfolio_uuid == "") {
         try {
             portfolio_uuid = await portfolioModel.getDefaultPortfolio(owner_uuid)
         } catch (err) {
-            res.status(500).json({error: err});
-            console.log("Error getting portfolios");
+            res.status(500).json({error: "Internal Server Error"});
+            console.log("Error getting portfolios: ", err);
+            return;
         }
     }
 
@@ -68,7 +86,8 @@ async function buyStocks(req, res) {
     }
     //Check the user has enough money to buy it
     if(priceAmount > await buySellModel.getUserMoney(owner_uuid)) {
-        res.status(400).json({message: "Not enough money"});
+        res.status(400).json({error: "Not enough money"});
+        return;
     }
 
     try {
@@ -81,13 +100,15 @@ async function buyStocks(req, res) {
             const log = await buySellModel.logTransaction(false, priceAmount, stockAmount, stockPrice, currency, tag, portfolio_uuid, owner_uuid);
             res.status(200).json({message: `Bought ${stockAmount} shares for ${priceAmount} ${currency} of ${searchResult.quotes[0].shortname} at ${stockPrice} ${currency} per share`});
         } catch (err) {
-            res.status(500).json({error: err});
-            console.log("Unable to spend money", err);
+            res.status(500).json({error: "Internal Server Error"});
+            console.log("Unable to spend money: ", err);
+            return;
         }
     }   
     catch (err) {
-        res.status(500).json({error: err});
-        console.log("Unable to buy stocks", err);
+        res.status(500).json({error: "Internal Server Error"});
+        console.log("Unable to buy stocks: ", err);
+        return;
     }
 }
 
@@ -109,20 +130,38 @@ async function sellStocks(req, res) {
 
     //Validate info (can have EITHER stock amount to buy or price to buy)
     if((stockAmount && priceAmount) || (!stockAmount && !priceAmount)) {
-        res.status(400).json({message: "Please input either stock amount or price amount"});
+        res.status(400).json({error: "Please input either stock amount or price amount"});
+        return;
     }
     //Verify the user actually has a protfolio to sell from
     try {
-        if(!await portfolioModel.hasAPortfolio(owner_uuid)) {
-            res.status(400).json({message: "No portfolio!"});
+        const hasPortfolio = await portfolioModel.hasAPortfolio(owner_uuid);
+        if(!hasPortfolio) {
+            res.status(400).json({error: "No portfolio!"});
+            return;
         }
     } catch (err) {
-        res.status(500).json({error: err});
-        console.log("Error getting portfolios");
+        res.status(500).json({error: "Internal Server Error"});
+        console.log("Error getting portfolios: ", err);
+        return;
     }
     //Get financial info from Yahoo
-    const result = await YahooFinance.quote(tag);
-    const searchResult = await YahooFinance.search(tag);
+    let result;
+    let searchResult;
+    try {
+        result = await YahooFinance.quote(tag);
+    } catch (err) {
+        res.status(500).json({error: "Internal Server Error"});
+        console.log("Error getting stock info: ", err);
+        return;
+    }
+    try {
+        searchResult = await YahooFinance.search(tag);
+    } catch (err) {
+        res.status(500).json({error: "Internal Server Error"});
+        console.log("Error getting stock info: ", err);
+        return;
+    }
 
     //If portfolio not defined
     if(!portfolio_uuid || portfolio_uuid == "") {
@@ -130,24 +169,32 @@ async function sellStocks(req, res) {
         try {
             let portfolios = await portfolioModel.findStocksPortfolio(tag, owner_uuid);
             if(portfolios.length > 1) {
-                res.status(400).json({message: "Stock is in multiple portfolios, please specify"})
+                res.status(400).json({error: "Stock is in multiple portfolios, please specify"})
+                return;
+            }
+            else if(portfolios.length == 0) {
+                res.status(400).json({error: "Stock not found in any portfolio"})
+                return;
             }
             //Only in one portfolio then we can use that
             portfolio_uuid = portfolios[0];
         } catch (err) {
-            res.status(500).json({error: err});
-            console.log("Error getting portfolios");
+            res.status(500).json({error: "Internal Server Error"});
+            console.log("Error getting portfolios: ", err);
+            return;
         }
     }
 
     //Double validation, make sure that the stock is indeed in the portfolio (in case the user defined the portfolio)
     try {
         if(!(await buySellModel.verifyStock(tag, owner_uuid, portfolio_uuid))) {
-            res.status(400).json({message: "Unable to verify stock"})
+            res.status(400).json({error: "Unable to verify stock"})
+            return;
         }
     } catch (err) {
-         res.status(500).json({error: err});
-        console.log("Error verifying stocks");
+         res.status(500).json({error: "Internal Server Error"});
+        console.log("Error verifying stocks: ", err);
+        return;
     }
 
     let stockPrice = result.bid;                        //Get stocks current sell price
@@ -164,8 +211,9 @@ async function sellStocks(req, res) {
         try {
             stockAmount = await buySellModel.verifyStockAmount(tag, owner_uuid, portfolio_uuid, stockAmount);
         } catch (err) {
-            res.status(500).json({error: err})
-            console.log("Error verifying stock amount")
+            res.status(500).json({error: "Internal Server Error"});
+            console.log("Error verifying stock amount: ", err);
+            return;
         }
         priceAmount = stockPrice * stockAmount;
     }
@@ -175,8 +223,9 @@ async function sellStocks(req, res) {
         try {
             priceAmount = await buySellModel.verifyStockPrice(tag, owner_uuid, portfolio_uuid, priceAmount);
         } catch (err) {
-            res.status(500).json({error: err})
-            console.log("Error verifying price amount")
+            res.status(500).json({error: "Internal Server Error"});
+            console.log("Error verifying price amount: ", err);
+            return;
         }
         stockAmount = priceAmount / stockPrice;
     }
@@ -191,13 +240,15 @@ async function sellStocks(req, res) {
             const log = await buySellModel.logTransaction(true, priceAmount, stockAmount, stockPrice, currency, tag, portfolio_uuid, owner_uuid);
             res.status(200).json({message: `Sold ${stockAmount} shares for ${priceAmount} ${currency} of ${searchResult.quotes[0].shortname} at ${stockPrice} ${currency} per share`});
         } catch (err) {
-            res.status(500).json({error: err});
-            console.log("Unable to gain money", err);
+            res.status(500).json({error: "Internal Server Error"});
+            console.log("Unable to gain money: ", err);
+            return;
         }
     }   
     catch (err) {
-        res.status(500).json({error: err});
-        console.log("Unable to sell stocks", err);
+        res.status(500).json({error: "Internal Server Error"});
+        console.log("Unable to sell stocks: ", err);
+        return;
     }
 }
 

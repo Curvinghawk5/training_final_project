@@ -1,5 +1,5 @@
 const { Sequelize, DataTypes } = require("sequelize");
-require("dotenv").config();
+require('dotenv').config({ quiet: true });
 const bcrypt = require("bcrypt");
 
 ////////////////////////////////////////////////////////////

@@ -24,7 +24,7 @@ async function convertCurrency(amount, current, target) {
         return returnAmount;
     } catch (err) {
         console.log('Error:', err);
-        return null;
+        return;
     }
 }
 
@@ -32,11 +32,31 @@ async function convertCurrency(amount, current, target) {
     Completly cleans all of the databases
 */
 async function cleanDb() {
-    await sql.Users.destroy({ where: {}, truncate: true });
-    await sql.Portfolio.destroy({ where: {}, truncate: true });
-    await sql.Shares.destroy({ where: {}, truncate: true });
-    await sql.TransactionLog.destroy({ where: {}, truncate: true });
-    console.log("All tables cleaned!");
+    try {
+        await (sql.Users).destroy({ where: {}, truncate: true });
+    } catch (err) {
+        console.error("Unable to clean Users table", err);
+        return;
+    }
+    try {
+        await (sql.Portfolio).destroy({ where: {}, truncate: true });
+    } catch (err) {
+        console.error("Unable to clean Portfolio table", err);
+        return;
+    }
+    try {
+        await (sql.Shares).destroy({ where: {}, truncate: true });
+    } catch (err) {
+        console.error("Unable to clean Shares table", err);
+        return;
+    }
+    try {
+        await (sql.TransactionLog).destroy({ where: {}, truncate: true });
+    } catch (err) {
+        console.error("Unable to clean TransactionLog table", err);
+        return;
+    }
+    return;
 }
 
 
@@ -58,11 +78,25 @@ async function updateShareValue(share_id){
         });
     } catch(err) {
         console.error("Unable to get stock", err);
+        return;
     }
     
     //Get up to date info
-    const result = await YahooFinance.quote(share.tag);
-    const userCurrency = await userModels.getUserPreferedCurrencyUUID(share.owner_uuid);
+    let result;
+    let userCurrency;
+    try {
+        result = await YahooFinance.quote(share.tag);
+    } catch(err) {
+        console.error("Error getting stock info from Yahoo: ", err);
+        return;
+    }
+
+    try {
+        userCurrency = await userModels.getUserPreferedCurrencyUUID(share.owner_uuid);
+    } catch(err) {
+        console.error("Error getting users prefered currency: ", err);
+        return;
+    }
 
     //Get currency and buy and sell prices
     let buyCurrency = (result.currency).toLowerCase()
@@ -72,8 +106,18 @@ async function updateShareValue(share_id){
     //Convert currency if needed
     if(buyCurrency != userCurrency)
     {
-       ask = await convertCurrency(ask, buyCurrency, userCurrency);
-       bid = await convertCurrency(bid, buyCurrency, userCurrency);
+        try {
+            ask = await convertCurrency(ask, buyCurrency, userCurrency);
+        } catch(err) {
+            console.error("Error converting ask currency: ", err);
+            return;
+        }
+        try {
+            bid = await convertCurrency(bid, buyCurrency, userCurrency);
+        } catch(err) {
+            console.error("Error converting bid currency: ", err);
+            return;
+        }
        share.total_invested = await convertCurrency(share.total_invested, buyCurrency, userCurrency);
     }
 
@@ -88,6 +132,7 @@ async function updateShareValue(share_id){
     }
     catch(err) {
         console.error("Error updating share: ", err);
+        return;
     }
 }
 
@@ -108,7 +153,13 @@ async function updatePortfolioValue(uuid) {
 
         //Update each share and add to the portfolio value
         for(let i = 0; i < shares.length; i++) {
-            let shareValue = await updateShareValue(shares[i].id);
+            let shareValue;
+            try {
+                shareValue = await updateShareValue(shares[i].id);
+            } catch (err) {
+                console.error("Error updating share value: ", err);
+                return;
+            }
             portValue += shareValue;
             portInvested += shares[i].total_invested;
         }
@@ -121,9 +172,11 @@ async function updatePortfolioValue(uuid) {
             );
         } catch (err) {
             console.error("Error updating portfolio table: ", err);
+            return;
         }
     } catch(err) {
         console.error("Error updating portfolio: ", err);
+        return;
     }
 }
 
@@ -140,10 +193,18 @@ async function updateOwnersPortfolios(uuid) {
         });
         //Update each portfolio
         for(let i = 0; i < portfolios.length; i++) {
-            return await updatePortfolioValue(portfolios[i].uuid);
+            let update;
+            try {
+                update = await updatePortfolioValue(portfolios[i].uuid);
+            } catch (err) {
+                console.error("Error updating portfolio value: ", err);
+                return;
+            }
         }
+        return;
     } catch (err) {
         console.error("Error updating users portfolios: ", err);
+        return;
     }
 }
 
@@ -157,11 +218,17 @@ async function updateAllStocks() {
         let users = await (sql.Users).findAll({});
         //Update each users portfolios
         for(let i = 0; i < users.length; i++) {
-            let update = await updateOwnersPortfolios(users[i].uuid);
+            let update;
+            try {
+                update = await updateOwnersPortfolios(users[i].uuid);
+            } catch (err) {
+                console.error("Error updating portfolio value: ", err);
+                return;
+            }
         }
     } catch(err) {
         console.error("Error updating stocks: ", err);
-        return false;
+        return;
     }
     return true;
 }
@@ -179,11 +246,12 @@ async function updatePreferredCurrency(preferedCurrency, uuid) {
         try {
            const rate = response.data[current][target];
         } catch(err) {
-           console.error("Invalid currency");
+           console.error("Invalid currency: ", err);
            return;
         }
     } catch(err) {
         console.error("Error getting new currency: ", err);
+        return;
     }
     try {
         //Update all shares to the new currency
@@ -193,6 +261,7 @@ async function updatePreferredCurrency(preferedCurrency, uuid) {
         );
     } catch(err) {
         console.error("Error updating shares preferred currency: ", err);
+        return;
     }
     try {
         //Update all portfolios to the new currency
@@ -203,6 +272,7 @@ async function updatePreferredCurrency(preferedCurrency, uuid) {
 
     } catch(err) {
         console.error("Error updating portfolio preferred currency: ", err);
+        return;
     }
     try {
         //Update the user to the new currency
@@ -212,6 +282,7 @@ async function updatePreferredCurrency(preferedCurrency, uuid) {
         );
     } catch(err) {
         console.error("Error updating users preferred currency: ", err);
+        return;
     }
     //Update all of the users portfolios to reflect the new currency
     return updateOwnersPortfolios(uuid);

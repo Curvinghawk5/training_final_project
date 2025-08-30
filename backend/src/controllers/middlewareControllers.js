@@ -17,8 +17,11 @@ async function convertCurrency(req, res) {
     try {
         let convertedAmount = await middlewareModel.convertCurrency(amount, fromCurrency, toCurrency);    //Convert currency
         res.status(200).json({amount: convertedAmount});
+        return;
     } catch (err) {
-        res.status(500).json({message: "Error converting currency", error: err.message});
+        res.status(500).json({error: "Internal Server Error"});
+        console.error("Error converting currency: ", err);
+        return;
     }
 }
 
@@ -35,8 +38,11 @@ async function cleanDB(req, res) {
         //Scrub it all
         await middlewareModel.cleanDb();
         res.status(200).json({message: "Database cleaned successfully"});
+        return;
     } catch (err) {
-        res.status(500).json({message: "Error cleaning database", error: err.message});
+        res.status(500).json({error: "Internal Server Error"});
+        console.error("Error cleaning database: ", err);
+        return;
     }
 }
 
@@ -50,8 +56,11 @@ async function updateAll(req, res) {
     try {
         let response = await middlewareModel.updateAllStocks();
         res.status(200).json(response);
+        return;
     } catch (err) {
-        res.status(500).json({message: "Error updating stocks", error: err.message});
+        res.status(500).json({error: "Internal Server Error"});
+        console.error("Error updating stocks: ", err);
+        return;
     }
 }
 

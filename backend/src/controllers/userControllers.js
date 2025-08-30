@@ -19,9 +19,12 @@ async function getFirstName(req, res) {
         //Get first name
         const firstName = await userModel.getFirstName(owner_uuid);
         res.status(200).json(firstName);
+        return;
     }
     catch (err) {
-        res.status(500).json({message: "Unable to get first name"});
+        res.status(500).json({error: "Internal Server Error"});
+        console.error("Error getting first name: ", err);
+        return;
     }
 }
 
@@ -37,9 +40,12 @@ async function getLastName(req, res) {
         //Get last name
         const lastName = await userModel.getLastName(owner_uuid);
         res.status(200).json(lastName);
+        return;
     }
     catch (err) {
-        res.status(500).json({message: "Unable to get last name"});
+        res.status(500).json({error: "Internal Server Error"});
+        console.error("Error getting last name: ", err);
+        return;
     }
 }
 
@@ -55,9 +61,12 @@ async function getFullName(req, res) {
         //Get full name
         const fullName = await userModel.getFullName(owner_uuid);
         res.status(200).json(fullName);
+        return;
     }
     catch (err) {
-        res.status(500).json({message: "Unable to get full name"});
+        res.status(500).json({error: "Internal Server Error"});
+        console.error("Error getting full name: ", err);
+        return;
     }
 }
 
@@ -78,9 +87,12 @@ async function depositMoney(req, res) {
         //Deposit the money
         const result = await userModel.gainMoney(amount, owner_uuid);
         res.status(200).json({message: "Money Deposited"});
+        return;
     }
     catch (err) {
-        res.status(500).json({message: "Unable to deposit money"});
+        res.status(500).json({error: "Internal Server Error"});
+        console.error("Error depositing money: ", err);
+        return;
     }
 }
 
@@ -98,9 +110,12 @@ async function withdrawMoney(req, res) {
         //Withdraw the money
         const result = await userModel.spendMoney(amount, owner_uuid);
         res.status(200).json({message: "Money Withdrawn"});
+        return;
     }
     catch (err) {
-        res.status(500).json({message: "Unable to withdraw money"});
+        res.status(500).json({error: "Internal Server Error"});
+        console.error("Error withdrawing money: ", err);
+        return;
     }
 }
 
@@ -116,9 +131,12 @@ async function getBalance(req, res) {
         //Get the balance
         const balance = await userModel.getBalance(owner_uuid);
         res.status(200).json(balance);
+        return;
     }
     catch (err) {
-            res.status(500).json({message: "Unable to get balance"})
+        res.status(500).json({error: "Internal Server Error"})
+        console.error("Error getting balance: ", err);
+        return;
     }
 }
 
@@ -136,11 +154,20 @@ async function getShares(req, res) {
     const portfolio_uuid = req.params.portfolio_uuid;   //Get portfolio uuid from params
     try {
         const update = await middlewareModel.updateOwnersPortfolios(owner_uuid);      //Make sure all shares are up to date
-        const result = await userModel.getAllShares(owner_uuid, portfolio_uuid)       //Get all shares
-        res.status(200).json(result);
+        try {
+            const result = await userModel.getAllShares(owner_uuid, portfolio_uuid)       //Get all shares
+            res.status(200).json(result);
+            return;
+        } catch (err) {
+            res.status(500).json({error: "Internal Server Error"})
+            console.error("Error getting shares: ", err);
+            return;
+        }
     }
     catch (err) {
-        res.status(500).json({message: "Unable to get shares"})
+        res.status(500).json({error: "Internal Server Error"})
+        console.error("Error updating portfolio: ", err);
+        return;
     }
 }
 
@@ -155,9 +182,12 @@ async function getLogs(req, res) {
     try {
         const logs = await userModel.getAllLogs(owner_uuid);
         res.status(200).json(logs);
+        return;
     }
     catch (err) {
-        res.status(500).json({message: "Unable to get logs"});
+        res.status(500).json({error: "Internal Server Error"});
+        console.error("Error getting logs: ", err);
+        return;
     }
 }
 
@@ -177,11 +207,13 @@ async function changePreferredCurrency(req, res) {
     const owner_uuid = req.user.uuid;
     const currency = req.body.currency;
     try {
-        const update = middlewareModel.updatePreferredCurrency(currency, owner_uuid);
+        const update = await middlewareModel.updatePreferredCurrency(currency, owner_uuid);
         res.status(200).json({message: "Updated Currency Successfully"});
+        return;
     } catch(err) {
-        res.status(500).json(err);
+        res.status(500).json({error: "Internal Server Error"});
         console.error("Error updaing currency");
+        return;
     }
 }
 

@@ -5,6 +5,16 @@ const swaggerUi = require("swagger-ui-express");
 const swaggerDoc = require("./swagger.json");
 const model = require("./backend/src/models/middlewareModels")
 
+//This is entirely to suppress yahoo-finance2 logging
+const YahooFinance = require("yahoo-finance2").default;
+const silentLogger = {
+  info: () => {},
+  warn: () => {},
+  error: () => {},
+  debug: () => {},
+};
+YahooFinance.setGlobalConfig({ logger: silentLogger });
+
 //Middleware to parse JSON bodies
 app.use(express.json());
 

@@ -17,9 +17,11 @@ async function getUsersPortfolio(req, res) {
         //Get portfolios
         const portfolios = await portfolioModel.getPortfolio(req.user);
         res.status(200).json(portfolios);
+        return;
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: "Internal Server Error" });
         console.error("Error returning users portfolios:", err);
+        return;
     }
 }
 
@@ -39,9 +41,11 @@ async function createPortfolio(req, res) {
         //Create the portfolio
         const result = await portfolioModel.createPortfolio(name, owner_uuid, prefered_currency, isDefault);
         res.status(201).json({message: "Portfolio Created"});
+        return;
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: "Internal Server Error" });
         console.error("Error creating portfolio: ", err);
+        return;
     }
 }
 
@@ -61,10 +65,12 @@ async function modifyPortfolio(req, res) {
         //Update portfolio
         const update = await portfolioModel.updatePortfolio(name, isDefault, portfolio_uuid, owner_uuid);
         res.status(200).json({message: "Portfolio updated successfully"});
+        return;
     }
     catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: "Internal Server Error" });
         console.error("Error updating portfolio: ", err);
+        return;
     }
 }
 
@@ -85,10 +91,14 @@ async function deletePortfolio(req, res) {
             await portfolioModel.deletePortfolio(portfolio_uuid, owner_uuid);
             res.status(200).json({message: "Portfolio deleted successfully"});
         }
-        else {res.status(400).json({message: "Portfolio is not empty"})};
+        else {
+            res.status(400).json({error: "Portfolio is not empty"});
+            return;
+        };
     } catch (err) {
-        res.status(500).json({ error: err.message });
-            console.error("Error deleteing portfolio: ", err);
+        res.status(500).json({ error: "Internal Server Error" });
+        console.error("Error deleteing portfolio: ", err);
+        return;
     }
 }
 
@@ -108,9 +118,11 @@ async function getPortfolioValue(req, res) {
         //Get portfolio value
         let value = await portfolioModel.getPortfolioValue(portfolio_uuid, owner_uuid);
         res.status(200).json({value: value});
+        return;
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: "Internal Server Error" });
         console.error("Error getting portfolio value:", err);
+        return;
     }
 }
 
@@ -128,9 +140,11 @@ async function getPortfolioReturn(req, res) {
         //Get portfolio return value
         let value = await portfolioModel.getPortfolioReturn(portfolio_uuid, owner_uuid);
         res.status(200).json({value: value});
+        return;
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: "Internal Server Error" });
         console.error("Error getting portfolio return:", err);
+        return;
     }
 }
 
@@ -148,9 +162,11 @@ async function getPortfolioReturnPercentage(req, res) {
         //Get portfolio return percentage
         let value = await portfolioModel.getPortfolioReturnPercentage(portfolio_uuid, owner_uuid);
         res.status(200).json({value: value});
+        return;
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: "Internal Server Error" });
         console.error("Error getting portfolio return percentage:", err);
+        return;
     }
 }
 module.exports = {

@@ -24,6 +24,7 @@ async function hasAPortfolio(uuid) {
         return true;
     } catch (err) {
         console.error("Error getting portfolios:", err);
+        return;
     }
 }
 
@@ -46,6 +47,7 @@ async function checkIfPortfolioEmpty(portfolio_uuid, owner_uuid) {
         return false;
     } catch (err) {
         console.error("Error getting shares:", err);
+        return;
     }
 }
 
@@ -66,6 +68,7 @@ async function getUserPreferedCurrency(user) {
         });
     } catch (err) {
         console.error("Error getting preffered currency:", err);
+        return;
     }
 }
 
@@ -83,6 +86,7 @@ async function getDefaultPortfolio(uuid) {
         return portfolio.uuid;
     } catch (err) {
         console.error("Error getting default portfolios:", err);
+        return;
     }
 }
 
@@ -104,6 +108,7 @@ async function findStocksPortfolio(tag, uuid) {
         });
     } catch (err) {
         console.error("Error getting portfolios:", err);
+        return;
     }
 }
 
@@ -120,6 +125,7 @@ async function clearDefaultPortfolio(owner_uuid) {
         );
     } catch (err) {
         console.error("Error clearing default portfolio:", err);
+        return;
     }
 }
 
@@ -135,10 +141,15 @@ async function clearDefaultPortfolio(owner_uuid) {
     @returns {Promise<Array>} - An array of portfolios
 */
 async function getPortfolio(user) {
-    //Finds it using the user object
-    return await (sql.Portfolio).findAll({
-        where: {owner_uuid: user.uuid}
-    });
+    try {
+        //Finds it using the user object
+        return await (sql.Portfolio).findAll({
+            where: {owner_uuid: user.uuid}
+        });
+    } catch (err) {
+        console.error("Error getting portfolios:", err);
+        return;
+    }
 }
 
 /*
@@ -147,10 +158,15 @@ async function getPortfolio(user) {
     @returns {Promise<Array>} - An array of portfolios
 */
 async function getPortfolioUUID(uuid) {
-    //Finds it using their UUID
-    return await (sql.Portfolio).findAll({
-        where: {owner_uuid: uuid}
-    });
+    try {
+        //Finds it using their UUID
+        return await (sql.Portfolio).findAll({
+            where: {owner_uuid: uuid}
+        });
+    } catch (err) {
+        console.error("Error getting portfolios:", err);
+        return;
+    }
 }
 
 /*
@@ -168,10 +184,16 @@ async function createPortfolio(name, owner_uuid, prefered_currency, isDefault) {
         //if this one is to be made default
         if(isDefault && portfolios.length > 0)
         {
-            await (sql.Portfolio).update(
-                { isDefault: false },
-                { where: { owner_uuid: owner_uuid } }
-            );
+            try {
+                await (sql.Portfolio).update(
+                    { isDefault: false },
+                    { where: { owner_uuid: owner_uuid } }
+                );
+            }
+            catch (err) {
+                console.error("Error clearing default portfolio:", err);
+                return;
+            }
         }
         //Set this one to default if there are no other
         else if(portfolios.length == 0 && !isDefault){
@@ -190,11 +212,15 @@ async function createPortfolio(name, owner_uuid, prefered_currency, isDefault) {
             prefered_currency: prefered_currency,
             is_default: isDefault
         };
-        return await (sql.Portfolio).create(newPortfolio);
-    } catch(err) {
-        {
-            console.error("Error finding user:", err);
+        try {
+            return await (sql.Portfolio).create(newPortfolio);
+        } catch (err) {
+            console.error("Error creating portfolio:", err);
+            return;
         }
+    } catch(err) {
+        console.error("Error finding user:", err);
+        return;
     }
 }
 
@@ -210,24 +236,35 @@ async function updatePortfolio(name, isDefault, portfolio_uuid, owner_uuid) {
     try {
         //If they want to change the name
         if(name) {
-            await (sql.Portfolio).update(
-                { name: name },
-                { where: [{ uuid: portfolio_uuid }, {owner_uuid: owner_uuid}] }
-            );
+            try {
+                await (sql.Portfolio).update(
+                    { name: name },
+                    { where: [{ uuid: portfolio_uuid }, {owner_uuid: owner_uuid}] }
+                );
+            } catch (err) {
+                console.error("Error updating portfolio name:", err);
+                return;
+            }
         }
         //If they want to change the default portfolio
         if(isDefault) {
             //Clear any existing default portfolio
             const clear = await clearDefaultPortfolio(owner_uuid);
-            await (sql.Portfolio).update(
-                { is_default: isDefault },
-                { where: [{ uuid: portfolio_uuid }, {owner_uuid: owner_uuid}] }
-            );
+            try {
+                await (sql.Portfolio).update(
+                    { is_default: isDefault },
+                    { where: [{ uuid: portfolio_uuid }, {owner_uuid: owner_uuid}] }
+                );
+            } catch (err) {
+                console.error("Error updating portfolio default:", err);
+                return;
+            }
         }
         return 1;
     }
     catch (err) {
         console.error("Error updating portfolio:", err);
+        return;
     }
 }  
 
@@ -238,9 +275,14 @@ async function updatePortfolio(name, isDefault, portfolio_uuid, owner_uuid) {
     @returns {Promise<Object>} - The deleted portfolio
 */
 async function deletePortfolio(portfolio_uuid, owner_uuid) {
-    return await (sql.Portfolio).destroy({
-        where: {owner_uuid: owner_uuid, uuid: portfolio_uuid}
-    });
+    try {
+        return await (sql.Portfolio).destroy({
+            where: {owner_uuid: owner_uuid, uuid: portfolio_uuid}
+        });
+    } catch (err) {
+        console.error("Error deleting portfolio:", err);
+        return;
+    }
 }
 
 
@@ -257,9 +299,15 @@ async function deletePortfolio(portfolio_uuid, owner_uuid) {
 async function getPortfolioValue(portfolio_uuid, owner_uuid) {
     try {
         //Get all shares in the portfolio
-        const share = await (sql.Shares).findAll({
-            where: {owner_uuid: owner_uuid, portfolio_uuid: portfolio_uuid}
-        });
+        let share;
+        try {
+            share = await (sql.Shares).findAll({
+                where: {owner_uuid: owner_uuid, portfolio_uuid: portfolio_uuid}
+            });
+        } catch (err) {
+            console.error("Error getting shares:", err);
+            return;
+        }
         let totalValue = 0;
         let totalInvested = 0;
         //Total up value and invested value
@@ -268,10 +316,15 @@ async function getPortfolioValue(portfolio_uuid, owner_uuid) {
             totalInvested += share[i].total_invested;
         };
         //Update the portfolio
-        await (sql.Portfolio).update(
-            { value: totalValue, inputValue: totalInvested },
-            { where: [{ uuid: portfolio_uuid }, {owner_uuid: owner_uuid}] }
-        );
+        try {
+            await (sql.Portfolio).update(
+                { value: totalValue, inputValue: totalInvested },
+                { where: [{ uuid: portfolio_uuid }, {owner_uuid: owner_uuid}] }
+            );
+        } catch (err) {
+            console.error("Error updating portfolio table: ", err);
+            return;
+        }
         return totalValue;
     } catch (err) {
         console.error("Error getting value:", err);
@@ -287,12 +340,24 @@ async function getPortfolioValue(portfolio_uuid, owner_uuid) {
 async function getPortfolioReturn(portfolio_uuid, owner_uuid) {
     try {
         //Update and get portfolios value
-        const value = await getPortfolioValue(portfolio_uuid, owner_uuid);
+        let value;
+        try {
+            value = await getPortfolioValue(portfolio_uuid, owner_uuid);
+        } catch (err) {
+            console.error("Error getting portfolio value:", err);
+            return;
+        }
         //Get the amount of money invested in total
-        const portfolio = await (sql.Portfolio).findOne({
-            attributes: ['inputValue'],
-            where: {uuid: portfolio_uuid, owner_uuid: owner_uuid}
-        });
+        let portfolio;
+        try {
+            portfolio = await (sql.Portfolio).findOne({
+                attributes: ['inputValue'],
+                where: {uuid: portfolio_uuid, owner_uuid: owner_uuid}
+            });
+        } catch (err) {
+            console.error("Error getting portfolio invested value:", err);
+            return;
+        }
         //Return the difference
         return value - portfolio.inputValue;
     } catch (err) {
@@ -309,12 +374,24 @@ async function getPortfolioReturn(portfolio_uuid, owner_uuid) {
 async function getPortfolioReturnPercentage(portfolio_uuid, owner_uuid) {
     try {
         //Update and get portfolios value
-        const value = await getPortfolioValue(portfolio_uuid, owner_uuid);
+        let value;
+        try {
+            value = await getPortfolioValue(portfolio_uuid, owner_uuid);
+        } catch (err) {
+            console.error("Error getting portfolio value:", err);
+            return;
+        }
         //Get the amount of money invested in total
-        const portfolio = await (sql.Portfolio).findOne({
-            attributes: ['inputValue'],
-            where: {uuid: portfolio_uuid, owner_uuid: owner_uuid}
-        });
+        let portfolio;
+        try {
+            portfolio = await (sql.Portfolio).findOne({
+                attributes: ['inputValue'],
+                where: {uuid: portfolio_uuid, owner_uuid: owner_uuid}
+            });
+        } catch (err) {
+            console.error("Error getting portfolio invested value:", err);
+            return;
+        }
         //Return the difference as a percentage
         return 1 + ((value - portfolio.inputValue)/portfolio.inputValue);
     } catch (err) {

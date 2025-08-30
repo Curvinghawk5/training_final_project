@@ -17,9 +17,11 @@ async function getCurrentPrice(req, res) {
     try {
         const result = await YahooFinance.quote(tag);   //Get info from Yahoo
         res.status(200).json({ask: result.ask, bid: result.bid, currency: result.currency});
+        return;
     } catch (error) {
         console.error("Error fetching stock price: ", error);
         res.status(500).json({error: "Internal Server Error"});
+        return;
     }
 }
 
@@ -35,8 +37,15 @@ async function getCurrentPrice(req, res) {
 */
 async function searchForCompany(req, res) {
     const search = req.params.query;                    //Get query from params
-    const result = await YahooFinance.search(search);   //Search Yahoo
-    res.status(200).json(result.quotes);
+    try {
+        const result = await YahooFinance.search(search);   //Search Yahoo
+        res.status(200).json(result.quotes);
+        return;
+    } catch (error) {
+        console.error("Error fetching search results: ", error);
+        res.status(500).json({error: "Internal Server Error"});
+        return;
+    }
 }
 
 /*
@@ -50,6 +59,7 @@ async function searchNews(req, res) {
     try {
         const result = await YahooFinance.search(search);   //Search Yahoo
         res.status(200).json(result.news);
+        return;
     } catch (error) {
         console.error("Error fetching news articles: ", error);
         res.status(500).json({error: "Internal Server Error"});
@@ -87,10 +97,11 @@ async function searchFincancials(req, res) {
         } catch (err) {
             console.error("Unable to get quote: ", err);
             res.status(500).json({error: "Internal Server Error "});
-            break;
+            return;
         }
     }
     res.status(200).json(quotes);
+    return;
 }
 
 module.exports = {
