@@ -9,7 +9,7 @@ const authenticationToken = require('../middleware/validation');
 
 //Portfolio Basics//
 router.get("/user/portfolio", authenticationToken.authenticateToken, controller.getUsersPortfolio);                                                 //Gets the current users portfolios
-router.post("/user/portfolio", authenticationToken.authenticateToken, controller.createPortfolio);                                                  //Creates a new portfolio for the user
+router.post("/user/portfolio/create", authenticationToken.authenticateToken, controller.createPortfolio);                                                  //Creates a new portfolio for the user
 router.patch("/user/portfolio/update", authenticationToken.authenticateToken, controller.modifyPortfolio);                                          //Updates a users portfolio
 router.delete("/user/portfolio/:portfolio_uuid", authenticationToken.authenticateToken, controller.deletePortfolio)                                 //Deletes a users portfolio (must be empty)
 

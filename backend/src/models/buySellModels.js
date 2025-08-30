@@ -2,6 +2,7 @@ const sql = require("../config/sql");
 const axios = require("axios");
 const YahooFinance = require("yahoo-finance2").default;
 const userModels = require("./userModels");
+const middlewareModels = require("./middlewareModels");
 
 //////////////////////////////////////////////////////////////////
 //These handle all model functions related to buying and selling//
@@ -144,7 +145,7 @@ async function buyStock(tag, cost, amount, owner_uuid, portfolio_uuid) {
                 );
                 try{
                     //Update portfolio
-                    return await userModels.updatePortfolioValue(stock.portfolio_uuid);
+                    return await middlewareModels.updatePortfolioValue(stock.portfolio_uuid);
                 } catch (err) {
                     console.error("Error updating portfolio: ", err);
                 }
@@ -199,7 +200,7 @@ async function sellStock(tag, uuid, portfolio_uuid, stockAmount) {
             let destroy = await (sql.Shares).destroy({
                 where: {owner_uuid: uuid, tag: tag, portfolio_uuid: portfolio_uuid}
             });
-            return await userModels.updatePortfolioValue(stock.portfolio_uuid);
+            return await middlewareModels.updatePortfolioValue(stock.portfolio_uuid);
         }
         //User is selling part of their stock
         else {
@@ -216,7 +217,7 @@ async function sellStock(tag, uuid, portfolio_uuid, stockAmount) {
                 { amount_owned: amountLeft, total_invested:  newValueIn},
                 { where: {owner_uuid: uuid, tag: tag, portfolio_uuid: portfolio_uuid }}
             );
-            return await userModels.updatePortfolioValue(stock.portfolio_uuid);
+            return await middlewareModels.updatePortfolioValue(stock.portfolio_uuid);
         }
     } catch (err) {
         console.error("Error verifying amount: ", err);

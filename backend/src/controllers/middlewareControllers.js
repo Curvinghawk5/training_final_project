@@ -14,8 +14,12 @@ const middlewareModel = require("../models/middlewareModels");
 */
 async function convertCurrency(req, res) {
     const { amount, fromCurrency, toCurrency } = req.body;                                  //Get info from body
-    let convertedAmount = await middlewareModel.convertCurrency(amount, fromCurrency, toCurrency);    //Convert currency
-    res.status(200).json({rate: convertedAmount});
+    try {
+        let convertedAmount = await middlewareModel.convertCurrency(amount, fromCurrency, toCurrency);    //Convert currency
+        res.status(200).json({amount: convertedAmount});
+    } catch (err) {
+        res.status(500).json({message: "Error converting currency", error: err.message});
+    }
 }
 
 
@@ -43,7 +47,12 @@ async function cleanDB(req, res) {
 */
 async function updateAll(req, res) {
     //Updates everything
-    return await middlewareModel.updateAllStocks();
+    try {
+        let response = await middlewareModel.updateAllStocks();
+        res.status(200).json(response);
+    } catch (err) {
+        res.status(500).json({message: "Error updating stocks", error: err.message});
+    }
 }
 
 module.exports = {

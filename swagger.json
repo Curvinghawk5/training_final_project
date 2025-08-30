@@ -784,6 +784,7 @@
             "post": {
                 "summary": "Buy a stock",
                 "description": "Purchase a stock by its tag",
+                "security": [{ "bearerAuth": [] }],
                 "parameters": [{
                     "name": "tag",
                     "in": "path",
@@ -846,6 +847,789 @@
                     },
                     "400": {
                         "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/sell/{tag}": {
+            "post": {
+                "summary": "Sell a stock",
+                "description": "Sell a stock by its tag",
+                "security": [{ "bearerAuth": [] }],
+                "parameters": [{
+                    "name": "tag",
+                    "in": "path",
+                    "required": true,
+                    "description": "The tag of the desired stock",
+                    "schema": {
+                        "type": "string",
+                        "example": "AAPL"
+                    }
+                }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "stockAmount": {
+                                        "type": "float",
+                                        "example": 10
+                                    },
+                                    "priceAmount": {
+                                        "type": "float",
+                                        "example": 200.50
+                                    },
+                                    "currency": {
+                                        "type": "string",
+                                        "example": "usd"
+                                    },
+                                    "portfolio_uuid": {
+                                        "type": "uuid",
+                                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                                    }
+                                },
+                                "required": ["currency", "portfolio_uuid"],
+                                "oneOf": [
+                                    { "required": ["stockAmount"] },
+                                    { "required": ["priceAmount"] }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Stock sold successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Sold 10 shares for 2001 usd of Google at 200.10 usd per share"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/convert": {
+            "post": {
+                "summary": "Convert currency",
+                "description": "Convert money from one currency to another",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "amount": {
+                                        "type": "float",
+                                        "example": 200.50
+                                    },
+                                    "fromCurrency": {
+                                        "type": "string",
+                                        "example": "gbp"
+                                    },
+                                    "toCurrency": {
+                                        "type": "string",
+                                        "example": "usd"
+                                    }
+                                },
+                                "required": ["amount", "fromCurrency", "toCurrency"]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Currency converted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "amount": {
+                                            "type": "float",
+                                            "example": 256.78
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/clean": {
+            "get": {
+                "summary": "Cleanse all databases (Admin)",
+                "description": "Reset all databases to its initial state (Requires Admin Authorisation)",
+                "security": [{ "bearerAuth": [] }],
+                "responses": {
+                    "200": {
+                        "description": "All databases cleansed successfully"
+                    },
+                    "500": {
+                        "description": "Error cleaning databases"
+                    }
+                }
+            }
+        },
+        "/sync": {
+            "get": {
+                "summary": "Update all stock prices",
+                "description": "Updates all stock prices in the database to the latest available prices and update user shares worth",
+                "responses": {
+                    "200": {
+                        "description": "All stocks updates successfully"
+                    },
+                    "500": {
+                        "description": "Error updating stocks"
+                    }
+                }
+            }
+        },
+        "/user/portfolio": {
+            "get": {
+                "summary": "Gets all portfolios for the logged in user",
+                "description": "Retrieve all portfolios associated with the authenticated user",
+                "security": [{ "bearerAuth": [] }],
+                "responses": {
+                    "200": {
+                        "description": "Portfolios retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "uuid": {
+                                                "type": "uuid",
+                                                "example": "3cef33a6-3f3a-45f5-85f3-6884ca878400"
+                                            },
+                                            "owner_uuid": {
+                                                "type": "uuid",
+                                                "example": "1cb05ee4-b6d6-434c-9dca-6d263c9ed199"
+                                            },
+                                            "name": {
+                                                "type": "string",
+                                                "example": "Example Portfolio"
+                                            },
+                                            "value": {
+                                                "type": "float",
+                                                "example": 200.15
+                                            },
+                                            "inputValue": {
+                                                "type": "float",
+                                                "example": 150.53
+                                            },
+                                            "prefered_currency": {
+                                                "type": "string",
+                                                "example": "usd"
+                                            },
+                                            "is_default": {
+                                                "type": "boolean",
+                                                "example": true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/user/portfolio/create": {
+            "post": {
+                "summary": "Create a new portfolio for the logged in user",
+                "description": "Creates a new portfolio associated with the authenticated user",
+                "security": [{ "bearerAuth": [] }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Example Portfolio"
+                                    },
+                                    "isDefault": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "required": ["name"]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Portfolio Created Successfully"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/user/portfolio/update": {
+            "patch": {
+                "summary": "Update a portfolio for the logged in user",
+                "description": "Updates a portfolio associated with the authenticated user",
+                "security": [{ "bearerAuth": [] }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Example Portfolio"
+                                    },
+                                    "isDefault": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "oneOf": [
+                                    { "required": ["name"] },
+                                    { "required": ["isDefault"] }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Portfolio Updated Successfully"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/user/portfolio/{portfolio_uuid}": {
+            "delete": {
+                "summary": "Deletes a portfolio for the logged in user",
+                "description": "Deletes a portfolio associated with the authenticated user",
+                "security": [{ "bearerAuth": [] }],
+                "parameters": [{
+                    "name": "portfolio_uuid",
+                    "in": "path",
+                    "required": true,
+                    "description": "The desired portfolios UUID",
+                    "schema": {
+                        "type": "string",
+                        "example": "3cef33a6-3f3a-45f5-85f3-6884ca878400"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Portfolio Deleted Successfully"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/user/portfolio/value/{portfolio_uuid}": {
+            "get": {
+                "summary": "Gets the portfolio value",
+                "description": "Gets the portfolio value for a specific portfolio for the logged in user",
+                "security": [{ "bearerAuth": [] }],
+                "parameters": [{
+                    "name": "portfolio_uuid",
+                    "in": "path",
+                    "required": true,
+                    "description": "The desired portfolios UUID",
+                    "schema": {
+                        "type": "string",
+                        "example": "3cef33a6-3f3a-45f5-85f3-6884ca878400"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Portfolio Value Retreieved Successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "value": {
+                                            "type": "float",
+                                            "example": 12002.24
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/user/portfolio/return/{portfolio_uuid}": {
+            "get": {
+                "summary": "Gets the portfolio return value",
+                "description": "Gets the portfolio return value for a specific portfolio for the logged in user",
+                "security": [{ "bearerAuth": [] }],
+                "parameters": [{
+                    "name": "portfolio_uuid",
+                    "in": "path",
+                    "required": true,
+                    "description": "The desired portfolios UUID",
+                    "schema": {
+                        "type": "string",
+                        "example": "3cef33a6-3f3a-45f5-85f3-6884ca878400"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Portfolio Return Value Retreieved Successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "value": {
+                                            "type": "float",
+                                            "example": 12002.24
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/user/portfolio/return/percentage/{portfolio_uuid}": {
+            "get": {
+                "summary": "Gets the portfolio return value percentage",
+                "description": "Gets the portfolio return value for a specific portfolio for the logged in user as a percentage",
+                "security": [{ "bearerAuth": [] }],
+                "parameters": [{
+                    "name": "portfolio_uuid",
+                    "in": "path",
+                    "required": true,
+                    "description": "The desired portfolios UUID",
+                    "schema": {
+                        "type": "string",
+                        "example": "3cef33a6-3f3a-45f5-85f3-6884ca878400"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Portfolio Return Percent Retreieved Successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "value": {
+                                            "type": "float",
+                                            "example": 12002.24
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/user/fname": {
+            "get": {
+                "summary": "Gets the users first name",
+                "description": "Retrieve the first name of the authenticated user",
+                "security": [{ "bearerAuth": [] }],
+                "responses": {
+                    "200": {
+                        "description": "First Name Retreieved Successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "firstName": {
+                                            "type": "string",
+                                            "example": "Bob"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/user/lname": {
+            "get": {
+                "summary": "Gets the users last name",
+                "description": "Retrieve the last name of the authenticated user",
+                "security": [{ "bearerAuth": [] }],
+                "responses": {
+                    "200": {
+                        "description": "Last Name Retreieved Successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "lastName": {
+                                            "type": "string",
+                                            "example": "McBobface"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/user/name": {
+            "get": {
+                "summary": "Gets the users full name",
+                "description": "Retrieve the full name of the authenticated user",
+                "security": [{ "bearerAuth": [] }],
+                "responses": {
+                    "200": {
+                        "description": "Full Name Retreieved Successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "fullName": {
+                                            "type": "string",
+                                            "example": "Bob McBobface"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/user/deposit": {
+            "post": {
+                "summary": "Deposits money into the users account",
+                "description": "Deposit money into the authenticated users account",
+                "security": [{ "bearerAuth": [] }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "amount": {
+                                        "type": "float",
+                                        "example": 100.20
+                                    }
+                                },
+                                "required": ["amount"]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Money Deposited Successfully"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/user/withdraw": {
+            "post": {
+                "summary": "Withdraws money into the users account",
+                "description": "Withdraws money into the authenticated users account",
+                "security": [{ "bearerAuth": [] }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "amount": {
+                                        "type": "float",
+                                        "example": 100.20
+                                    }
+                                },
+                                "required": ["amount"]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Money Withdrawn Successfully"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/user/balance": {
+            "get": {
+                "summary": "Gets the users account balance",
+                "description": "Gets the users current account balance",
+                "security": [{ "bearerAuth": [] }],
+                "responses": {
+                    "200": {
+                        "description": "Money Withdrawn Successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "balance": {
+                                            "type": "float",
+                                            "example": 24309.23
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/user/shares/{portfolio_uuid}": {
+            "get": {
+                "summary": "Gets the users account balance",
+                "description": "Gets the users current account balance",
+                "security": [{ "bearerAuth": [] }],
+                "parameters": [{
+                    "name": "portfolio_uuid",
+                    "in": "path",
+                    "required": true,
+                    "description": "The desired portfolios UUID",
+                    "schema": {
+                        "type": "string",
+                        "example": "3cef33a6-3f3a-45f5-85f3-6884ca878400"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Shares Retreieved Successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "tag": {
+                                            "type": "string",
+                                            "example": "GOOG"
+                                        },
+                                        "portfolio_uuid": {
+                                            "type": "uuid",
+                                            "example": "15d05b38-90b3-4b6b-af9b-374fca75ec4d"
+                                        },
+                                        "user_uuid": {
+                                            "type": "uuid",
+                                            "example": "d191ba5e-5d80-4473-b70a-2827aeea3c80"
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "example": "Alphabet Inc."
+                                        },
+                                        "current_ask": {
+                                            "type": "float",
+                                            "example": 213.67
+                                        },
+                                        "current_bid": {
+                                            "type": "float",
+                                            "example": 213.45
+                                        },
+                                        "amount_owned": {
+                                            "type": "float",
+                                            "example": 74.882
+                                        },
+                                        "total_invested": {
+                                            "type": "float",
+                                            "example": 16000.00
+                                        },
+                                        "total_value": {
+                                            "type": "float",
+                                            "example": 15983.56
+                                        },
+                                        "currency": {
+                                            "type": "string",
+                                            "example": "usd"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/user/logs": {
+            "get": {
+                "summary": "Gets the users transaction logs",
+                "description": "Gets the users transaction logs",
+                "security": [{ "bearerAuth": [] }],
+                "responses": {
+                    "200": {
+                        "description": "Logs Retreieved Successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "timestamp": {
+                                            "type": "date",
+                                            "example": "2025-08-30T17:22:30.000Z"
+                                        },
+                                        "buy_sell": {
+                                            "type": "string",
+                                            "enum": ["buy", "sell"],
+                                            "example": "buy"
+                                        },
+                                        "amount": {
+                                            "type": "float",
+                                            "example": 400.00
+                                        },
+                                        "stock_traded": {
+                                            "type": "float",
+                                            "example": 18.7205
+                                        },
+                                        "price_per": {
+                                            "type": "float",
+                                            "example": 213.67
+                                        },
+                                        "currency": {
+                                            "type": "string",
+                                            "example": "usd"
+                                        },
+                                        "stock_tag": {
+                                            "type": "string",
+                                            "example": "GOOG"
+                                        },
+                                        "portfolio_uuid": {
+                                            "type": "uuid",
+                                            "example": "15d05b38-90b3-4b6b-af9b-374fca75ec4d"
+                                        },
+                                        "owner_uuid": {
+                                            "type": "uuid",
+                                            "example": "d191ba5e-5d80-4473-b70a-2827aeea3c80"
+                                        },
+                                        "createdAt": {
+                                            "type": "date",
+                                            "example": "2025-08-30T17:22:30.000Z"
+                                        },
+                                        "updatedAt": {
+                                            "type": "date",
+                                            "example": "2025-08-30T17:22:30.000Z"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/user/currency": {
+            "post": {
+                "summary": "Changes preffered currency",
+                "description": "Change the users preffered currency",
+                "security": [{ "bearerAuth": [] }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "currency": {
+                                        "type": "string",
+                                        "example": "gbp"
+                                    }
+                                },
+                                "required": ["currency"]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Default currency updated successfully"
                     },
                     "500": {
                         "description": "Internal Server Error"

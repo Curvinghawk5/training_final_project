@@ -193,11 +193,11 @@ const TransactionLog = seq.define('transaction_log', {
         allowNull: false
     },
     portfolio_uuid: {
-        type: DataTypes.FLOAT(15,2),
+        type: DataTypes.UUID,
         allowedNull: false
     },
     owner_uuid: {
-        type: DataTypes.FLOAT(15,2),
+        type: DataTypes.UUID,
         allowedNull: false
     }
 },

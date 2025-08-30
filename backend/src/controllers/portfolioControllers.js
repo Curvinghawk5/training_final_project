@@ -19,7 +19,7 @@ async function getUsersPortfolio(req, res) {
         res.status(200).json(portfolios);
     } catch (err) {
         res.status(500).json({ error: err.message });
-        console.error("Error returning users:", err);
+        console.error("Error returning users portfolios:", err);
     }
 }
 
@@ -107,7 +107,7 @@ async function getPortfolioValue(req, res) {
     try {
         //Get portfolio value
         let value = await portfolioModel.getPortfolioValue(portfolio_uuid, owner_uuid);
-        res.status(200).json({message: value});
+        res.status(200).json({value: value});
     } catch (err) {
         res.status(500).json({ error: err.message });
         console.error("Error getting portfolio value:", err);
@@ -127,7 +127,7 @@ async function getPortfolioReturn(req, res) {
     try {
         //Get portfolio return value
         let value = await portfolioModel.getPortfolioReturn(portfolio_uuid, owner_uuid);
-        res.status(200).json({message: value});
+        res.status(200).json({value: value});
     } catch (err) {
         res.status(500).json({ error: err.message });
         console.error("Error getting portfolio return:", err);
@@ -147,7 +147,7 @@ async function getPortfolioReturnPercentage(req, res) {
     try {
         //Get portfolio return percentage
         let value = await portfolioModel.getPortfolioReturnPercentage(portfolio_uuid, owner_uuid);
-        res.status(200).json({message: value});
+        res.status(200).json({value: value});
     } catch (err) {
         res.status(500).json({ error: err.message });
         console.error("Error getting portfolio return percentage:", err);

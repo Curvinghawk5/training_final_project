@@ -9,6 +9,7 @@
 # GET http://localhost:3000/convert HTTP/1.1
 
 # POST http://localhost:3000/buy/GOOG HTTP/1.1
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQxOTFiYTVlLTVkODAtNDQ3My1iNzBhLTI4MjdhZWVhM2M4MCIsInVzZXJuYW1lIjoiYWRtaW5Vc2VybmFtZSIsImlhdCI6MTc1NjU3Mzk0NCwiZXhwIjoxNzU2NjYwMzQ0fQ.Hh66PMuVRjJ59t5H3_MM-ttDINgcALINYZ6C2BliIA0
 # Content-Type: application/json
 
 # {
@@ -26,6 +27,7 @@
 # }
 
 # GET http://localhost:3000/auth/users HTTP/1.1
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQxOTFiYTVlLTVkODAtNDQ3My1iNzBhLTI4MjdhZWVhM2M4MCIsInVzZXJuYW1lIjoiYWRtaW5Vc2VybmFtZSIsImlhdCI6MTc1NjU3Mzk0NCwiZXhwIjoxNzU2NjYwMzQ0fQ.Hh66PMuVRjJ59t5H3_MM-ttDINgcALINYZ6C2BliIA0
 
 # POST http://localhost:3000/auth/login HTTP/1.1
 # Content-Type: application/json
@@ -36,13 +38,27 @@
 # }
 
 # GET http://localhost:3000/user/portfolio HTTP/1.1
-# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6W3sidXVpZCI6IjQ4YjZjMjRiLTgyODQtNGZiZS1iMGIyLTJiMDJkMDQ4NDZiYSJ9XSwidXNlcm5hbWUiOiJ0ZXN0VXNlcm5hbWUiLCJpYXQiOjE3NTYzMDc2MTMsImV4cCI6MTc1NjMxMTIxM30.vzIeHmrwltaq3l1VBl-U_qcAg6JJLoxFeqa3f8A44ww
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQxOTFiYTVlLTVkODAtNDQ3My1iNzBhLTI4MjdhZWVhM2M4MCIsInVzZXJuYW1lIjoiYWRtaW5Vc2VybmFtZSIsImlhdCI6MTc1NjU3Mzk0NCwiZXhwIjoxNzU2NjYwMzQ0fQ.Hh66PMuVRjJ59t5H3_MM-ttDINgcALINYZ6C2BliIA0
 
-POST http://localhost:3000/user/portfolio HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjFjYjA1ZWU0LWI2ZDYtNDM0Yy05ZGNhLTZkMjYzYzllZDE5OSIsInVzZXJuYW1lIjoidGVzdFVzZXJuYW1lIiwiaWF0IjoxNzU2NTY5Mzg2LCJleHAiOjE3NTY2NTU3ODZ9.cFMIQdiuQ_D-JVZ_4YgFka7bH0IkVc4EVb9NIqPiCCc
-Content-Type: application/json
+# POST http://localhost:3000/user/portfolio/create HTTP/1.1
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQxOTFiYTVlLTVkODAtNDQ3My1iNzBhLTI4MjdhZWVhM2M4MCIsInVzZXJuYW1lIjoiYWRtaW5Vc2VybmFtZSIsImlhdCI6MTc1NjU3Mzk0NCwiZXhwIjoxNzU2NjYwMzQ0fQ.Hh66PMuVRjJ59t5H3_MM-ttDINgcALINYZ6C2BliIA0
+# Content-Type: application/json
 
-{
-    "name": "TestPortfolio",
-    "isDefault": ""
-}
+# {
+#     "name": "TestPortfolio",
+#     "isDefault": ""
+# }
+
+# POST http://localhost:3000/user/deposit HTTP/1.1
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQxOTFiYTVlLTVkODAtNDQ3My1iNzBhLTI4MjdhZWVhM2M4MCIsInVzZXJuYW1lIjoiYWRtaW5Vc2VybmFtZSIsImlhdCI6MTc1NjU3Mzk0NCwiZXhwIjoxNzU2NjYwMzQ0fQ.Hh66PMuVRjJ59t5H3_MM-ttDINgcALINYZ6C2BliIA0
+# Content-Type: application/json
+
+# {
+#     "amount": 1000000
+# }
+
+# GET http://localhost:3000/user/shares/15d05b38-90b3-4b6b-af9b-374fca75ec4d HTTP/1.1
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQxOTFiYTVlLTVkODAtNDQ3My1iNzBhLTI4MjdhZWVhM2M4MCIsInVzZXJuYW1lIjoiYWRtaW5Vc2VybmFtZSIsImlhdCI6MTc1NjU3Mzk0NCwiZXhwIjoxNzU2NjYwMzQ0fQ.Hh66PMuVRjJ59t5H3_MM-ttDINgcALINYZ6C2BliIA0
+
+GET http://localhost:3000/user/logs HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQxOTFiYTVlLTVkODAtNDQ3My1iNzBhLTI4MjdhZWVhM2M4MCIsInVzZXJuYW1lIjoiYWRtaW5Vc2VybmFtZSIsImlhdCI6MTc1NjU3Mzk0NCwiZXhwIjoxNzU2NjYwMzQ0fQ.Hh66PMuVRjJ59t5H3_MM-ttDINgcALINYZ6C2BliIA0

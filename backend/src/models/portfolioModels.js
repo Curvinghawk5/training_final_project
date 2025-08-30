@@ -76,10 +76,11 @@ async function getUserPreferedCurrency(user) {
 */
 async function getDefaultPortfolio(uuid) {
     try {
-        return await (sql.Portfolio).findOne({
+        const portfolio = await (sql.Portfolio).findOne({
             attributes: ['uuid'],
             where: {owner_uuid: uuid, is_default: true}
         });
+        return portfolio.uuid;
     } catch (err) {
         console.error("Error getting default portfolios:", err);
     }
@@ -175,6 +176,11 @@ async function createPortfolio(name, owner_uuid, prefered_currency, isDefault) {
         //Set this one to default if there are no other
         else if(portfolios.length == 0 && !isDefault){
             isDefault = true;
+        }
+
+        //If isDefault is null, set it to false
+        if(isDefault == "" || isDefault == null || isDefault == undefined){
+            isDefault = false;
         }
 
         //Create new portfolio

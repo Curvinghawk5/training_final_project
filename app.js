@@ -3,7 +3,7 @@ const app = express();
 const port = 3000;
 const swaggerUi = require("swagger-ui-express");
 const swaggerDoc = require("./swagger.json");
-const controller = require("./backend/src/controllers/middlewareControllers")
+const model = require("./backend/src/models/middlewareModels")
 
 //Middleware to parse JSON bodies
 app.use(express.json());
@@ -30,7 +30,7 @@ app.use('/', require('./backend/src/routes/authRoutes'));
     Cron job to update all share prices every minute
 */
 const CRON_INTERVAL_MS = 60 * 1000;
-setInterval(controller.updateAll, CRON_INTERVAL_MS);
+setInterval(model.updateAllStocks, CRON_INTERVAL_MS);
 
 /*
     Middleware to add request time to request object
