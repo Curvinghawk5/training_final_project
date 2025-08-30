@@ -19,6 +19,8 @@ document.addEventListener("DOMContentLoaded", function () {
       document.body.setAttribute("data-theme", "dark");
       checkbox.checked = true;
     }
+    updateThemeImages();
+
     checkbox.addEventListener("change", () => {
       if (checkbox.checked) {
         document.body.setAttribute("data-theme", "dark");
@@ -27,6 +29,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.body.removeAttribute("data-theme");
         localStorage.setItem("theme", "light");
       }
+      updateThemeImages();
     });
   }
 
@@ -135,7 +138,7 @@ document.addEventListener("DOMContentLoaded", function () {
           </div>
           <form class="modal-form" id="portfolio-form">
             <div class="form-group">
-              <label for="portfolio-name">Portfolio Name</label>
+              <label for="portfolio-name">Portfolio Name *</label>
               <input 
                 type="text" 
                 id="portfolio-name" 
@@ -149,36 +152,96 @@ document.addEventListener("DOMContentLoaded", function () {
               <textarea 
                 id="portfolio-description" 
                 name="description" 
-                placeholder="Brief description of your portfolio strategy..."
+                placeholder="Brief description of your portfolio strategy (optional)"
                 rows="3"
-                required
               ></textarea>
             </div>
             <div class="form-group">
               <label for="portfolio-risk">Risk Profile</label>
-              <select id="portfolio-risk" name="riskProfile" required>
-                <option value="">Select risk level</option>
-                <option value="Conservative">Conservative</option>
-                <option value="Moderate">Moderate</option>
-                <option value="Aggressive">Aggressive</option>
+              <select id="portfolio-risk" name="riskProfile">
+                <option value="">Select risk level (optional)</option>
+                <option value="Conservative">Conservative - Lower risk, stable returns</option>
+                <option value="Moderate">Moderate - Balanced risk and growth</option>
+                <option value="Aggressive">Aggressive - Higher risk, growth potential</option>
               </select>
             </div>
+
             <div class="form-group">
-              <label for="portfolio-initial">Initial Investment (Optional)</label>
+              <label for="portfolio-initial">Initial Cash Amount (Optional)</label>
               <input 
                 type="number" 
                 id="portfolio-initial" 
-                name="initialInvestment" 
+                name="initialCash" 
                 placeholder="0.00"
                 min="0"
                 step="0.01"
               />
+              <small class="form-help">Starting cash balance for this portfolio</small>
             </div>
+
             <div class="modal-actions">
               <button type="button" class="btn-secondary" id="cancel-portfolio-btn">Cancel</button>
               <button type="submit" class="btn-primary">Create Portfolio</button>
             </div>
           </form>
+        </div>
+      </div>
+
+      <!-- Edit Portfolio Modal -->
+      <div class="modal-overlay" id="edit-portfolio-modal-overlay" style="display: none;">
+        <div class="modal" id="edit-portfolio-modal">
+          <div class="modal-header">
+            <h3>Edit Portfolio</h3>
+            <button class="modal-close-btn" id="edit-modal-close-btn">&times;</button>
+          </div>
+          <form class="modal-form" id="edit-portfolio-form">
+            <div class="form-group">
+              <label for="edit-portfolio-name">Portfolio Name *</label>
+              <input 
+                type="text" 
+                id="edit-portfolio-name" 
+                name="name" 
+                placeholder="e.g., Tech Growth Portfolio"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input 
+                  type="checkbox" 
+                  id="edit-portfolio-default" 
+                  name="isDefault"
+                />
+                <span class="checkbox-text">Set as default portfolio</span>
+              </label>
+              <small class="form-help">New transactions will use this portfolio by default</small>
+            </div>
+            <div class="modal-actions">
+              <button type="button" class="btn-secondary" id="cancel-edit-btn">Cancel</button>
+              <button type="submit" class="btn-primary">Update Portfolio</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Delete Portfolio Confirmation Modal -->
+      <div class="modal-overlay" id="delete-modal-overlay" style="display: none;">
+        <div class="modal" id="delete-modal">
+          <div class="modal-header">
+            <h3>Delete Portfolio</h3>
+            <button class="modal-close-btn" id="delete-modal-close-btn">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="delete-warning">
+              <div class="warning-icon"><img id="warning-icon-img" src="/images/warning-icon-light.png" alt="Warning"></div>
+              <p>Are you sure you want to delete "<span id="delete-portfolio-name"></span>"?</p>
+              <p class="warning-text">This action cannot be undone. The portfolio must be empty (no holdings) to be deleted.</p>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" id="cancel-delete-btn">Cancel</button>
+            <button type="button" class="btn-danger" id="confirm-delete-btn">Delete Portfolio</button>
+          </div>
         </div>
       </div>
     `,
@@ -196,182 +259,248 @@ document.addEventListener("DOMContentLoaded", function () {
     `,
   };
 
-  // Dummy stock data
-  const dummyStockData = [
-    {
-      symbol: "AAPL",
-      name: "Apple Inc.",
-      value: 175.43,
-      change: 2.15,
-      changePercent: 1.24,
-      open: 173.28,
-      high: 176.12,
-      low: 172.95,
-      prev: 173.28,
-    },
-    {
-      symbol: "AAPL",
-      name: "Apple Inc.",
-      value: 176.43,
-      change: 2.35,
-      changePercent: 1.26,
-      open: 153.28,
-      high: 196.12,
-      low: 172.95,
-      prev: 173.28,
-    },
-    {
-      symbol: "MSFT",
-      name: "Microsoft Corporation",
-      value: 338.11,
-      change: -4.22,
-      changePercent: -1.23,
-      open: 342.33,
-      high: 343.75,
-      low: 336.89,
-      prev: 342.33,
-    },
-    {
-      symbol: "GOOGL",
-      name: "Alphabet Inc.",
-      value: 125.37,
-      change: 1.89,
-      changePercent: 1.53,
-      open: 123.48,
-      high: 126.22,
-      low: 123.15,
-      prev: 123.48,
-    },
-    {
-      symbol: "AMZN",
-      name: "Amazon.com Inc.",
-      value: 127.74,
-      change: -2.33,
-      changePercent: -1.79,
-      open: 130.07,
-      high: 131.25,
-      low: 126.98,
-      prev: 130.07,
-    },
-    {
-      symbol: "TSLA",
-      name: "Tesla Inc.",
-      value: 248.5,
-      change: 8.75,
-      changePercent: 3.65,
-      open: 239.75,
-      high: 251.3,
-      low: 238.22,
-      prev: 239.75,
-    },
-    {
-      symbol: "NVDA",
-      name: "NVIDIA Corporation",
-      value: 875.28,
-      change: 15.42,
-      changePercent: 1.79,
-      open: 859.86,
-      high: 883.15,
-      low: 856.73,
-      prev: 859.86,
-    },
-    {
-      symbol: "META",
-      name: "Meta Platforms Inc.",
-      value: 296.73,
-      change: -3.87,
-      changePercent: -1.29,
-      open: 300.6,
-      high: 302.44,
-      low: 294.12,
-      prev: 300.6,
-    },
-    {
-      symbol: "NFLX",
-      name: "Netflix Inc.",
-      value: 425.69,
-      change: 7.21,
-      changePercent: 1.72,
-      open: 418.48,
-      high: 428.93,
-      low: 416.77,
-      prev: 418.48,
-    },
-  ];
 
-  // Dummy portfolio data
-  let portfoliosData = [
-    {
-      id: 1,
-      name: "Tech Growth Portfolio",
-      description:
-        "High-growth technology stocks focusing on innovation leaders like Apple, Google, Microsoft, and emerging tech companies.",
-      totalValue: 125750.449,
-      invested: 107500.45,
-      returnAmount: 18249.999,
-      returnPercent: 16.976672518006927,
-      riskProfile: "Aggressive",
-      holdings: 9,
-      lastUpdated: "2024-01-15",
-      performance: {
-        "1D": 2.34,
-        "1W": 5.67,
-        "1M": 12.45,
-        "3M": 16.98,
-        "1Y": 24.67,
-      },
-    },
-    {
-      id: 2,
-      name: "Conservative Income",
-      description:
-        "Stable dividend-paying stocks and bonds for steady income generation with minimal risk exposure.",
-      totalValue: 42203.93,
-      invested: 38000.0,
-      returnAmount: 4203.93,
-      returnPercent: 11.06,
-      riskProfile: "Conservative",
-      holdings: 12,
-      lastUpdated: "2024-01-15",
-      performance: {
-        "1D": 0.15,
-        "1W": 0.89,
-        "1M": 2.34,
-        "3M": 5.67,
-        "1Y": 11.06,
-      },
-    },
-    {
-      id: 3,
-      name: "Balanced Growth",
-      description:
-        "Mix of growth and value stocks across different sectors for balanced risk-adjusted returns.",
-      totalValue: 78425.67,
-      invested: 72000.0,
-      returnAmount: 6425.67,
-      returnPercent: 8.92,
-      riskProfile: "Moderate",
-      holdings: 15,
-      lastUpdated: "2024-01-15",
-      performance: {
-        "1D": 1.23,
-        "1W": 2.45,
-        "1M": 5.67,
-        "3M": 7.89,
-        "1Y": 8.92,
-      },
-    },
-  ];
+  // State for portfolios data
+  let portfoliosData = [];
+  let portfoliosLoading = false;
+  let portfoliosError = null;
 
+  /*
+    Update the page title greeting with the users first name
+    @param {string} page - The page to update the title for
+  */
   function updatePageTitle(page) {
     const firstName = getDisplayFirstName();
     greeting.textContent = firstName ? `Hello ${firstName}` : "Hello";
   }
 
+  /*
+    Updates theme-specific images based on current dark/light mode
+  */
+  function updateThemeImages() {
+    const isDark = document.body.getAttribute("data-theme") === "dark";
+
+    // Update delete modal warning icon
+    const warningIcon = document.getElementById("warning-icon-img");
+    if (warningIcon) {
+      warningIcon.src = isDark ? "/images/warning-icon-dark.png" : "/images/warning-icon-light.png";
+    }
+
+    // Update empty portfolios bar chart state icon
+    const barChartIcon = document.getElementById("bar-chart-icon-img");
+    if (barChartIcon) {
+      barChartIcon.src = isDark ? "/images/bar-chart-icon-dark.png" : "/images/bar-chart-icon-light.png";
+    }
+  }
+
+  /*
+    Fetches portfolios from the API and poulates them with data
+    @return {Promise<Array>} - Array of populated portfolio objects
+  */
+  async function fetchPortfolios() {
+    portfoliosLoading = true;
+    portfoliosError = null;
+
+    try {
+      const response = await authenticatedFetch(`${API_BASE}/user/portfolio`);
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch portfolios: ${response.status}`);
+      }
+
+      const portfolios = await response.json();
+
+      // Computed data for portfolios
+      const enrichedPortfolios = await Promise.all(
+        portfolios.map(async (portfolio) => {
+          const holdingsCount = await getHoldingsCount(portfolio.uuid);
+          const returnAmount = portfolio.value - portfolio.inputValue;
+          const returnPercent = portfolio.inputValue > 0
+            ? ((portfolio.value - portfolio.inputValue) / portfolio.inputValue) * 100
+            : 0;
+
+          return {
+            id: portfolio.uuid,
+            uuid: portfolio.uuid,
+            name: portfolio.name,
+            description: portfolio.description || "", // Not available in backend yet
+            totalValue: portfolio.value || 0,
+            invested: portfolio.inputValue || 0,
+            returnAmount: returnAmount,
+            returnPercent: returnPercent,
+            riskProfile: portfolio.riskProfile || portfolio.risk_profile || "Moderate", // Not available in backend yet
+            holdings: holdingsCount,
+            lastUpdated: new Date().toISOString().split("T")[0], // Not available in backend yet
+            isDefault: portfolio.is_default, // Not available in backend yet
+            currency: portfolio.prefered_currency || portfolio.currency || "USD", // Not available in backend yet
+            initialCash: portfolio.initialCash || portfolio.initial_cash || 0 // Not available in backend yet
+          };
+        })
+      );
+
+      // Populate portfolios data array which will be used to render the portfolios page
+      portfoliosData = enrichedPortfolios;
+      return enrichedPortfolios;
+    } catch (error) {
+      console.error("Error fetching portfolios:", error);
+      portfoliosError = error.message;
+      throw error;
+    } finally {
+      portfoliosLoading = false;
+    }
+  }
+
+  /*
+    Gets the count of holdings for a specific portfolio
+    @param {string} portfolioUuid - The unique identifier of the portfolio
+    @return {Promise<number>} - The number of holdings in the portfolio
+  */
+  async function getHoldingsCount(portfolioUuid) {
+    try {
+      // Use the shares endpoint to get actual holdings count
+      const response = await authenticatedFetch(`${API_BASE}/user/shares/${portfolioUuid}`);
+
+      if (response.ok) {
+        const shares = await response.json();
+        return Array.isArray(shares) ? shares.length : 0;
+      }
+      return 0;
+    } catch (error) {
+      console.error("Error getting holdings count:", error);
+      return 0;
+    }
+  }
+
+  /*
+    Creates a new portfolio via the API endpoint - POST /user/portfolio
+    @param {object} portfolioData - The data for the new portfolio
+    @return {Promise<object>} - The created portfolio
+  */
+  async function createPortfolioAPI(portfolioData) {
+    try {
+      const response = await authenticatedFetch(`${API_BASE}/user/portfolio`, {
+        method: "POST",
+        body: JSON.stringify({
+          name: portfolioData.name,
+          isDefault: portfolioData.isDefault || false
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Failed to create portfolio: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Error creating portfolio:", error);
+      throw error;
+    }
+  }
+
+  /*
+    Updates a portfolio via the API endpoint - PATCH /user/portfolio/update
+    @param {string} portfolioUuid - The unique identifier of the portfolio
+    @param {object} portfolioData - The data for the updated portfolio
+    @return {Promise<object>} - The updated portfolio
+  */
+  async function updatePortfolioAPI(portfolioUuid, portfolioData) {
+    try {
+      const response = await authenticatedFetch(`${API_BASE}/user/portfolio/update`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          name: portfolioData.name,
+          isDefault: portfolioData.isDefault || false,
+          portfolio_uuid: portfolioUuid
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Failed to update portfolio: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Error updating portfolio:", error);
+      throw error;
+    }
+  }
+
+  /*
+    Deletes a portfolio via the API endpoint - DELETE /user/portfolio/:portfolio_uuid
+    @param {string} portfolioUuid - The unique identifier of the portfolio
+    @return {Promise<object>} - The deleted portfolio
+  */
+  async function deletePortfolioAPI(portfolioUuid) {
+    try {
+      const response = await authenticatedFetch(`${API_BASE}/user/portfolio/${portfolioUuid}`, {
+        method: "DELETE"
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        if (response.status === 400 && errorData.message?.includes("not empty")) {
+          throw new Error("Cannot delete portfolio with holdings. Please sell all stocks first.");
+        }
+        throw new Error(errorData.error || errorData.message || `Failed to delete portfolio: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Error deleting portfolio:", error);
+      throw error;
+    }
+  }
+
+  /*
+    Renders the portfolios page with laoding, error, empty or populated portfolio cards
+    @return {void} - Renders the portfolios page
+  */  
   function renderPortfolios() {
     const portfoliosGrid = document.getElementById("portfolios-grid");
     if (!portfoliosGrid) return;
 
+    // Show loading state if portfolios are still loading
+    if (portfoliosLoading) {
+      portfoliosGrid.innerHTML = `
+        <div class="portfolios-loading">
+          <div class="loading-skeleton">
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+          </div>
+          <p>Loading your portfolios...</p>
+        </div>
+      `;
+      return;
+    }
+
+    // Show error state if there is an error loading the portfolios
+    if (portfoliosError) {
+      portfoliosGrid.innerHTML = `
+        <div class="portfolios-error">
+          <p>Error loading portfolios: ${portfoliosError}</p>
+          <button onclick="loadPortfoliosData()" class="btn-secondary">Try Again</button>
+        </div>
+      `;
+      return;
+    }
+
+    // Show empty state if there are no portfolios
+    if (portfoliosData.length === 0) {
+      portfoliosGrid.innerHTML = `
+        <div class="portfolios-empty">
+          <div class="bar-chart-icon"><img id="bar-chart-icon-img" src="/images/bar-chart-icon-light.png" alt="Empty"></div>
+          <h3>No Portfolios Yet</h3>
+          <p>Create your first investment portfolio to start tracking your investments</p>
+          <button onclick="document.getElementById('add-portfolio-btn').click()" class="btn-primary">Create Your First Portfolio</button>
+        </div>
+      `;
+      return;
+    }
+
+    // Render portfolios if there are portfolios
     portfoliosGrid.innerHTML = portfoliosData
       .map(
         (portfolio) => `
@@ -379,44 +508,42 @@ document.addEventListener("DOMContentLoaded", function () {
           <div class="portfolio-card-header">
             <div class="portfolio-info">
               <h3 class="portfolio-name">${portfolio.name}</h3>
-              <span class="portfolio-risk ${portfolio.riskProfile.toLowerCase()}">${
-          portfolio.riskProfile
-        }</span>
+              <span class="portfolio-risk ${portfolio.riskProfile.toLowerCase()}">${portfolio.riskProfile
+          }</span>
+              ${portfolio.isDefault ? '<span class="default-badge">Default</span>' : ''}
             </div>
             <div class="portfolio-menu">
               <button class="portfolio-menu-btn">⋯</button>
             </div>
           </div>
           
+          ${portfolio.description ? `
           <div class="portfolio-description">
             <p>${portfolio.description}</p>
           </div>
+          ` : ''}
           
           <div class="portfolio-value">
             <div class="current-value">
               <span class="value-label">Total Value</span>
               <span class="value-amount">$${portfolio.totalValue.toLocaleString(
-                "en-US",
-                { minimumFractionDigits: 2, maximumFractionDigits: 2 }
-              )}</span>
+            "en-US",
+            { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+          )}</span>
             </div>
             <div class="return-info">
-              <span class="return-amount ${
-                portfolio.returnPercent >= 0 ? "positive" : "negative"
-              }">
-                ${
-                  portfolio.returnPercent >= 0 ? "+" : ""
-                }$${portfolio.returnAmount.toLocaleString("en-US", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })}
+              <span class="return-amount ${portfolio.returnPercent >= 0 ? "positive" : "negative"
+          }">
+                ${portfolio.returnPercent >= 0 ? "+" : ""
+          }$${portfolio.returnAmount.toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
               </span>
-              <span class="return-percent ${
-                portfolio.returnPercent >= 0 ? "positive" : "negative"
-              }">
-                ${
-                  portfolio.returnPercent >= 0 ? "+" : ""
-                }${portfolio.returnPercent.toFixed(2)}%
+              <span class="return-percent ${portfolio.returnPercent >= 0 ? "positive" : "negative"
+          }">
+                ${portfolio.returnPercent >= 0 ? "+" : ""
+          }${portfolio.returnPercent.toFixed(2)}%
               </span>
             </div>
           </div>
@@ -429,37 +556,32 @@ document.addEventListener("DOMContentLoaded", function () {
             <div class="stat-item">
               <span class="stat-label">Invested</span>
               <span class="stat-value">$${portfolio.invested.toLocaleString(
-                "en-US",
-                { minimumFractionDigits: 2, maximumFractionDigits: 2 }
-              )}</span>
+            "en-US",
+            { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+          )}</span>
             </div>
           </div>
           
           <div class="portfolio-performance">
             <div class="performance-header">
-              <span class="performance-label">Performance</span>
-              <span class="performance-period">1M</span>
+              <span class="performance-label">All-time Return</span>
             </div>
             <div class="performance-chart">
               <div class="chart-placeholder">
-                <div class="chart-line ${
-                  portfolio.performance["1M"] >= 0 ? "positive" : "negative"
-                }"></div>
+                <div class="chart-line ${portfolio.returnPercent >= 0 ? "positive" : "negative"
+          }"></div>
               </div>
-              <span class="performance-value ${
-                portfolio.performance["1M"] >= 0 ? "positive" : "negative"
-              }">
-                ${portfolio.performance["1M"] >= 0 ? "+" : ""}${
-          portfolio.performance["1M"]
-        }%
+              <span class="performance-value ${portfolio.returnPercent >= 0 ? "positive" : "negative"
+          }">
+                ${portfolio.returnPercent >= 0 ? "+" : ""}${portfolio.returnPercent.toFixed(2)}%
               </span>
             </div>
           </div>
           
           <div class="portfolio-actions">
-            <button class="btn-view">View</button>
-            <button class="btn-edit">Edit</button>
-            <button class="btn-add-stock">+ Add Stock</button>
+            <button class="btn-view" onclick="redirectToHoldings('${portfolio.uuid}')">View</button>
+            <button class="btn-edit" onclick="openEditModal('${portfolio.uuid}')">Edit</button>
+            <button class="btn-delete" onclick="showDeleteConfirmation('${portfolio.uuid}', '${portfolio.name.replace(/'/g, "\\'")}')">Delete</button>
           </div>
         </div>
       `
@@ -467,6 +589,174 @@ document.addEventListener("DOMContentLoaded", function () {
       .join("");
   }
 
+  /*
+    Loads the portfolios data from the API and renders the portfolios page
+    @return {void} - Loads the portfolios data from the API and renders the portfolios page
+  */
+  async function loadPortfoliosData() {
+    try {
+      await fetchPortfolios();
+      renderPortfolios();
+      updateThemeImages(); // Update theme images after rendering
+    } catch (error) {
+      console.error("Failed to load portfolios:", error);
+      renderPortfolios();
+      updateThemeImages(); // Update theme images after rendering error state
+    }
+  }
+
+  /*
+    Redirects to the holdings page by triggering the holdings nav item
+    @param {string} portfolioUuid - The unique identifier of the portfolio
+    @return {void} - Redirects to the holdings page
+  */
+  window.redirectToHoldings = function (portfolioUuid) {
+    const holdingsNavItem = document.querySelector('.nav-item:nth-child(4)'); // Holdings is the 4th nav item
+    if (holdingsNavItem) {
+      holdingsNavItem.click();
+    }
+  }
+
+  /*
+    Opens the edit modal
+    @param {string} portfolioUuid - The unique identifier of the portfolio
+    @return {void} - Opens the edit modal
+  */
+  window.openEditModal = function (portfolioUuid) {
+    const portfolio = portfoliosData.find(p => p.uuid === portfolioUuid);
+    if (!portfolio) {
+      console.error('Portfolio not found:', portfolioUuid);
+      return;
+    }
+
+    const editModal = document.getElementById("edit-portfolio-modal-overlay");
+    const editForm = document.getElementById("edit-portfolio-form");
+
+    if (!editModal || !editForm) return;
+
+    // Populate form with current portfolio data
+    document.getElementById("edit-portfolio-name").value = portfolio.name || '';
+    document.getElementById("edit-portfolio-default").checked = portfolio.isDefault || false;
+
+    // Store the portfolio UUID for form submission
+    editForm.dataset.portfolioUuid = portfolioUuid;
+
+    // Show modal
+    editModal.style.display = "flex";
+    document.body.style.overflow = "hidden";
+  }
+
+ /*
+    Shows the delete modal
+    @param {string} portfolioUuid - The unique identifier of the portfolio
+    @param {string} portfolioName - The name of the portfolio
+    @return {void} - Shows the delete modal
+  */
+  window.showDeleteConfirmation = function (portfolioUuid, portfolioName) {
+    const deleteModal = document.getElementById("delete-modal-overlay");
+    const portfolioNameSpan = document.getElementById("delete-portfolio-name");
+    const confirmBtn = document.getElementById("confirm-delete-btn");
+
+    if (!deleteModal || !portfolioNameSpan || !confirmBtn) return;
+
+    portfolioNameSpan.textContent = portfolioName;
+    confirmBtn.onclick = () => handleDeleteConfirmation(portfolioUuid, portfolioName);
+
+    deleteModal.style.display = "flex";
+    document.body.style.overflow = "hidden";
+
+    // Update theme images when modal is shown
+    updateThemeImages();
+  }
+
+  /*
+    Handles the delete confirmation
+    @param {string} portfolioUuid - The unique identifier of the portfolio
+    @param {string} portfolioName - The name of the portfolio
+    @return {void} - Handles the delete confirmation
+  */
+  async function handleDeleteConfirmation(portfolioUuid, portfolioName) {
+    const confirmBtn = document.getElementById("confirm-delete-btn");
+    const originalText = confirmBtn.textContent;
+
+    try {
+      // Update button state
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = "Deleting...";
+
+      // Clear any existing error messages
+      const existingError = document.querySelector("#delete-modal .form-error");
+      if (existingError) existingError.remove();
+
+      // Call delete API
+      await deletePortfolioAPI(portfolioUuid);
+
+      // Hide modal
+      hideDeleteModal();
+
+      // Refresh portfolios list
+      await loadPortfoliosData();
+
+    } catch (error) {
+      console.error("Error deleting portfolio:", error);
+      showDeleteError(error.message || "Failed to delete portfolio. Please try again.");
+
+      // Reset button state
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = originalText;
+    }
+  }
+
+  /*
+    Hides the delete modal by hiding the modal overlay and resetting the button state
+    @return {void} - Hides the delete modal
+  */
+  function hideDeleteModal() {
+    const deleteModal = document.getElementById("delete-modal-overlay");
+    if (deleteModal) {
+      deleteModal.style.display = "none";
+      document.body.style.overflow = "auto";
+
+      // Clear any error messages from the modal
+      const errorMsg = deleteModal.querySelector(".form-error");
+      if (errorMsg) errorMsg.remove();
+
+      // Reset button state to allow for future deletions
+      const confirmBtn = document.getElementById("confirm-delete-btn");
+      if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = "Delete Portfolio";
+      }
+    }
+  }
+
+  /*
+    Shows an error message in the delete modal
+    @param {string} message - The message to show
+    @return {void} - Shows an error message in the delete modal
+  */
+  function showDeleteError(message) {
+    const deleteModal = document.getElementById("delete-modal");
+    const existingError = deleteModal.querySelector(".form-error");
+    if (existingError) existingError.remove();
+
+    const errorDiv = document.createElement("div");
+    errorDiv.className = "form-error";
+    errorDiv.style.color = "#e74c3c";
+    errorDiv.style.marginTop = "10px";
+    errorDiv.style.fontSize = "14px";
+    errorDiv.textContent = message;
+
+    const actions = deleteModal.querySelector(".modal-actions");
+    if (actions) {
+      actions.parentNode.insertBefore(errorDiv, actions);
+    }
+  }
+
+  /*
+    Sets up the portfolio modal by adding event listeners to the modal and form
+    @return {void} - Sets up the portfolio modal
+  */
   function setupPortfolioModal() {
     const addPortfolioBtn = document.getElementById("add-portfolio-btn");
     const modalOverlay = document.getElementById("portfolio-modal-overlay");
@@ -476,17 +766,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (!addPortfolioBtn || !modalOverlay) return;
 
-    // Show modal
+    // Show modal by displaying the modal overlay and setting the body overflow to hidden
     addPortfolioBtn.addEventListener("click", () => {
       modalOverlay.style.display = "flex";
       document.body.style.overflow = "hidden";
     });
 
-    // Hide modal
+    /*
+      Hides the portfolio modal by hiding the modal overlay and resetting the form and button state
+      @return {void} - Hides the portfolio modal
+    */
     function hideModal() {
       modalOverlay.style.display = "none";
       document.body.style.overflow = "auto";
       portfolioForm.reset();
+      // Clear any error messages from the form
+      const errorMsg = portfolioForm.querySelector(".form-error");
+      if (errorMsg) errorMsg.remove();
+      // Re-enable submit button to allow for future submissions
+      const submitBtn = portfolioForm.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Create Portfolio";
+      }
     }
 
     modalCloseBtn?.addEventListener("click", hideModal);
@@ -498,37 +800,225 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-    // Handle form submission
-    portfolioForm?.addEventListener("submit", (e) => {
+    // Handle form submission by creating a new portfolio via the API
+    portfolioForm?.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const formData = new FormData(portfolioForm);
-      const newPortfolio = {
-        id: portfoliosData.length + 1,
-        name: formData.get("name"),
-        description: formData.get("description"),
+      const portfolioData = {
+        name: formData.get("name")?.trim(),
+        description: formData.get("description")?.trim(),
         riskProfile: formData.get("riskProfile"),
-        totalValue: parseFloat(formData.get("initialInvestment")) || 0,
-        invested: parseFloat(formData.get("initialInvestment")) || 0,
-        returnAmount: 0,
-        returnPercent: 0,
-        holdings: 0,
-        lastUpdated: new Date().toISOString().split("T")[0],
-        performance: {
-          "1D": 0,
-          "1W": 0,
-          "1M": 0,
-          "3M": 0,
-          "1Y": 0,
-        },
+        initialCash: parseFloat(formData.get("initialCash")) || 0,
+        isDefault: portfoliosData.length === 0 // First portfolio is default
       };
 
-      portfoliosData.push(newPortfolio);
-      renderPortfolios();
-      hideModal();
+      // Validate required fields
+      if (!portfolioData.name) {
+        showFormError(portfolioForm, "Portfolio name is required");
+        return;
+      }
+
+      if (portfolioData.name.length < 2) {
+        showFormError(portfolioForm, "Portfolio name must be at least 2 characters long");
+        return;
+      }
+
+      if (portfolioData.name.length > 100) {
+        showFormError(portfolioForm, "Portfolio name must be less than 100 characters");
+        return;
+      }
+
+      if (portfolioData.description && portfolioData.description.length > 500) {
+        showFormError(portfolioForm, "Description must be less than 500 characters");
+        return;
+      }
+
+      const submitBtn = portfolioForm.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Creating...";
+      }
+
+      try {
+        // Clear any previous error messages from the form
+        const errorMsg = portfolioForm.querySelector(".form-error");
+        if (errorMsg) errorMsg.remove();
+
+        // Create portfolio via API and refresh portfolios list
+        await createPortfolioAPI(portfolioData);
+        await loadPortfoliosData();
+        hideModal();
+      } catch (error) {
+        console.error("Error creating portfolio:", error);
+        showFormError(portfolioForm, error.message || "Failed to create portfolio. Please try again.");
+
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Create Portfolio";
+        }
+      }
     });
   }
 
+  /*
+    Sets up the edit modal by adding event listeners to the modal and form
+    @return {void} - Sets up the edit modal
+  */
+  function setupEditModal() {
+    const editModalOverlay = document.getElementById("edit-portfolio-modal-overlay");
+    const editModalCloseBtn = document.getElementById("edit-modal-close-btn");
+    const cancelEditBtn = document.getElementById("cancel-edit-btn");
+    const editForm = document.getElementById("edit-portfolio-form");
+
+    if (!editModalOverlay || !editForm) return;
+
+    /*
+      Hides the edit modal by hiding the modal overlay and resetting the form and button state
+      @return {void} - Hides the edit modal
+    */
+    function hideEditModal() {
+      editModalOverlay.style.display = "none";
+      document.body.style.overflow = "auto";
+      editForm.reset();
+      delete editForm.dataset.portfolioUuid;
+      // Clear any error messages from the form
+      const errorMsg = editForm.querySelector(".form-error");
+      if (errorMsg) errorMsg.remove();
+      // Re-enable submit button to allow for future submissions
+      const submitBtn = editForm.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Update Portfolio";
+      }
+    }
+
+    // Close modal handlers
+    editModalCloseBtn?.addEventListener("click", hideEditModal);
+    cancelEditBtn?.addEventListener("click", hideEditModal);
+
+    editModalOverlay.addEventListener("click", (e) => {
+      if (e.target === editModalOverlay) {
+        hideEditModal();
+      }
+    });
+
+    // Handle form submission
+    editForm?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const portfolioUuid = editForm.dataset.portfolioUuid;
+      if (!portfolioUuid) {
+        console.error("No portfolio UUID found");
+        return;
+      }
+
+      const formData = new FormData(editForm);
+      const portfolioData = {
+        name: formData.get("name")?.trim(),
+        isDefault: formData.get("isDefault") === "on"
+      };
+
+      // Validate required fields
+      if (!portfolioData.name) {
+        showFormError(editForm, "Portfolio name is required");
+        return;
+      }
+
+      if (portfolioData.name.length < 2) {
+        showFormError(editForm, "Portfolio name must be at least 2 characters long");
+        return;
+      }
+
+      if (portfolioData.name.length > 100) {
+        showFormError(editForm, "Portfolio name must be less than 100 characters");
+        return;
+      }
+
+
+
+      const submitBtn = editForm.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Updating...";
+      }
+
+      try {
+        // Clear any previous error messages
+        const errorMsg = editForm.querySelector(".form-error");
+        if (errorMsg) errorMsg.remove();
+
+        // Update portfolio via API
+        await updatePortfolioAPI(portfolioUuid, portfolioData);
+
+        // Refresh portfolios list
+        await loadPortfoliosData();
+
+        hideEditModal();
+      } catch (error) {
+        console.error("Error updating portfolio:", error);
+        showFormError(editForm, error.message || "Failed to update portfolio. Please try again.");
+
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Update Portfolio";
+        }
+      }
+    });
+  }
+
+  /*
+    Sets up the delete modal by adding event listeners to the modal and form
+    @return {void} - Sets up the delete modal
+  */
+  function setupDeleteModal() {
+    const deleteModalOverlay = document.getElementById("delete-modal-overlay");
+    const deleteModalCloseBtn = document.getElementById("delete-modal-close-btn");
+    const cancelDeleteBtn = document.getElementById("cancel-delete-btn");
+
+    if (!deleteModalOverlay) return;
+
+    // Close modal handlers by hiding the modal overlay and resetting the button state
+    deleteModalCloseBtn?.addEventListener("click", hideDeleteModal);
+    cancelDeleteBtn?.addEventListener("click", hideDeleteModal);
+
+    deleteModalOverlay.addEventListener("click", (e) => {
+      if (e.target === deleteModalOverlay) {
+        hideDeleteModal();
+      }
+    });
+  }
+
+  /*
+    Shows an error message in the form
+    @param {object} form - The form to show the error message in
+    @param {string} message - The message to show
+    @return {void} - Shows an error message in the form
+  */
+  function showFormError(form, message) {
+    // Remove any existing error message from the form
+    const existingError = form.querySelector(".form-error");
+    if (existingError) existingError.remove();
+
+    // Create and insert error message into the form
+    const errorDiv = document.createElement("div");
+    errorDiv.className = "form-error";
+    errorDiv.style.color = "#e74c3c";
+    errorDiv.style.marginTop = "10px";
+    errorDiv.style.fontSize = "14px";
+    errorDiv.textContent = message;
+
+    const actions = form.querySelector(".modal-actions");
+    if (actions) {
+      actions.parentNode.insertBefore(errorDiv, actions);
+    }
+  }
+
+  /*
+    Loads and displays a specific page content
+    @param {string} page - The page to load
+    @return {void} - Loads the page
+  */
   function loadPage(page) {
     if (pageTemplates[page]) {
       mainContent.innerHTML = pageTemplates[page];
@@ -558,9 +1048,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
           if (filteredData.length > 0) {
             resultsContainer.style.display = "block";
-            resultsCount.textContent = `${filteredData.length} result${
-              filteredData.length !== 1 ? "s" : ""
-            }`;
+            resultsCount.textContent = `${filteredData.length} result${filteredData.length !== 1 ? "s" : ""
+              }`;
 
             tableBody.innerHTML = filteredData
               .map(
@@ -573,16 +1062,13 @@ document.addEventListener("DOMContentLoaded", function () {
                   </div>
                 </td>
                 <td class="stock-value">$${stock.value.toFixed(2)}</td>
-                <td class="stock-change ${
-                  stock.change >= 0 ? "positive" : "negative"
-                }">
+                <td class="stock-change ${stock.change >= 0 ? "positive" : "negative"
+                  }">
                   ${stock.change >= 0 ? "+" : ""}${stock.change.toFixed(2)}
                 </td>
-                <td class="stock-percent ${
-                  stock.changePercent >= 0 ? "positive" : "negative"
-                }">
-                  ${
-                    stock.changePercent >= 0 ? "+" : ""
+                <td class="stock-percent ${stock.changePercent >= 0 ? "positive" : "negative"
+                  }">
+                  ${stock.changePercent >= 0 ? "+" : ""
                   }${stock.changePercent.toFixed(2)}%
                 </td>
                 <td class="stock-open">$${stock.open.toFixed(2)}</td>
@@ -615,8 +1101,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // If portfolios page, set up portfolio functionality
       if (page === "portfolios") {
-        renderPortfolios();
         setupPortfolioModal();
+        setupEditModal();
+        setupDeleteModal();
+        loadPortfoliosData(); // Load portfolios from API
+        // Update theme images after a short delay to ensure DOM is ready
+        setTimeout(updateThemeImages, 100);
       }
     }
   }
@@ -636,6 +1126,11 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
+  /*
+    Shows a specific view - login, register, dashboard
+    @param {string} view - The view to show
+    @return {void} - Shows the view
+  */
   function showView(view) {
     if (loginSection)
       loginSection.style.display = view === "login" ? "block" : "none";
@@ -660,6 +1155,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const AUTH_TOKEN_KEY = "auth_token";
   const USER_DATA_KEY = "user_data";
 
+  /*
+    Checks if the user is authenticated
+    @return {boolean} - True if the user is authenticated, false otherwise
+  */
   function isAuthenticated() {
     const token = sessionStorage.getItem(AUTH_TOKEN_KEY);
     if (!token) return false;
@@ -673,7 +1172,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Store authentication data
+  /*
+    Stores authentication data
+    @param {string} token - The authentication token
+    @param {object} userData - The user data
+    @return {void} - Stores the authentication data
+  */
   function storeAuthData(token, userData = null) {
     sessionStorage.setItem(AUTH_TOKEN_KEY, token);
     if (userData) {
@@ -681,24 +1185,40 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Clear authentication data
+  /*
+    Clears all authentication data from session storage
+    @return {void} - Clears the authentication data
+  */
   function clearAuthData() {
     sessionStorage.removeItem(AUTH_TOKEN_KEY);
     sessionStorage.removeItem(USER_DATA_KEY);
   }
 
-  // Get stored user data
+  /*
+    Gets stored user data from session storage
+    @return {object} - The user data object or null if no user data is found
+  */
   function getUserData() {
     const userData = sessionStorage.getItem(USER_DATA_KEY);
     return userData ? JSON.parse(userData) : null;
   }
 
-  // Helpers for displaying user names
+  /*
+    Capitalises the first letter of a word
+    @param {string} str - The word to capitalise
+    @return {string} - The capitalised word
+  */
   function capitalizeWord(str) {
     if (!str || typeof str !== "string") return "";
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   }
 
+  /*
+    Formats a full name by capitalising the first letter of the first and last name
+    @param {string} firstName - The first name
+    @param {string} lastName - The last name
+    @return {string} - The formatted full name
+  */
   function formatFullName(firstName, lastName) {
     const parts = [];
     if (firstName) parts.push(capitalizeWord(firstName));
@@ -706,24 +1226,34 @@ document.addEventListener("DOMContentLoaded", function () {
     return parts.join(" ");
   }
 
+  /*
+    Gets the display first name from the user data - fname, username or empty string if no user data is found
+    @return {string} - The display first name
+  */
   function getDisplayFirstName() {
     const userData = getUserData();
     if (!userData) return "";
     const first =
-      userData.firstName ||
-      userData.fName ||
       userData.fname ||
       userData.username ||
       "";
     return capitalizeWord(first);
   }
 
-  // Get auth token for API requests
+  /*
+    Gets the authentication token for API requests from session storage
+    @return {string} - The authentication token
+  */
   function getAuthToken() {
     return sessionStorage.getItem(AUTH_TOKEN_KEY);
   }
 
-  // Make authenticated API request
+  /*
+    Makes an authenticated API request with the authentication token from session storage
+    @param {string} url - The URL to make the request to
+    @param {object} options - The options for the request
+    @return {Promise<Response>} - The response from the API
+  */
   async function authenticatedFetch(url, options = {}) {
     const token = getAuthToken();
     if (!token) {
@@ -739,7 +1269,10 @@ document.addEventListener("DOMContentLoaded", function () {
     return fetch(url, { ...options, headers });
   }
 
-  // Update user display in dashboard
+  /*
+    Updates the user display in the dashboard
+    @return {void} - Updates the user display
+  */
   function updateUserDisplay() {
     const userData = getUserData();
     if (userData) {
@@ -775,7 +1308,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Check authentication on page load and periodically
+  /*
+    Checks the authentication status on page load and periodically
+    @return {void} - Checks the authentication status
+  */
   function checkAuthStatus() {
     if (!isAuthenticated()) {
       clearAuthData();
@@ -787,7 +1323,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Check auth status every 5 minutes
+  // Check authentication status every 5 minutes
   setInterval(checkAuthStatus, 5 * 60 * 1000);
 
   const isAuthed = isAuthenticated();
