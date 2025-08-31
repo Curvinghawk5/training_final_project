@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const sidebarToggleBtn = document.getElementById("sidebar-toggle-btn");
   const resultsContainer = document.getElementById("stocks-results");
   const tableBody = document.getElementById("stocks-table-body");
+  const transactionsTableBody = document.getElementById("transactions-table-body");
   const resultsCount = document.getElementById("results-count");
 
   // Theme Toggle Functionality
@@ -121,12 +122,98 @@ document.addEventListener("DOMContentLoaded", function () {
       </div>
     `,
     transactions: `
-      <div class="transactions-content">
-        <h2>Transactions</h2>
-        <p>Review your transaction history.</p>
+  <div class="transactions-content">
+    <section class="transactions-section">
+      <h2>All Transactions</h2>
+      <p>Review your transaction history.</p>
+
+      <div class="stocks-table-container">
+        <table class="stocks-table">
+          <thead>
+            <tr>
+              <th class="stock-name-col">Date</th>
+              <th class="stock-value-col">Type</th>
+              <th class="stock-change-col">Asset</th>
+              <th class="stock-percent-col">Quantity</th>
+              <th class="stock-open-col">Price</th>
+              <th class="stock-high-col">Total Value</th>
+              <th class="stock-low-col">Fees</th>
+              <th class="stock-prev-col">Portfolio</th>
+            </tr>
+          </thead>
+          <tbody id="transactions-table-body"></tbody>
+        </table>
       </div>
-    `,
+    </section>
+  </div>
+`,
+
+
   };
+
+  // Fetch transactions from the backend
+async function fetchTransactions() {
+  const token = localStorage.getItem("token"); // Retrieve the user's token from local storage
+  try {
+    const response = await fetch(`${API_BASE}/user/logs`, { // Use the correct endpoint to fetch user logs
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`, // Pass the token for authentication
+        "Content-Type": "application/json",
+      },
+    });
+
+
+    // Check if the response from the server is not OK (e.g., status code is not 200-299).
+    // If so, throw an error to handle the failure case.
+    if (!response.ok) {
+      throw new Error("Failed to fetch transactions");
+    }
+
+    const transactions = await response.json(); // Parse the JSON response
+    return transactions;
+  } catch (error) {
+    console.error("Error fetching transactions:", error);
+    return [];
+  }
+}
+
+  // Function to render transactions
+
+  async function renderTransactions() {
+    const transactionsTableBody = document.getElementById("transactions-table-body");
+    if (transactionsTableBody) {
+      try {
+        const transactions = await fetchTransactions(); // Fetch transactions from the backend
+
+        // Check if there are no transactions; if none, display a message. Otherwise, populate the table with transaction data.
+        if (transactions.length === 0) {
+          transactionsTableBody.innerHTML = `<tr><td colspan="8">No transactions found</td></tr>`;
+        } else {
+          transactionsTableBody.innerHTML = transactions
+            .map(
+              (transaction) => `
+              <tr>
+                <td>${transaction.date}</td>
+                <td class="${transaction.type.toLowerCase()}">${transaction.type}</td>
+                <span class="arrow"></span>${transaction.type}
+                <td>${transaction.asset}</td>
+                <td>${transaction.quantity}</td>
+                <td>${transaction.price.toFixed(2)}</td>
+                <td>${transaction.totalValue.toFixed(2)}</td>
+                <td>${transaction.fees.toFixed(2)}</td>
+                <td>${transaction.portfolio}</td>
+              </tr>
+            `
+            )
+            .join("");
+        }
+      } catch (error) {
+        transactionsTableBody.innerHTML = `<tr><td colspan="8">Failed to load transactions</td></tr>`;
+      }
+    }
+  }
+
 
   // Dummy stock data
   const dummyStockData = [
@@ -303,6 +390,11 @@ document.addEventListener("DOMContentLoaded", function () {
       mainContent.innerHTML = pageTemplates[page];
       updatePageTitle(page);
 
+
+      if (page === "transactions") {
+        renderTransactions();
+      }
+      
       // If stocks page, set up search functionality
       if (page === "stocks") {
         const searchInput = document.getElementById("stock-search-input");
@@ -497,5 +589,5 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Initial route: if authed show dashboard else login
-  showView(isAuthed ? "dashboard" : "login");
+  showView("dashboard");
 });
