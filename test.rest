@@ -1,14 +1,15 @@
-# GET http://localhost:3000/price/GOOG HTTP/1.1
+GET http://localhost:3000/price/GOOG HTTP/1.1
 
 # GET http://localhost:3000/search/GOOG HTTP/1.1
 
-# GET http://localhost:3000/search/Nvidia HTTP/1.1
+# GET http://localhost:3000/search/news/Nvidia HTTP/1.1
 
-GET http://localhost:3000/search/financial/GOOG HTTP/1.1
+# GET http://localhost:3000/search/financial/APPL HTTP/1.1
 
 # GET http://localhost:3000/convert HTTP/1.1
 
 # POST http://localhost:3000/buy/GOOG HTTP/1.1
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQxOTFiYTVlLTVkODAtNDQ3My1iNzBhLTI4MjdhZWVhM2M4MCIsInVzZXJuYW1lIjoiYWRtaW5Vc2VybmFtZSIsImlhdCI6MTc1NjU3Mzk0NCwiZXhwIjoxNzU2NjYwMzQ0fQ.Hh66PMuVRjJ59t5H3_MM-ttDINgcALINYZ6C2BliIA0
 # Content-Type: application/json
 
 # {
@@ -17,62 +18,50 @@ GET http://localhost:3000/search/financial/GOOG HTTP/1.1
 #     "currency": "usd"
 # }
 
-# GET http://localhost:3000/auth/users HTTP/1.1
-
-# GET http://localhost:3000/user/portfolio HTTP/1.1
-# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6W3sidXVpZCI6ImU5ZTQ5ZTczLTQxZmYtNDg5NC1hZDU4LTExMzljN2QwOWYwMCJ9XSwidXNlcm5hbWUiOiJ0ZXN0VXNlcm5hbWUiLCJpYXQiOjE3NTYzODg2MTcsImV4cCI6MTc1NjQ3NTAxN30.IEUmZTSlWE856sNx6oKiYwsQdOpnhVUhUbIhHNDYvjY
-
-# POST http://localhost:3000/user/portfolio HTTP/1.1
-# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6W3sidXVpZCI6ImU5ZTQ5ZTczLTQxZmYtNDg5NC1hZDU4LTExMzljN2QwOWYwMCJ9XSwidXNlcm5hbWUiOiJ0ZXN0VXNlcm5hbWUiLCJpYXQiOjE3NTYzODg2MTcsImV4cCI6MTc1NjQ3NTAxN30.IEUmZTSlWE856sNx6oKiYwsQdOpnhVUhUbIhHNDYvjY
+# POST http://localhost:3000/auth/register HTTP/1.1
 # Content-Type: application/json
 
 # {
-#     "name": "Example Portfolio",
+#     "username": "testUsername",
+#     "password": "testPassword"
+# }
+
+# GET http://localhost:3000/auth/users HTTP/1.1
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQxOTFiYTVlLTVkODAtNDQ3My1iNzBhLTI4MjdhZWVhM2M4MCIsInVzZXJuYW1lIjoiYWRtaW5Vc2VybmFtZSIsImlhdCI6MTc1NjU3Mzk0NCwiZXhwIjoxNzU2NjYwMzQ0fQ.Hh66PMuVRjJ59t5H3_MM-ttDINgcALINYZ6C2BliIA0
+
+# POST http://localhost:3000/auth/login HTTP/1.1
+# Content-Type: application/json
+
+# {
+#     "username": "testUsername",
+#     "password": "testPassword"
+# }
+
+# GET http://localhost:3000/user/portfolio HTTP/1.1
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQxOTFiYTVlLTVkODAtNDQ3My1iNzBhLTI4MjdhZWVhM2M4MCIsInVzZXJuYW1lIjoiYWRtaW5Vc2VybmFtZSIsImlhdCI6MTc1NjU3Mzk0NCwiZXhwIjoxNzU2NjYwMzQ0fQ.Hh66PMuVRjJ59t5H3_MM-ttDINgcALINYZ6C2BliIA0
+
+# POST http://localhost:3000/user/portfolio/create HTTP/1.1
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQxOTFiYTVlLTVkODAtNDQ3My1iNzBhLTI4MjdhZWVhM2M4MCIsInVzZXJuYW1lIjoiYWRtaW5Vc2VybmFtZSIsImlhdCI6MTc1NjU3Mzk0NCwiZXhwIjoxNzU2NjYwMzQ0fQ.Hh66PMuVRjJ59t5H3_MM-ttDINgcALINYZ6C2BliIA0
+# Content-Type: application/json
+
+# {
+#     "name": "TestPortfolio",
 #     "isDefault": ""
 # }
 
-# PATCH http://localhost:3000/user/portfolio/update HTTP/1.1
-# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6W3sidXVpZCI6IjQ4YjZjMjRiLTgyODQtNGZiZS1iMGIyLTJiMDJkMDQ4NDZiYSJ9XSwidXNlcm5hbWUiOiJ0ZXN0VXNlcm5hbWUiLCJpYXQiOjE3NTYzNjkyNjksImV4cCI6MTc1NjM3Mjg2OX0.2hNkmyDt-1GuZg1oBqhYsKy5TqUHwEvnHQxqnfW-so0
-# Content-Type: application/json
-
-# {
-#     "name": "",
-#     "isDefault": "",
-#     "portfolio_uuid": "d99cecab-c36f-49bf-99f0-57441b730f05"
-# }
-
-# DELETE http://localhost:3000/user/portfolio/d99cecab-c36f-49bf-99f0-57441b730f05 HTTP/1.1
-# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6W3sidXVpZCI6IjQ4YjZjMjRiLTgyODQtNGZiZS1iMGIyLTJiMDJkMDQ4NDZiYSJ9XSwidXNlcm5hbWUiOiJ0ZXN0VXNlcm5hbWUiLCJpYXQiOjE3NTYzNjkyNjksImV4cCI6MTc1NjM3Mjg2OX0.2hNkmyDt-1GuZg1oBqhYsKy5TqUHwEvnHQxqnfW-so0
-
 # POST http://localhost:3000/user/deposit HTTP/1.1
-# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6W3sidXVpZCI6ImU5ZTQ5ZTczLTQxZmYtNDg5NC1hZDU4LTExMzljN2QwOWYwMCJ9XSwidXNlcm5hbWUiOiJ0ZXN0VXNlcm5hbWUiLCJpYXQiOjE3NTYzODg2MTcsImV4cCI6MTc1NjQ3NTAxN30.IEUmZTSlWE856sNx6oKiYwsQdOpnhVUhUbIhHNDYvjY
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQxOTFiYTVlLTVkODAtNDQ3My1iNzBhLTI4MjdhZWVhM2M4MCIsInVzZXJuYW1lIjoiYWRtaW5Vc2VybmFtZSIsImlhdCI6MTc1NjU3Mzk0NCwiZXhwIjoxNzU2NjYwMzQ0fQ.Hh66PMuVRjJ59t5H3_MM-ttDINgcALINYZ6C2BliIA0
 # Content-Type: application/json
 
 # {
-#     "amount": 10000000.00
+#     "amount": 1000000
 # }
 
-# POST http://localhost:3000/buy/GOOG HTTP/1.1
-# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6W3sidXVpZCI6ImU5ZTQ5ZTczLTQxZmYtNDg5NC1hZDU4LTExMzljN2QwOWYwMCJ9XSwidXNlcm5hbWUiOiJ0ZXN0VXNlcm5hbWUiLCJpYXQiOjE3NTYzODg2MTcsImV4cCI6MTc1NjQ3NTAxN30.IEUmZTSlWE856sNx6oKiYwsQdOpnhVUhUbIhHNDYvjY
-# Content-Type: application/json
+# GET http://localhost:3000/user/shares/15d05b38-90b3-4b6b-af9b-374fca75ec4d HTTP/1.1
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQxOTFiYTVlLTVkODAtNDQ3My1iNzBhLTI4MjdhZWVhM2M4MCIsInVzZXJuYW1lIjoiYWRtaW5Vc2VybmFtZSIsImlhdCI6MTc1NjU3Mzk0NCwiZXhwIjoxNzU2NjYwMzQ0fQ.Hh66PMuVRjJ59t5H3_MM-ttDINgcALINYZ6C2BliIA0
 
-# {
-#     "stockAmount": 100,
-#     "priceAmount": "",
-#     "currency": "usd",
-#     "portfolio_uuid": "f9662e54-b24f-4799-9309-39fc6149f09e"
-# }
+# GET http://localhost:3000/user/logs HTTP/1.1
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQxOTFiYTVlLTVkODAtNDQ3My1iNzBhLTI4MjdhZWVhM2M4MCIsInVzZXJuYW1lIjoiYWRtaW5Vc2VybmFtZSIsImlhdCI6MTc1NjU3Mzk0NCwiZXhwIjoxNzU2NjYwMzQ0fQ.Hh66PMuVRjJ59t5H3_MM-ttDINgcALINYZ6C2BliIA0
 
-GET http://localhost:3000/user/shares/f9662e54-b24f-4799-9309-39fc6149f09e HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6W3sidXVpZCI6ImU5ZTQ5ZTczLTQxZmYtNDg5NC1hZDU4LTExMzljN2QwOWYwMCJ9XSwidXNlcm5hbWUiOiJ0ZXN0VXNlcm5hbWUiLCJpYXQiOjE3NTYzODg2MTcsImV4cCI6MTc1NjQ3NTAxN30.IEUmZTSlWE856sNx6oKiYwsQdOpnhVUhUbIhHNDYvjY
-
-# POST http://localhost:3000/sell/GOOG HTTP/1.1
-# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6W3sidXVpZCI6ImU5ZTQ5ZTczLTQxZmYtNDg5NC1hZDU4LTExMzljN2QwOWYwMCJ9XSwidXNlcm5hbWUiOiJ0ZXN0VXNlcm5hbWUiLCJpYXQiOjE3NTYzODg2MTcsImV4cCI6MTc1NjQ3NTAxN30.IEUmZTSlWE856sNx6oKiYwsQdOpnhVUhUbIhHNDYvjY
-# Content-Type: application/json
-
-# {
-#     "stockAmount": 100,
-#     "priceAmount": "",
-#     "currency": "usd",
-#     "portfolio_uuid": "f9662e54-b24f-4799-9309-39fc6149f09e"
-# }
+# GET http://localhost:3000/clean HTTP/1.1
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQxOTFiYTVlLTVkODAtNDQ3My1iNzBhLTI4MjdhZWVhM2M4MCIsInVzZXJuYW1lIjoiYWRtaW5Vc2VybmFtZSIsImlhdCI6MTc1NjU3Mzk0NCwiZXhwIjoxNzU2NjYwMzQ0fQ.Hh66PMuVRjJ59t5H3_MM-ttDINgcALINYZ6C2BliIA0
