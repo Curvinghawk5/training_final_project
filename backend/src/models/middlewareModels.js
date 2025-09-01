@@ -18,13 +18,43 @@ const userModels = require("./userModels");
 */
 async function convertCurrency(amount, current, target) {
     try {
+        // Validate input parameters
+        if (isNaN(amount) || !current || !target) {
+            console.log('Invalid currency conversion parameters:', { amount, current, target });
+            return null;
+        }
+
+        // If amount is 0, return 0 without API call
+        if (amount === 0 || parseFloat(amount) === 0) {
+            return 0;
+        }
+
+        // If currencies are the same, return original amount
+        if (current.toLowerCase() === target.toLowerCase()) {
+            return parseFloat(amount);
+        }
+
         const response = await axios.get(`https://2024-03-06.currency-api.pages.dev/v1/currencies/${current}.json`);
         const rate = response.data[current][target];
-        const returnAmount = amount * rate;
+        
+        // Validate the exchange rate
+        if (!rate || isNaN(rate) || rate <= 0) {
+            console.log('Invalid exchange rate received:', rate);
+            return null;
+        }
+
+        const returnAmount = parseFloat(amount) * parseFloat(rate);
+        
+        // Validate the result
+        if (isNaN(returnAmount)) {
+            console.log('Currency conversion resulted in NaN:', { amount, rate, returnAmount });
+            return null;
+        }
+
         return returnAmount;
     } catch (err) {
-        console.log('Error:', err);
-        return;
+        console.log('Error in currency conversion:', err);
+        return null;
     }
 }
 
@@ -103,45 +133,78 @@ async function updateShareValue(share_id){
     let ask = result.ask
     let bid = result.bid
 
+    // Validate ask and bid values - ensure they are valid numbers
+    if (!ask || isNaN(ask) || ask <= 0) {
+        ask = share.ask || 0;
+    }
+    if (!bid || isNaN(bid) || bid <= 0) {
+        bid = share.bid || 0;
+    }
+
     let closed = false;
 
     if(ask == 0 && bid == 0) {
         closed = true;
-        ask = share.ask;
-        bid = share.bid;
+        // Use stored values, but ensure they're valid numbers
+        ask = share.ask && !isNaN(share.ask) ? share.ask : 0;
+        bid = share.bid && !isNaN(share.bid) ? share.bid : 0;
     }
 
     //Convert currency if needed
     if(buyCurrency != userCurrency)
     {
         try {
-            ask = await convertCurrency(ask, buyCurrency, userCurrency);
+            let convertedAsk = await convertCurrency(ask, buyCurrency, userCurrency);
+            ask = (convertedAsk !== null && !isNaN(convertedAsk)) ? convertedAsk : ask;
         } catch(err) {
             console.error("Error converting ask currency: ", err);
-            return;
+            // Keep original ask value on conversion error
         }
         try {
-            bid = await convertCurrency(bid, buyCurrency, userCurrency);
+            let convertedBid = await convertCurrency(bid, buyCurrency, userCurrency);
+            bid = (convertedBid !== null && !isNaN(convertedBid)) ? convertedBid : bid;
         } catch(err) {
             console.error("Error converting bid currency: ", err);
-            return;
+            // Keep original bid value on conversion error
         }
 
         if(share.currency != userCurrency) {
             try {
-                share.total_invested = await convertCurrency(share.total_invested, share.currency, userCurrency);
+                let convertedInvested = await convertCurrency(share.total_invested, share.currency, userCurrency);
+                share.total_invested = (convertedInvested !== null && !isNaN(convertedInvested)) ? convertedInvested : share.total_invested;
             } catch(err) {
                 console.error("Error converting invested currency: ", err);
-                return;
+                // Keep original invested value on conversion error
             }
         }
     }
 
+    // Ensure all values are valid numbers before calculation
+    const validBid = (bid && !isNaN(bid)) ? parseFloat(bid) : 0;
+    const validAmountOwned = (share.amount_owned && !isNaN(share.amount_owned)) ? parseFloat(share.amount_owned) : 0;
+    const validTotalInvested = (share.total_invested && !isNaN(share.total_invested)) ? parseFloat(share.total_invested) : 0;
+    const validAsk = (ask && !isNaN(ask)) ? parseFloat(ask) : 0;
+
     //Update the share
-    let currentShareValue = bid * share.amount_owned;
+    let currentShareValue = validBid * validAmountOwned;
+    
+    // Final validation to ensure no NaN values are passed to database
+    if (isNaN(currentShareValue)) {
+        currentShareValue = 0;
+    }
+    if (isNaN(validTotalInvested)) {
+        validTotalInvested = 0;
+    }
+    if (isNaN(validAsk)) {
+        validAsk = 0;
+    }
+    if (isNaN(validBid)) {
+        validBid = 0;
+    }
+
     try {
         let update = await (sql.Shares).update(
-            { ask: ask, bid: bid, total_value: currentShareValue, total_invested: share.total_invested, currency: userCurrency, closed: closed },
+            { ask: validAsk, bid: validBid, total_value: currentShareValue, total_invested: validTotalInvested, currency: userCurrency, closed: closed },
             { where: { id: share_id } }
         );
         return currentShareValue;
@@ -172,12 +235,29 @@ async function updatePortfolioValue(uuid) {
             let shareValue;
             try {
                 shareValue = await updateShareValue(shares[i].id);
+                
+                // Validate shareValue before adding to portfolio
+                if (shareValue && !isNaN(shareValue)) {
+                    portValue += parseFloat(shareValue);
+                }
+                
+                // Validate total_invested before adding to portfolio
+                if (shares[i].total_invested && !isNaN(shares[i].total_invested)) {
+                    portInvested += parseFloat(shares[i].total_invested);
+                }
             } catch (err) {
                 console.error("Error updating share value: ", err);
-                return;
+                // Continue with other shares instead of returning
+                continue;
             }
-            portValue += shareValue;
-            portInvested += shares[i].total_invested;
+        }
+
+        // Final validation to ensure no NaN values are passed to database
+        if (isNaN(portValue)) {
+            portValue = 0;
+        }
+        if (isNaN(portInvested)) {
+            portInvested = 0;
         }
 
         try {

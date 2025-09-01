@@ -15,6 +15,10 @@ document.addEventListener('DOMContentLoaded', function () {
   );
   const resultsCount = document.getElementById('results-count');
 
+  // Global chart instances for dynamic theme switching
+  let portfolioChart = null;
+  let allocationChart = null;
+
   // Theme Toggle Functionality
   if (checkbox) {
     const currentTheme = localStorage.getItem('theme') || 'light';
@@ -33,6 +37,9 @@ document.addEventListener('DOMContentLoaded', function () {
         localStorage.setItem('theme', 'light');
       }
       updateThemeImages();
+      requestAnimationFrame(() => {
+        reinitializeCharts();
+      });
     });
   }
 
@@ -64,34 +71,143 @@ document.addEventListener('DOMContentLoaded', function () {
   const pageTemplates = {
     dashboard: `
       <div class="dashboard-content">
-        <h2>Dashboard Overview</h2>
-        <div class="finance-cards">
-          <div class="finance-card" id="deposit-withdraw-card">
-            <div class="finance-card-header">
+        <div class="dashboard-grid">
+          <!-- Portfolio Value Card -->
+          <div class="portfolio-overview-card">
+            <div class="portfolio-header">
+              <h2>Total Portfolio Value</h2>
+              <div class="portfolio-period">
+                <select id="portfolio-period" class="period-selector">
+                  <option value="1D">1D</option>
+                  <option value="1W">1W</option>
+                  <option value="1M">1M</option>
+                  <option value="3M">3M</option>
+                  <option value="1Y" selected>1Y</option>
+                </select>
+              </div>
+            </div>
+            <div class="portfolio-value">
+              <div class="main-value" id="total-portfolio-value">$0.00</div>
+              <div class="value-change" id="portfolio-change">
+                <span class="change-amount" id="change-amount">+$0.00</span>
+                <span class="change-percent" id="change-percent">(+0.00%)</span>
+              </div>
+            </div>
+            <div class="portfolio-stats-dashboard">
+              <div class="stat-item">
+                <span class="stat-label">Available Cash</span>
+                <span class="stat-value" id="available-balance-val">$0.00</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Total Invested</span>
+                <span class="stat-value" id="total-invested-val">$0.00</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Total Deposited</span>
+                <span class="stat-value" id="total-deposited-val">$0.00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Portfolio Performance Chart -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <div class="chart-title-section">
+                <h3>Annual Portfolio Growth</h3>
+                <div class="chart-subtitle">Portfolio performance over the last 12 months</div>
+                <div class="chart-legend">
+                  <div class="legend-item">
+                    <div class="legend-color portfolio-line"></div>
+                    <span>Portfolio Value</span>
+                  </div>
+                </div>
+              </div>
+              <div class="chart-period-controls">
+                <select id="chart-period">
+                  <option value="1Y">This year</option>
+                  <option value="6M">6 months</option>
+                  <option value="3M">3 months</option>
+                  <option value="1M">1 month</option>
+                </select>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="portfolio-chart"></canvas>
+            </div>
+            <div class="chart-stats">
+              <div class="chart-stat">
+                <div class="chart-stat-label">Total Return</div>
+                <div class="chart-stat-value" id="chart-total-return">+15.2%</div>
+              </div>
+              <div class="chart-stat">
+                <div class="chart-stat-label">Best Month</div>
+                <div class="chart-stat-value" id="chart-best-month">+8.4%</div>
+              </div>
+              <div class="chart-stat">
+                <div class="chart-stat-label">Worst Month</div>
+                <div class="chart-stat-value" id="chart-worst-month">-3.2%</div>
+              </div>
+              <div class="chart-stat">
+                <div class="chart-stat-label">Volatility</div>
+                <div class="chart-stat-value" id="chart-volatility">12.5%</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Funds Management Card -->
+          <div class="funds-card">
+            <div class="funds-header">
               <h3>Your Funds</h3>
-              <div class="finance-card-actions">
+              <div class="funds-actions">
                 <button class="btn-primary finance-btn" id="open-deposit-modal">Deposit</button>
                 <button class="btn-secondary finance-btn" id="open-withdraw-modal">Withdraw</button>
               </div>
             </div>
-            <div class="finance-stats">
-              <div class="finance-stat" style="background: rgba(41, 157, 145, 0.1); padding: 12px; border-radius: 8px;">
-                <span class="stat-label" style="font-weight: 600; color: var(--color-brand);">Available to Invest</span>
-                <span class="stat-value" id="available-balance-val" style="font-size: 24px; font-weight: 700; color: var(--color-brand);">Loading...</span>
-              </div>
-              <div class="finance-stat">
-                <span class="stat-label">Currently Invested</span>
-                <span class="stat-value" id="total-invested-val">Loading...</span>
-              </div>
-              <div class="finance-stat">
-                <span class="stat-label">Total Deposited</span>
-                <span class="stat-value" id="total-deposited-val">Loading...</span>
+            <div class="funds-summary">
+              <div class="balance-display">
+                <div class="balance-amount" id="main-balance-display">$0.00</div>
+                <div class="balance-label">Available to Invest</div>
               </div>
             </div>
-            <p class="muted small" id="funds-note" style="margin-top: 12px; font-style: italic;"></p>
+          </div>
+
+          <!-- Portfolio Allocation Pie Chart -->
+          <div class="allocation-card">
+            <div class="allocation-header">
+              <h3>Portfolio Allocation</h3>
+              <div class="allocation-total">
+                <span class="allocation-label">Total Holdings</span>
+                <span class="allocation-value" id="total-holdings-value">$0.00</span>
+              </div>
+            </div>
+            <div class="allocation-content">
+              <div class="pie-chart-container">
+                <canvas id="allocation-chart"></canvas>
+              </div>
+              <div class="allocation-legend" id="allocation-legend">
+                <!-- Legend items will be dynamically generated -->
+              </div>
+            </div>
+          </div>
+
+          <!-- News Feed -->
+          <div class="news-card">
+            <div class="news-header">
+              <h3>Market News</h3>
+              <button class="refresh-btn" id="refresh-news" title="Refresh News">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M23 4v6h-6"></path>
+                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                </svg>
+              </button>
+            </div>
+            <div class="news-list" id="news-list">
+              <div class="news-loading">Loading latest market news...</div>
+            </div>
           </div>
         </div>
 
+        <!-- Deposit Modal -->
         <div class="modal-overlay" id="deposit-modal-overlay" style="display: none;">
           <div class="modal">
             <div class="modal-header">
@@ -111,6 +227,7 @@ document.addEventListener('DOMContentLoaded', function () {
           </div>
         </div>
 
+        <!-- Withdraw Modal -->
         <div class="modal-overlay" id="withdraw-modal-overlay" style="display: none;">
           <div class="modal">
             <div class="modal-header">
@@ -586,6 +703,72 @@ document.addEventListener('DOMContentLoaded', function () {
   let portfoliosData = [];
   let portfoliosLoading = false;
   let portfoliosError = null;
+  let portfoliosLastFetch = 0;
+  const PORTFOLIOS_CACHE_DURATION = 60000; // 30 seconds cache
+
+  // Holdings cache
+  const holdingsCache = new Map();
+  const HOLDINGS_CACHE_DURATION = 60000; // 30 seconds cache
+
+  // Cache invalidation functions
+  function invalidatePortfoliosCache() {
+    portfoliosData = [];
+    portfoliosLastFetch = 0;
+  }
+
+  function invalidateHoldingsCache(portfolioUuid = null) {
+    if (portfolioUuid) {
+      holdingsCache.delete(portfolioUuid);
+    } else {
+      holdingsCache.clear();
+    }
+  }
+
+  function invalidateAllCaches() {
+    invalidatePortfoliosCache();
+    invalidateHoldingsCache();
+  }
+
+  // Background update system
+  let backgroundUpdateInterval = null;
+  const BACKGROUND_UPDATE_INTERVAL = 60000; // 1 minute
+
+  async function performBackgroundUpdate() {
+    try {
+      // Only update if user is authenticated and on dashboard
+      const currentView = getCurrentView();
+      if (currentView === 'dashboard') {
+        // Call backend to update portfolio values
+        await authenticatedFetch(`${API_BASE}/user/update-portfolios`, {
+          method: 'POST',
+        });
+
+        // Invalidate caches to force fresh data on next request
+        invalidateAllCaches();
+
+        console.log('Background portfolio update completed');
+      }
+    } catch (error) {
+      console.warn('Background update failed:', error);
+    }
+  }
+
+  function startBackgroundUpdates() {
+    if (backgroundUpdateInterval) {
+      clearInterval(backgroundUpdateInterval);
+    }
+    backgroundUpdateInterval = setInterval(
+      performBackgroundUpdate,
+      BACKGROUND_UPDATE_INTERVAL
+    );
+  }
+
+  function stopBackgroundUpdates() {
+    if (backgroundUpdateInterval) {
+      clearInterval(backgroundUpdateInterval);
+      backgroundUpdateInterval = null;
+    }
+  }
 
   /*
     Update the page title greeting with the users first name
@@ -617,6 +800,45 @@ document.addEventListener('DOMContentLoaded', function () {
         ? '/images/bar-chart-icon-dark.png'
         : '/images/bar-chart-icon-light.png';
     }
+  }
+
+  /*
+    Reinitializes all charts with updated theme colors
+  */
+  function reinitializeCharts() {
+    // Destroy existing portfolio chart if it exists
+    if (portfolioChart) {
+      portfolioChart.destroy();
+      portfolioChart = null;
+    }
+
+    // Destroy existing allocation chart if it exists
+    if (allocationChart) {
+      allocationChart.destroy();
+      allocationChart = null;
+    }
+
+    // Reinitialize charts if we're on the dashboard
+    const currentView = getCurrentView();
+    if (currentView === 'dashboard') {
+      initializePortfolioChart();
+      initializeAllocationChart();
+    }
+  }
+
+  /*
+    Gets the current active view/page
+    @return {string} - Current view name
+  */
+  function getCurrentView() {
+    const activeNavItem = document.querySelector('.nav-item.active');
+    if (activeNavItem) {
+      const navText = activeNavItem.querySelector('.nav-text');
+      if (navText) {
+        return navText.textContent.toLowerCase();
+      }
+    }
+    return 'dashboard'; // default
   }
 
   // Utils
@@ -659,7 +881,20 @@ document.addEventListener('DOMContentLoaded', function () {
     return (def || portfoliosData[0])?.uuid || null;
   }
 
-  async function fetchHoldings(portfolioUuid) {
+  async function fetchHoldings(portfolioUuid, forceRefresh = false) {
+    // Check cache first
+    const now = Date.now();
+    const cacheKey = portfolioUuid;
+    const cached = holdingsCache.get(cacheKey);
+
+    if (
+      !forceRefresh &&
+      cached &&
+      now - cached.timestamp < HOLDINGS_CACHE_DURATION
+    ) {
+      return cached.data;
+    }
+
     const res = await authenticatedFetch(
       `${API_BASE}/user/shares/${portfolioUuid}`
     );
@@ -676,6 +911,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Normalize to array
     const normalizedData = Array.isArray(data) ? data : data ? [data] : [];
+
+    // Cache the result
+    holdingsCache.set(cacheKey, {
+      data: normalizedData,
+      timestamp: now,
+    });
 
     return normalizedData;
   }
@@ -909,6 +1150,7 @@ document.addEventListener('DOMContentLoaded', function () {
           throw new Error(payload.error || payload.message || 'Deposit failed');
 
         await refreshFundsCard();
+        invalidateAllCaches(); // Invalidate cache after deposit
         closeOverlay(depositOverlay);
       } catch (err) {
         showFormError(depositForm, err.message || 'Deposit failed');
@@ -937,6 +1179,7 @@ document.addEventListener('DOMContentLoaded', function () {
             payload.error || payload.message || 'Withdraw failed'
           );
         await refreshFundsCard();
+        invalidateAllCaches(); // Invalidate cache after withdrawal
         closeOverlay(withdrawOverlay);
       } catch (err) {
         showFormError(withdrawForm, err.message || 'Withdraw failed');
@@ -1532,11 +1775,534 @@ document.addEventListener('DOMContentLoaded', function () {
     init();
   }
 
+  /////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////    DASHBOARD CHARTS    //////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////
+
+  /*
+    Initializes the dashboard with charts and data loading
+    @return {void} - Initializes the dashboard
+  */
+  async function initializeDashboard() {
+    try {
+      await Promise.all([
+        loadDashboardData(),
+        initializePortfolioChart(),
+        initializeAllocationChart(),
+        loadNewsData(),
+      ]);
+    } catch (error) {
+      console.error('Error initializing dashboard:', error);
+    }
+  }
+
+  /*
+    Loads all dashboard data including balance, portfolios, and holdings
+    @return {void} - Loads dashboard data
+  */
+  async function loadDashboardData() {
+    try {
+      // Fetch user balance
+      const balance = await fetchBalance();
+
+      // Update balance displays
+      const availableBalanceEl = document.getElementById(
+        'available-balance-val'
+      );
+      const mainBalanceDisplayEl = document.getElementById(
+        'main-balance-display'
+      );
+
+      if (availableBalanceEl) {
+        availableBalanceEl.textContent = formatCurrency(balance);
+      }
+      if (mainBalanceDisplayEl) {
+        mainBalanceDisplayEl.textContent = formatCurrency(balance);
+      }
+
+      // Fetch portfolios and calculate total values
+      await ensurePortfoliosLoaded();
+
+      // Calculate total portfolio value and invested amount
+      let totalInvested = 0;
+      let totalPortfolioValue = 0;
+      let totalDeposited = balance; // Start with current balance
+
+      for (const portfolio of portfoliosData) {
+        try {
+          const holdings = await fetchHoldings(portfolio.uuid);
+          if (holdings && holdings.length > 0) {
+            for (const holding of holdings) {
+              const investedAmount =
+                Number(holding.amount_owned || 0) *
+                Number(holding.buy_price || 0);
+              const currentValue = Number(holding.total_value || 0);
+
+              totalInvested += investedAmount;
+              totalPortfolioValue += currentValue;
+            }
+          }
+        } catch (error) {
+          console.warn(
+            `Error fetching holdings for portfolio ${portfolio.uuid}:`,
+            error
+          );
+        }
+      }
+
+      totalDeposited += totalInvested; // Add invested amount to total deposited
+
+      // Update dashboard values
+      const totalPortfolioEl = document.getElementById('total-portfolio-value');
+      const totalInvestedEl = document.getElementById('total-invested-val');
+      const totalDepositedEl = document.getElementById('total-deposited-val');
+      const changeAmountEl = document.getElementById('change-amount');
+      const changePercentEl = document.getElementById('change-percent');
+      const portfolioChangeEl = document.getElementById('portfolio-change');
+      const totalHoldingsValueEl = document.getElementById(
+        'total-holdings-value'
+      );
+
+      const totalValue = balance + totalPortfolioValue;
+      const changeAmount = totalPortfolioValue - totalInvested;
+      const changePercent =
+        totalInvested > 0 ? (changeAmount / totalInvested) * 100 : 0;
+
+      if (totalPortfolioEl) {
+        totalPortfolioEl.textContent = formatCurrency(totalValue);
+      }
+      if (totalInvestedEl) {
+        totalInvestedEl.textContent = formatCurrency(totalInvested);
+      }
+      if (totalDepositedEl) {
+        totalDepositedEl.textContent = formatCurrency(totalDeposited);
+      }
+      if (totalHoldingsValueEl) {
+        totalHoldingsValueEl.textContent = formatCurrency(totalPortfolioValue);
+      }
+
+      // Update change indicators
+      if (changeAmountEl && changePercentEl && portfolioChangeEl) {
+        const isPositive = changeAmount >= 0;
+        changeAmountEl.textContent = `${isPositive ? '+' : ''}${formatCurrency(Math.abs(changeAmount))}`;
+        changePercentEl.textContent = `(${isPositive ? '+' : ''}${changePercent.toFixed(2)}%)`;
+
+        portfolioChangeEl.className = `value-change ${isPositive ? 'positive' : 'negative'}`;
+      }
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+    }
+  }
+
+  /*
+    Initializes the portfolio performance chart with dummy data
+    @return {void} - Initializes the chart
+  */
+  function initializePortfolioChart() {
+    const chartCanvas = document.getElementById('portfolio-chart');
+    if (!chartCanvas) return;
+
+    // Destroy existing portfolio chart if it exists
+    if (portfolioChart) {
+      portfolioChart.destroy();
+      portfolioChart = null;
+    }
+
+    const ctx = chartCanvas.getContext('2d');
+
+    // Generate dummy data for the past year
+    const labels = [];
+    const data = [];
+    const monthlyChanges = [];
+    const startDate = new Date();
+    startDate.setFullYear(startDate.getFullYear() - 1);
+
+    let currentValue = 10000; // Starting value
+    const initialValue = currentValue;
+
+    for (let i = 0; i < 12; i++) {
+      const date = new Date(startDate);
+      date.setMonth(date.getMonth() + i);
+      labels.push(date.toLocaleDateString('en-US', { month: 'short' }));
+
+      // Add some realistic variance
+      const changePercent = (Math.random() - 0.4) * 0.15; // -6% to +9% monthly change
+      monthlyChanges.push(changePercent * 100);
+      currentValue *= 1 + changePercent;
+      data.push(Math.round(currentValue));
+    }
+
+    // Calculate stats
+    const totalReturn = (
+      ((currentValue - initialValue) / initialValue) *
+      100
+    ).toFixed(1);
+    const bestMonth = Math.max(...monthlyChanges).toFixed(1);
+    const worstMonth = Math.min(...monthlyChanges).toFixed(1);
+    const volatility =
+      (monthlyChanges.reduce((sum, change, index, arr) => {
+        const mean = arr.reduce((a, b) => a + b) / arr.length;
+        return sum + Math.pow(change - mean, 2);
+      }, 0) /
+        monthlyChanges.length) **
+      0.5;
+
+    // Update chart stats
+    const totalReturnEl = document.getElementById('chart-total-return');
+    const bestMonthEl = document.getElementById('chart-best-month');
+    const worstMonthEl = document.getElementById('chart-worst-month');
+    const volatilityEl = document.getElementById('chart-volatility');
+
+    if (totalReturnEl)
+      totalReturnEl.textContent = `${totalReturn >= 0 ? '+' : ''}${totalReturn}%`;
+    if (bestMonthEl) bestMonthEl.textContent = `+${bestMonth}%`;
+    if (worstMonthEl) worstMonthEl.textContent = `${worstMonth}%`;
+    if (volatilityEl) volatilityEl.textContent = `${volatility.toFixed(1)}%`;
+
+    // Get theme colors
+    const isDark = document.body.getAttribute('data-theme') === 'dark';
+    const brandColor = isDark ? '#9c80ff' : '#299d91'; // Purple for dark mode, teal for light mode
+    const textColor = isDark ? '#ffffff' : '#191919';
+    const gridColor = isDark ? '#333333' : '#e5e5e5';
+
+    portfolioChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Portfolio Value',
+            data: data,
+            borderColor: brandColor,
+            backgroundColor: `${brandColor}20`,
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: brandColor,
+            pointBorderColor: brandColor,
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false,
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: false,
+            ticks: {
+              color: textColor,
+              callback: function (value) {
+                return formatCurrency(value);
+              },
+            },
+            grid: {
+              color: gridColor,
+            },
+          },
+          x: {
+            ticks: {
+              color: textColor,
+            },
+            grid: {
+              color: gridColor,
+            },
+          },
+        },
+        elements: {
+          point: {
+            hoverBorderWidth: 3,
+          },
+        },
+      },
+    });
+  }
+
+  /*
+    Initializes the portfolio allocation pie chart
+    @return {void} - Initializes the allocation chart
+  */
+  // Guard to prevent race conditions across rapid re-inits (e.g., theme toggle)
+  let allocationChartRequestIdCounter = 0;
+
+  async function initializeAllocationChart() {
+    const myRequestId = ++allocationChartRequestIdCounter;
+    const chartCanvas = document.getElementById('allocation-chart');
+    const legendContainer = document.getElementById('allocation-legend');
+    if (!chartCanvas || !legendContainer) return;
+
+    // Destroy existing allocation chart if it exists
+    if (allocationChart) {
+      allocationChart.destroy();
+      allocationChart = null;
+    }
+
+    try {
+      await ensurePortfoliosLoaded();
+      if (myRequestId !== allocationChartRequestIdCounter) return;
+
+      const allHoldings = [];
+
+      // Collect all holdings from all portfolios
+      for (const portfolio of portfoliosData) {
+        try {
+          const holdings = await fetchHoldings(portfolio.uuid);
+          if (myRequestId !== allocationChartRequestIdCounter) return;
+          if (holdings && holdings.length > 0) {
+            allHoldings.push(
+              ...holdings.map(h => ({
+                ...h,
+                portfolioName: portfolio.name,
+              }))
+            );
+          }
+        } catch (error) {
+          console.warn(`Error fetching holdings for allocation chart:`, error);
+        }
+      }
+
+      if (myRequestId !== allocationChartRequestIdCounter) return;
+      if (allHoldings.length === 0) {
+        // Show empty state
+        chartCanvas.style.display = 'none';
+        legendContainer.innerHTML =
+          '<div style="text-align: center; color: var(--color-muted); padding: 20px;">No holdings to display</div>';
+        return;
+      }
+
+      // Aggregate holdings by stock symbol
+      const stockTotals = {};
+      allHoldings.forEach(holding => {
+        const symbol = holding.tag || holding.symbol || 'Unknown';
+        const value = Number(holding.total_value || 0);
+
+        if (stockTotals[symbol]) {
+          stockTotals[symbol] += value;
+        } else {
+          stockTotals[symbol] = value;
+        }
+      });
+
+      // Convert to arrays for chart
+      const symbols = Object.keys(stockTotals);
+      const values = Object.values(stockTotals);
+      const totalValue = values.reduce((sum, val) => sum + val, 0);
+
+      // Generate colors for each stock
+      const colors = generateChartColors(symbols.length);
+
+      // Ensure canvas and legend are visible when we have data
+      chartCanvas.style.display = 'block';
+      legendContainer.style.display = 'block';
+
+      const ctx = chartCanvas.getContext('2d');
+
+      allocationChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: symbols,
+          datasets: [
+            {
+              data: values,
+              backgroundColor: colors,
+              borderWidth: 2,
+              borderColor:
+                document.body.getAttribute('data-theme') === 'dark'
+                  ? '#0f0f0f'
+                  : '#ffffff',
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false,
+            },
+          },
+          cutout: '60%',
+        },
+      });
+
+      // Generate custom legend
+      let legendHTML = '';
+      symbols.forEach((symbol, index) => {
+        const value = values[index];
+        const percentage =
+          totalValue > 0 ? ((value / totalValue) * 100).toFixed(1) : 0;
+
+        legendHTML += `
+          <div class="allocation-legend-item">
+            <div class="legend-stock-info">
+              <div class="legend-stock-color" style="background-color: ${colors[index]}"></div>
+              <div class="legend-stock-details">
+                <div class="legend-stock-symbol">${symbol}</div>
+                <div class="legend-stock-percentage">${percentage}%</div>
+              </div>
+            </div>
+            <div class="legend-stock-value">${formatCurrency(value)}</div>
+          </div>
+        `;
+      });
+
+      legendContainer.innerHTML = legendHTML;
+    } catch (error) {
+      console.error('Error initializing allocation chart:', error);
+      legendContainer.innerHTML =
+        '<div style="text-align: center; color: var(--color-negative); padding: 20px;">Error loading chart data</div>';
+    }
+  }
+
+  /*
+    Generates an array of colors for chart data
+    @param {number} count - Number of colors needed
+    @return {Array} - Array of color strings
+  */
+  function generateChartColors(count) {
+    const isDark = document.body.getAttribute('data-theme') === 'dark';
+
+    const lightColors = [
+      '#299d91',
+      '#3b82f6',
+      '#8b5cf6',
+      '#ef4444',
+      '#f59e0b',
+      '#10b981',
+      '#f97316',
+      '#ec4899',
+      '#6366f1',
+      '#84cc16',
+    ];
+
+    const darkColors = [
+      '#299d91',
+      '#60a5fa',
+      '#a78bfa',
+      '#f87171',
+      '#fbbf24',
+      '#34d399',
+      '#fb923c',
+      '#f472b6',
+      '#818cf8',
+      '#a3e635',
+    ];
+
+    const colors = isDark ? darkColors : lightColors;
+
+    if (count <= colors.length) {
+      return colors.slice(0, count);
+    }
+
+    // Generate additional colors if needed
+    const result = [...colors];
+    while (result.length < count) {
+      result.push(
+        `hsl(${Math.floor(Math.random() * 360)}, 70%, ${isDark ? 60 : 50}%)`
+      );
+    }
+
+    return result;
+  }
+
+  /*
+    Loads news data from the API
+    @return {void} - Loads and displays news
+  */
+  async function loadNewsData() {
+    const newsList = document.getElementById('news-list');
+    const refreshBtn = document.getElementById('refresh-news');
+
+    if (!newsList) return;
+
+    // Set up refresh button
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', loadNewsData);
+    }
+
+    try {
+      newsList.innerHTML =
+        '<div class="news-loading">Loading latest market news...</div>';
+
+      // Use a general financial news search term
+      const response = await authenticatedFetch(
+        `${API_BASE}/search/news/financial markets`
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch news');
+      }
+
+      const newsData = await response.json();
+
+      if (!newsData || newsData.length === 0) {
+        newsList.innerHTML =
+          '<div class="news-loading">No news available at the moment.</div>';
+        return;
+      }
+
+      // Take only the first 5 articles and format them
+      const articles = newsData.slice(0, 5);
+
+      let newsHTML = '';
+      articles.forEach(article => {
+        const title = article.title || 'No title available';
+        const source = article.publisher || 'Unknown source';
+        const link = article.link || '#';
+        const timestamp = article.providerPublishTime
+          ? new Date(article.providerPublishTime * 1000).toLocaleDateString()
+          : 'Recent';
+
+        newsHTML += `
+          <a href="${link}" target="_blank" class="news-item">
+            <div class="news-title">${title}</div>
+            <div class="news-meta">
+              <span class="news-source">${source}</span>
+              <span class="news-time">${timestamp}</span>
+            </div>
+          </a>
+        `;
+      });
+
+      newsList.innerHTML = newsHTML;
+    } catch (error) {
+      console.error('Error loading news:', error);
+      newsList.innerHTML =
+        '<div class="news-error">Unable to load news at this time.</div>';
+    }
+  }
+
   /*
     Fetches portfolios from the API and poulates them with data
     @return {Promise<Array>} - Array of populated portfolio objects
   */
-  async function fetchPortfolios() {
+  async function fetchPortfolios(forceRefresh = false) {
+    // Check cache first
+    const now = Date.now();
+    if (
+      !forceRefresh &&
+      portfoliosData.length > 0 &&
+      now - portfoliosLastFetch < PORTFOLIOS_CACHE_DURATION
+    ) {
+      return portfoliosData;
+    }
+
+    // Prevent multiple concurrent requests
+    if (portfoliosLoading) {
+      // Wait for existing request to complete
+      while (portfoliosLoading) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      return portfoliosData;
+    }
+
     portfoliosLoading = true;
     portfoliosError = null;
 
@@ -1584,6 +2350,7 @@ document.addEventListener('DOMContentLoaded', function () {
       );
 
       portfoliosData = mapped;
+      portfoliosLastFetch = now;
       return mapped;
     } catch (error) {
       portfoliosError = error.message;
@@ -1843,7 +2610,7 @@ document.addEventListener('DOMContentLoaded', function () {
     @return {void} - Redirects to the holdings page
   */
   window.redirectToHoldings = function (portfolioUuid) {
-    const holdingsNavItem = document.querySelector('.nav-item:nth-child(4)'); // Holdings is the 4th nav item
+    const holdingsNavItem = document.querySelector('.nav-item:nth-child(3)'); // Holdings is the 3rd nav item
     if (holdingsNavItem) {
       holdingsNavItem.click();
     }
@@ -2089,6 +2856,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Create portfolio via API and refresh portfolios list
         await createPortfolioAPI(portfolioData);
+        invalidatePortfoliosCache(); // Invalidate cache after creating portfolio
         await loadPortfoliosData();
         hideModal();
       } catch (error) {
@@ -2294,6 +3062,10 @@ document.addEventListener('DOMContentLoaded', function () {
       // If dashboard, wire funds card and modals
       if (page === 'dashboard') {
         setupFundsCard();
+        initializeDashboard();
+        startBackgroundUpdates(); // Start background updates for dashboard
+      } else {
+        stopBackgroundUpdates(); // Stop background updates when not on dashboard
       }
 
       // If holdings, wire summary, list, search and buy
