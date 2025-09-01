@@ -786,6 +786,34 @@ body.auth-page {
   display: none;
 }
 
+
+/* Transactions Page Buy/Sell Style */
+
+/* Buy Type */
+.transaction-type.buy {
+  color: blue;
+  font-weight: bold;
+}
+
+.transaction-type.buy .arrow::before {
+  content: "↓"; /* Down arrow */
+  color: blue;
+  margin-right: 4px;
+}
+
+/* Sell Type */
+.transaction-type.sell {
+  color: green;
+  font-weight: bold;
+}
+
+.transaction-type.sell .arrow::before {
+  content: "↑"; /* Up arrow */
+  color: green;
+  margin-right: 4px;
+}
+
+
 /* Stocks Page Styles */
 .stocks-page {
   margin: 0;
