@@ -126,7 +126,15 @@ async function updateShareValue(share_id){
             console.error("Error converting bid currency: ", err);
             return;
         }
-       share.total_invested = await convertCurrency(share.total_invested, buyCurrency, userCurrency);
+
+        if(share.currency != userCurrency) {
+            try {
+                share.total_invested = await convertCurrency(share.total_invested, share.currency, userCurrency);
+            } catch(err) {
+                console.error("Error converting invested currency: ", err);
+                return;
+            }
+        }
     }
 
     //Update the share

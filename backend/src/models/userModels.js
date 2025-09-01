@@ -142,13 +142,14 @@ async function gainMoney(amount, uuid) {
 */
 async function getBalance(uuid) {
     try {
-        return await (sql.Users).findAll({
+        let user = await (sql.Users).findOne({
             attributes: ['money'],
             where: {uuid: uuid}
         });
+        return user ? user.money : 0;
     } catch (err) {
         console.error("Error getting balance: ", err);
-        return;
+        return 0;
     }
 }
 
