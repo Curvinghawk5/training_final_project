@@ -150,6 +150,11 @@ const Shares = seq.define('shares', {
         type: DataTypes.STRING,
         allowedNull: false,
         defaultValue: "usd"
+    },
+    closed: {
+        type: DataTypes.BOOLEAN,
+        allowedNull: false,
+        defaultValue: false
     }
 },
 {

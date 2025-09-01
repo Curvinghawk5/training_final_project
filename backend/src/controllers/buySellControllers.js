@@ -57,6 +57,11 @@ async function buyStocks(req, res) {
         return;
     }
 
+    if(result.ask == 0 && result.bid == 0){
+        res.status(400).json({error: "Market Closed"});
+        return;
+    }
+
     //If no portfolio defined, get default one
     if(!portfolio_uuid || portfolio_uuid == "") {
         try {
@@ -160,6 +165,11 @@ async function sellStocks(req, res) {
     } catch (err) {
         res.status(500).json({error: "Internal Server Error"});
         console.log("Error getting stock info: ", err);
+        return;
+    }
+
+    if(result.ask == 0 && result.bid == 0){
+        res.status(400).json({error: "Market Closed"});
         return;
     }
 

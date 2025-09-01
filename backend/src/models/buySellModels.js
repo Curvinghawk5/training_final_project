@@ -178,7 +178,8 @@ async function buyStock(tag, cost, amount, owner_uuid, portfolio_uuid) {
             amount_owned: amount,
             total_invested: cost,
             total_value: currentValue,
-            currency: await userModels.getUserPreferedCurrencyUUID(owner_uuid)
+            currency: await userModels.getUserPreferedCurrencyUUID(owner_uuid),
+            closed: false
         }
         return await (sql.Shares).create(share);
     } catch (err) {

@@ -1,8 +1,12 @@
-GET http://localhost:3000/price/GOOG HTTP/1.1
+# GET http://localhost:3000/price/GOOG HTTP/1.1
 
-# GET http://localhost:3000/search/GOOG HTTP/1.1
+# GET http://localhost:3000/search/Tesla HTTP/1.1
 
 # GET http://localhost:3000/search/news/Nvidia HTTP/1.1
+
+GET http://localhost:3000/search/financial/TSLA HTTP/1.1
+
+# GET http://localhost:3000/search/financial/NVDA HTTP/1.1
 
 # GET http://localhost:3000/search/financial/APPL HTTP/1.1
 

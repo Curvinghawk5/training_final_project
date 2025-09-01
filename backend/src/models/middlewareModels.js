@@ -103,6 +103,14 @@ async function updateShareValue(share_id){
     let ask = result.ask
     let bid = result.bid
 
+    let closed = false;
+
+    if(ask == 0 && bid == 0) {
+        closed = true;
+        ask = share.ask;
+        bid = share.bid;
+    }
+
     //Convert currency if needed
     if(buyCurrency != userCurrency)
     {
@@ -125,7 +133,7 @@ async function updateShareValue(share_id){
     let currentShareValue = bid * share.amount_owned;
     try {
         let update = await (sql.Shares).update(
-            { ask: ask, bid: bid, total_value: currentShareValue, total_invested: share.total_invested, currency: userCurrency },
+            { ask: ask, bid: bid, total_value: currentShareValue, total_invested: share.total_invested, currency: userCurrency, closed: closed },
             { where: { id: share_id } }
         );
         return currentShareValue;
