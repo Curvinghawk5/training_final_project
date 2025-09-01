@@ -312,9 +312,25 @@ async function getPortfolioValue(portfolio_uuid, owner_uuid) {
         let totalInvested = 0;
         //Total up value and invested value
         for(let i = 0; i < share.length; i++) {
-            totalValue += share[i].total_value;
-            totalInvested += share[i].total_invested;
+            // Validate values before adding to prevent NaN
+            const shareValue = share[i].total_value;
+            const shareInvested = share[i].total_invested;
+            
+            if (shareValue && !isNaN(shareValue)) {
+                totalValue += parseFloat(shareValue);
+            }
+            if (shareInvested && !isNaN(shareInvested)) {
+                totalInvested += parseFloat(shareInvested);
+            }
         };
+
+        // Final validation to ensure no NaN values are passed to database
+        if (isNaN(totalValue)) {
+            totalValue = 0;
+        }
+        if (isNaN(totalInvested)) {
+            totalInvested = 0;
+        }
         //Update the portfolio
         try {
             await (sql.Portfolio).update(
@@ -359,7 +375,18 @@ async function getPortfolioReturn(portfolio_uuid, owner_uuid) {
             return;
         }
         //Return the difference
-        return value - portfolio.inputValue;
+        // Validate values to prevent NaN
+        const validValue = (value && !isNaN(value)) ? parseFloat(value) : 0;
+        const validInputValue = (portfolio.inputValue && !isNaN(portfolio.inputValue)) ? parseFloat(portfolio.inputValue) : 0;
+        
+        const difference = validValue - validInputValue;
+        
+        // Final validation to ensure result is not NaN
+        if (isNaN(difference)) {
+            return 0;
+        }
+        
+        return difference;
     } catch (err) {
         console.error("Error getting value:", err);
     }
@@ -393,7 +420,23 @@ async function getPortfolioReturnPercentage(portfolio_uuid, owner_uuid) {
             return;
         }
         //Return the difference as a percentage
-        return 1 + ((value - portfolio.inputValue)/portfolio.inputValue);
+        // Validate values to prevent division by zero or NaN
+        const validValue = (value && !isNaN(value)) ? parseFloat(value) : 0;
+        const validInputValue = (portfolio.inputValue && !isNaN(portfolio.inputValue)) ? parseFloat(portfolio.inputValue) : 0;
+        
+        if (validInputValue === 0) {
+            // If no money was invested, return 1 (no change)
+            return 1;
+        }
+        
+        const percentage = 1 + ((validValue - validInputValue) / validInputValue);
+        
+        // Final validation to ensure result is not NaN
+        if (isNaN(percentage)) {
+            return 1;
+        }
+        
+        return percentage;
     } catch (err) {
         console.error("Error getting value:", err);
     }

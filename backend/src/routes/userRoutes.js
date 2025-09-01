@@ -24,4 +24,7 @@ router.get("/user/logs", authenticationToken.authenticateToken, controller.getLo
 //Change Preferred Currency//
 router.post("/user/currency", authenticationToken.authenticateToken, controller.changePreferredCurrency)     //Allows the user to change their preffered currency
 
+//Portfolio Updates//
+router.post("/user/update-portfolios", authenticationToken.authenticateToken, controller.updateUserPortfolios)  //Updates all user portfolios
+
 module.exports = router;

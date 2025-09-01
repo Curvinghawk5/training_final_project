@@ -153,20 +153,12 @@ async function getShares(req, res) {
     const owner_uuid = req.user.uuid;                   //Get uuid from authentication
     const portfolio_uuid = req.params.portfolio_uuid;   //Get portfolio uuid from params
     try {
-        const update = await middlewareModel.updateOwnersPortfolios(owner_uuid);      //Make sure all shares are up to date
-        try {
-            const result = await userModel.getAllShares(owner_uuid, portfolio_uuid)       //Get all shares
-            res.status(200).json(result);
-            return;
-        } catch (err) {
-            res.status(500).json({error: "Internal Server Error"})
-            console.error("Error getting shares: ", err);
-            return;
-        }
-    }
-    catch (err) {
+        const result = await userModel.getAllShares(owner_uuid, portfolio_uuid)       //Get all shares
+        res.status(200).json(result);
+        return;
+    } catch (err) {
         res.status(500).json({error: "Internal Server Error"})
-        console.error("Error updating portfolio: ", err);
+        console.error("Error getting shares: ", err);
         return;
     }
 }
@@ -217,6 +209,25 @@ async function changePreferredCurrency(req, res) {
     }
 }
 
+/*
+    Update all portfolios for the current user (separate endpoint for background updates)
+    POST /user/update-portfolios
+    Auth: Required
+    @return {string} - A message indicating success or failure
+*/
+async function updateUserPortfolios(req, res) {
+    const owner_uuid = req.user.uuid;
+    try {
+        const update = await middlewareModel.updateOwnersPortfolios(owner_uuid);
+        res.status(200).json({message: "Portfolios updated successfully"});
+        return;
+    } catch (err) {
+        res.status(500).json({error: "Internal Server Error"});
+        console.error("Error updating user portfolios: ", err);
+        return;
+    }
+}
+
 module.exports = {
     //User Info//
     getFirstName,
@@ -233,5 +244,8 @@ module.exports = {
     getLogs,
 
     //Change Preferred Currency//
-    changePreferredCurrency
+    changePreferredCurrency,
+
+    //Portfolio Updates//
+    updateUserPortfolios
 }

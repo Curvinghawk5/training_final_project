@@ -22,7 +22,8 @@
 
   /* Design Tokens */
   --radius: 12px;
-  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05), 0 1px 1px rgba(16, 24, 40, 0.08);
+  --shadow-sm:
+    0 1px 2px rgba(16, 24, 40, 0.05), 0 1px 1px rgba(16, 24, 40, 0.08);
 
   /* Legacy Auth Variable Aliases */
   --brand: var(--color-brand);
@@ -95,7 +96,7 @@
   --color-sidebar: #0a0a0a;
   --color-secondary: #ffffff;
   --color-buttons: #9c80ff;
-  --color-graphs: #299d91;
+  --color-graphs: #9c80ff;
   --color-positive: #22c55e;
   --color-negative: #ef4444;
 
@@ -126,13 +127,20 @@ body {
 
 body {
   margin: 0;
-  font-family: 'Trap', 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-family:
+    'Trap',
+    'Inter',
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Arial,
+    sans-serif;
   color: var(--color-text);
   background: var(--color-surface);
 }
 
 /* Utility Classes */
-
 
 /* =============================================================================
    3. AUTHENTICATION PAGES
@@ -784,7 +792,6 @@ body.auth-page {
   filter: brightness(0) invert(1);
 }
 
-
 .theme-toggle {
   display: flex;
   align-items: center;
@@ -961,6 +968,520 @@ body.auth-page {
    6. PAGE-SPECIFIC STYLES
    ============================================================================= */
 
+/* Dashboard Grid Layout */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
+  gap: 12px;
+  padding: 12px;
+  height: calc(100vh - 120px);
+  overflow: hidden;
+}
+
+.portfolio-overview-card {
+  grid-column: 1 / 2;
+  grid-row: 1 / 4;
+}
+
+.funds-card {
+  grid-column: 1 / 2;
+  grid-row: 4 / 5;
+}
+
+.news-card {
+  grid-column: 1 / 2;
+  grid-row: 5 / 7;
+}
+
+.allocation-card {
+  grid-column: 2 / 3;
+  grid-row: 5 / 7;
+}
+
+.chart-card {
+  grid-column: 2 / 3;
+  grid-row: 1 / 5;
+}
+
+/* Portfolio Overview Card */
+.portfolio-overview-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.portfolio-header {
+  margin-bottom: 16px;
+}
+
+.portfolio-header h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.period-selector {
+  display: none;
+}
+
+.portfolio-value {
+  margin-bottom: 16px;
+}
+
+.main-value {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--color-text);
+  margin-bottom: 4px;
+  line-height: 1;
+}
+
+.value-change {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.change-amount,
+.change-percent {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.value-change.positive .change-amount,
+.value-change.positive .change-percent {
+  color: var(--color-positive);
+}
+
+.value-change.negative .change-amount,
+.value-change.negative .change-percent {
+  color: var(--color-negative);
+}
+
+
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.stat-item:last-child {
+  border-bottom: none;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+/* Chart Card */
+.chart-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.chart-title-section {
+  flex: 1;
+}
+
+.chart-header h3 {
+  margin: 0 0 4px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.chart-subtitle {
+  font-size: 13px;
+  color: var(--color-muted);
+  margin-bottom: 12px;
+}
+
+.chart-period-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.chart-period-controls select {
+  padding: 6px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--color-text);
+}
+
+.legend-color {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.legend-color.portfolio-line {
+  background: var(--color-brand);
+}
+
+.chart-container {
+  position: relative;
+  height: 160px;
+  flex: 1;
+}
+
+.chart-stats {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+.chart-stat {
+  text-align: center;
+}
+
+.chart-stat-label {
+  font-size: 11px;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.chart-stat-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+/* Funds Card */
+.funds-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.funds-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.funds-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.funds-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.funds-actions .finance-btn {
+  font-size: 12px;
+  padding: 6px 12px;
+}
+
+.funds-summary {
+  text-align: center;
+}
+
+.balance-display {
+  background: rgba(41, 157, 145, 0.1);
+  padding: 16px;
+  border-radius: 8px;
+  border: 2px solid var(--color-brand);
+}
+
+.balance-amount {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-brand);
+  margin-bottom: 2px;
+}
+
+.balance-label {
+  font-size: 12px;
+  color: var(--color-brand);
+  font-weight: 500;
+}
+
+/* Allocation Card */
+.allocation-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.allocation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.allocation-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.allocation-total {
+  text-align: right;
+}
+
+.allocation-label {
+  display: block;
+  font-size: 10px;
+  color: var(--color-muted);
+  margin-bottom: 2px;
+}
+
+.allocation-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.allocation-content {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  height: 140px;
+}
+
+.pie-chart-container {
+  flex-shrink: 0;
+  width: 140px;
+  height: 140px;
+}
+
+.allocation-legend {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.allocation-legend-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  background: rgba(156, 128, 255, 0.05);
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.legend-stock-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.legend-stock-color {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-stock-details {
+  min-width: 0;
+  flex: 1;
+}
+
+.legend-stock-symbol {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.legend-stock-percentage {
+  font-size: 10px;
+  color: var(--color-muted);
+}
+
+.legend-stock-value {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* News Card */
+.news-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.news-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.news-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.refresh-btn {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.refresh-btn:hover {
+  color: var(--color-brand);
+  background: rgba(156, 128, 255, 0.1);
+}
+
+.news-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.news-item {
+  display: block;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  margin-bottom: 8px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s ease;
+}
+
+.news-item:hover {
+  background: rgba(156, 128, 255, 0.05);
+  border-color: var(--color-brand);
+}
+
+.news-item:last-child {
+  margin-bottom: 0;
+}
+
+.news-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 6px;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.news-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--color-muted);
+}
+
+.news-source {
+  font-weight: 500;
+}
+
+.news-time {
+  font-style: italic;
+}
+
+.news-loading {
+  text-align: center;
+  color: var(--color-muted);
+  font-style: italic;
+  padding: 40px 20px;
+}
+
+.news-error {
+  text-align: center;
+  color: var(--color-negative);
+  padding: 40px 20px;
+}
+
 /* Transactions Page */
 .transactions-page {
   margin: 0;
@@ -1127,7 +1648,6 @@ body.auth-page {
   align-items: start;
   height: calc(100vh - 180px);
 }
-
 
 .portfolio-cell {
   font-size: 12px;
@@ -1662,7 +2182,6 @@ body.auth-page {
   transform: translateY(-1px);
 }
 
-
 .stocks-table-container {
   overflow-x: auto;
   border-radius: 8px;
@@ -2056,7 +2575,7 @@ body.auth-page {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 16px;
-  padding: 24px;
+  padding: 16px;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   position: relative;
@@ -2084,13 +2603,13 @@ body.auth-page {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .portfolio-info {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   flex: 1;
 }
 
@@ -2159,7 +2678,7 @@ body.auth-page {
 
 /* Portfolio Description */
 .portfolio-description {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .portfolio-description p {
@@ -2180,8 +2699,8 @@ body.auth-page {
 
 /* Portfolio Value */
 .portfolio-value {
-  margin-bottom: 20px;
-  padding: 16px;
+  margin-bottom: 14px;
+  padding: 12px;
   background: rgba(41, 157, 145, 0.05);
   border-radius: 12px;
   border: 1px solid rgba(41, 157, 145, 0.1);
@@ -2191,7 +2710,7 @@ body.auth-page {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .value-label {
@@ -2219,14 +2738,14 @@ body.auth-page {
     Roboto,
     Arial,
     sans-serif;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--color-text);
 }
 
 .return-info {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   align-items: center;
 }
 
@@ -2255,21 +2774,29 @@ body.auth-page {
   color: var(--color-negative);
 }
 
-/* Portfolio Stats */
+/* Portfolio Stats - Dashboard (3 items stacked) */
+.portfolio-stats-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Portfolio Stats - Portfolios Page (4 items in grid) */
 .portfolio-stats {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 20px;
-  padding: 16px;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 8px 12px;
   background: rgba(107, 114, 128, 0.05);
-  border-radius: 12px;
+  border-radius: 8px;
 }
 
 .stat-item {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
+  text-align: center;
 }
 
 .stat-label {
@@ -2283,7 +2810,7 @@ body.auth-page {
     Arial,
     sans-serif;
   color: var(--color-muted);
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -2300,14 +2827,14 @@ body.auth-page {
     Arial,
     sans-serif;
   color: var(--color-text);
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
 }
 
 /* Portfolio Performance */
 .portfolio-performance {
-  margin-bottom: 20px;
-  padding: 16px;
+  margin-bottom: 14px;
+  padding: 12px;
   background: rgba(0, 0, 0, 0.02);
   border-radius: 12px;
   border: 1px solid rgba(0, 0, 0, 0.05);
@@ -2317,7 +2844,7 @@ body.auth-page {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .performance-label {
@@ -2363,7 +2890,7 @@ body.auth-page {
 
 .chart-placeholder {
   flex: 1;
-  height: 40px;
+  height: 32px;
   background: rgba(107, 114, 128, 0.1);
   border-radius: 8px;
   position: relative;
@@ -2420,7 +2947,7 @@ body.auth-page {
 /* Portfolio Actions */
 .portfolio-actions {
   display: flex;
-  gap: 6px;
+  gap: 4px;
   flex-wrap: wrap;
 }
 
@@ -2428,9 +2955,9 @@ body.auth-page {
 .btn-edit,
 .btn-delete {
   flex: 1;
-  padding: 10px 16px;
+  padding: 8px 12px;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   font-family:
     'Trap',
     'Inter',
@@ -2440,7 +2967,7 @@ body.auth-page {
     Roboto,
     Arial,
     sans-serif;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -2728,6 +3255,14 @@ body.auth-page {
   }
 }
 
+/* Medium Desktop (1000px and below) */
+@media (max-width: 1000px) {
+  .portfolio-stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+}
+
 /* Tablet (1024px and below) */
 @media (max-width: 1024px) {
   .dashboard-app {
@@ -2837,7 +3372,7 @@ body.auth-page {
   }
 
   .portfolio-card {
-    padding: 20px;
+    padding: 14px;
   }
 
   .portfolio-actions {
@@ -2901,17 +3436,17 @@ body.auth-page {
 
 @media (max-width: 480px) {
   .portfolio-card {
-    padding: 16px;
+    padding: 12px;
   }
 
   .portfolio-value {
-    padding: 12px;
+    padding: 10px;
   }
 
   .portfolio-stats {
-    padding: 12px;
-    grid-template-columns: 1fr;
-    gap: 12px;
+    padding: 8px;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
   }
 
   .performance-chart {
@@ -2920,7 +3455,7 @@ body.auth-page {
   }
 
   .chart-placeholder {
-    height: 30px;
+    height: 24px;
   }
 }
 
@@ -3033,6 +3568,87 @@ body.auth-page {
 
   .panel-search {
     max-width: 240px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto auto;
+    height: auto;
+  }
+
+  .portfolio-overview-card {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+  }
+
+  .chart-card {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+  }
+
+  .funds-card {
+    grid-column: 1 / 2;
+    grid-row: 3 / 4;
+  }
+
+  .news-card {
+    grid-column: 1 / 2;
+    grid-row: 4 / 5;
+  }
+
+  .allocation-card {
+    grid-column: 1 / 2;
+    grid-row: 5 / 6;
+  }
+
+  .allocation-content {
+    flex-direction: column;
+    align-items: center;
+    height: auto;
+  }
+
+  .pie-chart-container {
+    width: 200px;
+    height: 200px;
+  }
+
+  .allocation-legend {
+    max-height: none;
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-grid {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .portfolio-overview-card,
+  .chart-card,
+  .funds-card,
+  .allocation-card,
+  .news-card {
+    padding: 20px;
+  }
+
+  .main-value {
+    font-size: 28px;
+  }
+
+  .balance-amount {
+    font-size: 24px;
+  }
+
+  .funds-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .funds-actions .finance-btn {
+    width: 100%;
   }
 }
 
@@ -3221,6 +3837,10 @@ body[data-theme='dark'] {
   background: rgba(255, 255, 255, 0.05);
 }
 
+[data-theme='dark'] .portfolio-stats-dashboard {
+  background: transparent;
+}
+
 [data-theme='dark'] .portfolio-performance {
   background: rgba(255, 255, 255, 0.03);
   border-color: rgba(255, 255, 255, 0.1);
@@ -3397,4 +4017,79 @@ body[data-theme='dark'] {
 
 [data-theme='dark'] .transaction-type-pill.sell {
   background: #dc2626;
+}
+
+[data-theme='dark'] .balance-display {
+  background: rgba(156, 128, 255, 0.1);
+  border-color: var(--color-brand);
+}
+
+[data-theme='dark'] .balance-amount,
+[data-theme='dark'] .balance-label {
+  color: var(--color-brand);
+}
+
+[data-theme='dark'] .allocation-legend-item {
+  background: rgba(156, 128, 255, 0.1);
+}
+
+[data-theme='dark'] .refresh-btn:hover {
+  background: rgba(156, 128, 255, 0.2);
+}
+
+[data-theme='dark'] .news-item:hover {
+  background: rgba(156, 128, 255, 0.1);
+}
+
+[data-theme='dark'] .chart-legend .legend-item {
+  color: #ffffff;
+}
+
+/* =============================================================================
+   SCROLLBAR STYLES
+   ============================================================================= */
+
+/* Webkit scrollbars (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-surface);
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 6px;
+  border: 2px solid var(--color-surface);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted);
+}
+
+/* Dark mode scrollbars */
+[data-theme='dark'] ::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+[data-theme='dark'] ::-webkit-scrollbar-thumb {
+  background: #404040;
+  border: 2px solid #1a1a1a;
+}
+
+[data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
+  background: #505050;
+}
+
+/* Firefox scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) var(--color-surface);
+}
+
+[data-theme='dark'] * {
+  scrollbar-color: #404040 #1a1a1a;
 }
