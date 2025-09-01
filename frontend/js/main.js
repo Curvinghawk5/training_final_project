@@ -1,34 +1,36 @@
-document.addEventListener("DOMContentLoaded", function () {
-  const checkbox = document.getElementById("checkbox");
-  const navItems = document.querySelectorAll(".nav-item");
-  const mainContent = document.querySelector(".main");
-  const greeting = document.querySelector(".greeting");
-  const loginSection = document.getElementById("login-section");
-  const registerSection = document.getElementById("register-section");
-  const dashboardSection = document.getElementById("dashboard-section");
-  const dashboardApp = document.querySelector(".dashboard-app");
-  const sidebarToggleBtn = document.getElementById("sidebar-toggle-btn");
-  const resultsContainer = document.getElementById("stocks-results");
-  const tableBody = document.getElementById("stocks-table-body");
-  const transactionsTableBody = document.getElementById("transactions-table-body");
-  const resultsCount = document.getElementById("results-count");
+document.addEventListener('DOMContentLoaded', function () {
+  const checkbox = document.getElementById('checkbox');
+  const navItems = document.querySelectorAll('.nav-item');
+  const mainContent = document.querySelector('.main');
+  const greeting = document.querySelector('.greeting');
+  const loginSection = document.getElementById('login-section');
+  const registerSection = document.getElementById('register-section');
+  const dashboardSection = document.getElementById('dashboard-section');
+  const dashboardApp = document.querySelector('.dashboard-app');
+  const sidebarToggleBtn = document.getElementById('sidebar-toggle-btn');
+  const resultsContainer = document.getElementById('stocks-results');
+  const tableBody = document.getElementById('stocks-table-body');
+  const transactionsTableBody = document.getElementById(
+    'transactions-table-body'
+  );
+  const resultsCount = document.getElementById('results-count');
 
   // Theme Toggle Functionality
   if (checkbox) {
-    const currentTheme = localStorage.getItem("theme") || "light";
-    if (currentTheme === "dark") {
-      document.body.setAttribute("data-theme", "dark");
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    if (currentTheme === 'dark') {
+      document.body.setAttribute('data-theme', 'dark');
       checkbox.checked = true;
     }
     updateThemeImages();
 
-    checkbox.addEventListener("change", () => {
+    checkbox.addEventListener('change', () => {
       if (checkbox.checked) {
-        document.body.setAttribute("data-theme", "dark");
-        localStorage.setItem("theme", "dark");
+        document.body.setAttribute('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
       } else {
-        document.body.removeAttribute("data-theme");
-        localStorage.setItem("theme", "light");
+        document.body.removeAttribute('data-theme');
+        localStorage.setItem('theme', 'light');
       }
       updateThemeImages();
     });
@@ -36,23 +38,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Sidebar Toggle Functionality
   if (dashboardApp && sidebarToggleBtn) {
-    const isCollapsed = localStorage.getItem("sidebar-collapsed") === "true";
+    const isCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
     if (isCollapsed) {
-      dashboardApp.classList.add("is-collapsed");
-      sidebarToggleBtn.setAttribute("aria-expanded", "false");
+      dashboardApp.classList.add('is-collapsed');
+      sidebarToggleBtn.setAttribute('aria-expanded', 'false');
     } else {
-      sidebarToggleBtn.setAttribute("aria-expanded", "true");
+      sidebarToggleBtn.setAttribute('aria-expanded', 'true');
     }
 
-    sidebarToggleBtn.addEventListener("click", function () {
-      const nowCollapsed = dashboardApp.classList.toggle("is-collapsed");
-      localStorage.setItem("sidebar-collapsed", String(nowCollapsed));
+    sidebarToggleBtn.addEventListener('click', function () {
+      const nowCollapsed = dashboardApp.classList.toggle('is-collapsed');
+      localStorage.setItem('sidebar-collapsed', String(nowCollapsed));
       sidebarToggleBtn.setAttribute(
-        "aria-expanded",
-        nowCollapsed ? "false" : "true"
+        'aria-expanded',
+        nowCollapsed ? 'false' : 'true'
       );
     });
   }
+
+  /////////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////    DYNAMIC PAGES    /////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////
 
   // Page templates
   const pageTemplates = {
@@ -398,201 +404,183 @@ document.addEventListener("DOMContentLoaded", function () {
       </div>
     `,
     transactions: `
-  <div class="transactions-content">
-    <section class="transactions-section">
-      <h2>All Transactions</h2>
-      <p>Review your transaction history.</p>
+      <div class="transactions-page">
+        <div class="transactions-header">
+          <div class="header-left">
+            <h2 class="page-title">Transaction History</h2>
+          </div>
+        </div>
 
-      <div class="stocks-table-container">
-        <table class="stocks-table">
-          <thead>
-            <tr>
-              <th class="stock-name-col">Date</th>
-              <th class="stock-value-col">Type</th>
-              <th class="stock-change-col">Asset</th>
-              <th class="stock-percent-col">Quantity</th>
-              <th class="stock-open-col">Price</th>
-              <th class="stock-high-col">Total Value</th>
-              <th class="stock-low-col">Fees</th>
-              <th class="stock-prev-col">Portfolio</th>
-            </tr>
-          </thead>
-          <tbody id="transactions-table-body"></tbody>
-        </table>
+        <div class="transactions-table" id="transactions-table">
+          <div class="table-header">
+            <span>Date</span>
+            <span>Type</span>
+            <span>Asset</span>
+            <span>Quantity</span>
+            <span>Price</span>
+            <span>Total Value</span>
+            <span>Fees</span>
+            <span>Portfolio</span>
+          </div>
+          <div class="table-body" id="transactions-list"></div>
+          <div class="table-empty" id="transactions-empty" style="display:none;">
+            <div class="empty-state">
+              <div class="empty-icon">
+                <img id="transaction-icon-img" src="/images/transaction-icon.png" alt="No Transactions">
+              </div>
+              <h3 class="empty-title">No Transactions Yet</h3>
+              <p class="empty-description">Your transaction history will appear here once you start trading</p>
+            </div>
+          </div>
+        </div>
       </div>
-    </section>
-  </div>
-`,
-
-
+    `,
   };
 
   // Fetch transactions from the backend
-async function fetchTransactions() {
-  const token = localStorage.getItem("token"); // Retrieve the user's token from local storage
-  try {
-    const response = await fetch(`${API_BASE}/user/logs`, { // Use the correct endpoint to fetch user logs
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`, // Pass the token for authentication
-        "Content-Type": "application/json",
-      },
-    });
+  async function fetchTransactions() {
+    try {
+      const response = await authenticatedFetch(`${API_BASE}/user/logs`);
 
+      if (!response.ok) {
+        throw new Error('Failed to fetch transactions');
+      }
 
-    // Check if the response from the server is not OK (e.g., status code is not 200-299).
-    // If so, throw an error to handle the failure case.
-    if (!response.ok) {
-      throw new Error("Failed to fetch transactions");
+      const transactions = await response.json().catch(() => []);
+
+      return Array.isArray(transactions) ? transactions : [];
+    } catch (error) {
+      return [];
     }
-
-    const transactions = await response.json(); // Parse the JSON response
-    return transactions;
-  } catch (error) {
-    console.error("Error fetching transactions:", error);
-    return [];
   }
-}
 
   // Function to render transactions
 
   async function renderTransactions() {
-    const transactionsTableBody = document.getElementById("transactions-table-body");
-    if (transactionsTableBody) {
-      try {
-        const transactions = await fetchTransactions(); // Fetch transactions from the backend
+    const transactionsList = document.getElementById('transactions-list');
+    const transactionsEmpty = document.getElementById('transactions-empty');
 
-        // Check if there are no transactions; if none, display a message. Otherwise, populate the table with transaction data.
+    if (transactionsList && transactionsEmpty) {
+      try {
+        const [transactions, portfolios] = await Promise.all([
+          fetchTransactions(),
+          fetchPortfolios(),
+        ]);
+
+        // Create portfolio lookup map
+        const portfolioMap = {};
+        if (Array.isArray(portfolios)) {
+          portfolios.forEach(portfolio => {
+            portfolioMap[portfolio.uuid] = portfolio.name;
+          });
+        }
+
+        // Create stock info cache for company names
+        const stockInfoCache = {};
+
+        // Helper function to get stock info with caching
+        const getStockInfo = async symbol => {
+          if (stockInfoCache[symbol]) {
+            return stockInfoCache[symbol];
+          }
+
+          try {
+            const results = await searchStocksFinancial(symbol);
+            const stockInfo = results.find(item => item.symbol === symbol);
+            const info = {
+              symbol: symbol,
+              name: stockInfo
+                ? stockInfo.displayName || stockInfo.shortName || symbol
+                : symbol,
+            };
+            stockInfoCache[symbol] = info;
+            return info;
+          } catch (error) {
+            const fallback = { symbol: symbol, name: symbol };
+            stockInfoCache[symbol] = fallback;
+            return fallback;
+          }
+        };
+
+        // Check if there are no transactions; if none, show empty state. Otherwise, populate the table with transaction data.
         if (transactions.length === 0) {
-          transactionsTableBody.innerHTML = `<tr><td colspan="8">No transactions found</td></tr>`;
+          transactionsList.style.display = 'none';
+          transactionsEmpty.style.display = 'flex';
         } else {
-          transactionsTableBody.innerHTML = transactions
-            .map(
-              (transaction) => `
-              <tr>
-                <td>${transaction.date}</td>
-                <td class="${transaction.type.toLowerCase()}">${transaction.type}</td>
-                <span class="arrow"></span>${transaction.type}
-                <td>${transaction.asset}</td>
-                <td>${transaction.quantity}</td>
-                <td>${transaction.price.toFixed(2)}</td>
-                <td>${transaction.totalValue.toFixed(2)}</td>
-                <td>${transaction.fees.toFixed(2)}</td>
-                <td>${transaction.portfolio}</td>
-              </tr>
-            `
-            )
-            .join("");
+          transactionsEmpty.style.display = 'none';
+          transactionsList.style.display = 'block';
+
+          // Sort transactions by date (most recent first)
+          const sortedTransactions = transactions.sort((a, b) => {
+            const dateA = new Date(a.createdAt || a.timestamp || 0);
+            const dateB = new Date(b.createdAt || b.timestamp || 0);
+            return dateB - dateA; // Descending order (newest first)
+          });
+
+          // Get stock info for all unique symbols first
+          const uniqueSymbols = [
+            ...new Set(
+              sortedTransactions.map(t => t.stock_tag).filter(Boolean)
+            ),
+          ];
+          await Promise.all(uniqueSymbols.map(symbol => getStockInfo(symbol)));
+
+          transactionsList.innerHTML = sortedTransactions
+            .map(transaction => {
+              // Map backend fields to display values
+              const transactionType = transaction.buy_sell || 'unknown';
+              const date = transaction.createdAt
+                ? formatTimestamp(transaction.createdAt)
+                : transaction.timestamp
+                  ? formatTimestamp(transaction.timestamp)
+                  : 'Today';
+              const stockSymbol = transaction.stock_tag || 'N/A';
+              const stockInfo = stockInfoCache[stockSymbol] || {
+                symbol: stockSymbol,
+                name: stockSymbol,
+              };
+              const quantity = transaction.stock_traded || 0;
+              const price = transaction.price_per || 0;
+              const totalValue = transaction.amount || quantity * price;
+              const fees = 0; // Backend doesn't store fees yet
+              const portfolioName =
+                portfolioMap[transaction.portfolio_uuid] || 'N/A';
+
+              return `
+                <div class="table-row">
+                  <span class="timestamp-cell">${date}</span>
+                  <span class="transaction-type-pill ${transactionType}">
+                    ${transactionType.charAt(0).toUpperCase() + transactionType.slice(1)}
+                  </span>
+                  <span class="asset-info">
+                    <div class="asset-symbol">${stockInfo.symbol}</div>
+                    <div class="asset-name">${stockInfo.name}</div>
+                  </span>
+                  <span>${Number(quantity).toFixed(4)}</span>
+                  <span>$${Number(price).toFixed(2)}</span>
+                  <span>$${Number(totalValue).toFixed(2)}</span>
+                  <span>$${Number(fees).toFixed(2)}</span>
+                  <span>${portfolioName}</span>
+                </div>
+              `;
+            })
+            .join('');
         }
       } catch (error) {
-        transactionsTableBody.innerHTML = `<tr><td colspan="8">Failed to load transactions</td></tr>`;
+        transactionsList.style.display = 'none';
+        transactionsEmpty.style.display = 'flex';
+        transactionsEmpty.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">
+              <img src="/images/warning-icon-light.png" alt="Error">
+            </div>
+            <h3 class="empty-title">Failed to Load Transactions</h3>
+            <p class="empty-description">Please try refreshing the page</p>
+          </div>
+        `;
       }
     }
   }
-
-
-  // Dummy stock data
-  const dummyStockData = [
-    {
-      symbol: "AAPL",
-      name: "Apple Inc.",
-      value: 175.43,
-      change: 2.15,
-      changePercent: 1.24,
-      open: 173.28,
-      high: 176.12,
-      low: 172.95,
-      prev: 173.28,
-    },
-    {
-      symbol: "AAPL",
-      name: "Apple Inc.",
-      value: 176.43,
-      change: 2.35,
-      changePercent: 1.26,
-      open: 153.28,
-      high: 196.12,
-      low: 172.95,
-      prev: 173.28,
-    },
-    {
-      symbol: "MSFT",
-      name: "Microsoft Corporation",
-      value: 338.11,
-      change: -4.22,
-      changePercent: -1.23,
-      open: 342.33,
-      high: 343.75,
-      low: 336.89,
-      prev: 342.33,
-    },
-    {
-      symbol: "GOOGL",
-      name: "Alphabet Inc.",
-      value: 125.37,
-      change: 1.89,
-      changePercent: 1.53,
-      open: 123.48,
-      high: 126.22,
-      low: 123.15,
-      prev: 123.48,
-    },
-    {
-      symbol: "AMZN",
-      name: "Amazon.com Inc.",
-      value: 127.74,
-      change: -2.33,
-      changePercent: -1.79,
-      open: 130.07,
-      high: 131.25,
-      low: 126.98,
-      prev: 130.07,
-    },
-    {
-      symbol: "TSLA",
-      name: "Tesla Inc.",
-      value: 248.5,
-      change: 8.75,
-      changePercent: 3.65,
-      open: 239.75,
-      high: 251.3,
-      low: 238.22,
-      prev: 239.75,
-    },
-    {
-      symbol: "NVDA",
-      name: "NVIDIA Corporation",
-      value: 875.28,
-      change: 15.42,
-      changePercent: 1.79,
-      open: 859.86,
-      high: 883.15,
-      low: 856.73,
-      prev: 859.86,
-    },
-    {
-      symbol: "META",
-      name: "Meta Platforms Inc.",
-      value: 296.73,
-      change: -3.87,
-      changePercent: -1.29,
-      open: 300.6,
-      high: 302.44,
-      low: 294.12,
-      prev: 300.6,
-    },
-    {
-      symbol: "NFLX",
-      name: "Netflix Inc.",
-      value: 425.69,
-      change: 7.21,
-      changePercent: 1.72,
-      open: 418.48,
-      high: 428.93,
-      low: 416.77,
-      prev: 418.48,
-    },
-  ];
 
   // State for portfolios data
   let portfoliosData = [];
@@ -605,59 +593,57 @@ async function fetchTransactions() {
   */
   function updatePageTitle(page) {
     const firstName = getDisplayFirstName();
-    greeting.textContent = firstName ? `Hello ${firstName}` : "Hello";
+    greeting.textContent = firstName ? `Hello ${firstName}` : 'Hello';
   }
 
   /*
     Updates theme-specific images based on current dark/light mode
   */
   function updateThemeImages() {
-    const isDark = document.body.getAttribute("data-theme") === "dark";
+    const isDark = document.body.getAttribute('data-theme') === 'dark';
 
     // Update delete modal warning icon
-    const warningIcon = document.getElementById("warning-icon-img");
+    const warningIcon = document.getElementById('warning-icon-img');
     if (warningIcon) {
-      warningIcon.src = isDark ? "/images/warning-icon-dark.png" : "/images/warning-icon-light.png";
+      warningIcon.src = isDark
+        ? '/images/warning-icon-dark.png'
+        : '/images/warning-icon-light.png';
     }
 
     // Update empty portfolios bar chart state icon
-    const barChartIcon = document.getElementById("bar-chart-icon-img");
+    const barChartIcon = document.getElementById('bar-chart-icon-img');
     if (barChartIcon) {
-      barChartIcon.src = isDark ? "/images/bar-chart-icon-dark.png" : "/images/bar-chart-icon-light.png";
+      barChartIcon.src = isDark
+        ? '/images/bar-chart-icon-dark.png'
+        : '/images/bar-chart-icon-light.png';
     }
   }
 
   // Utils
   function formatCurrency(amount) {
     const value = Number(amount || 0);
-    return `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
 
   async function fetchBalance() {
-    console.log(`Fetching balance from ${API_BASE}/user/balance`);
     const res = await authenticatedFetch(`${API_BASE}/user/balance`);
-    console.log('Balance response status:', res.status);
+
     if (!res.ok) throw new Error(`Failed to load balance (${res.status})`);
     const data = await res.json().catch(() => 0);
-    console.log('Balance response data:', data);
-    
+
     // Handle both formats: array from old version and number from new version
     let balance;
     if (Array.isArray(data) && data.length > 0 && data[0].money !== undefined) {
       // Old format: array with money property
       balance = Number(data[0].money);
-      console.log('Using old format - balance from array:', balance);
     } else if (typeof data === 'number') {
       // New format: direct number
       balance = data;
-      console.log('Using new format - direct balance:', balance);
     } else {
       // Fallback
       balance = 0;
-      console.log('Using fallback balance:', balance);
     }
-    
-    console.log('Final parsed balance:', balance);
+
     return balance;
   }
 
@@ -674,68 +660,67 @@ async function fetchTransactions() {
   }
 
   async function fetchHoldings(portfolioUuid) {
-    console.log(`Fetching holdings from: ${API_BASE}/user/shares/${portfolioUuid}`);
-    const res = await authenticatedFetch(`${API_BASE}/user/shares/${portfolioUuid}`);
-    console.log(`Holdings fetch response status: ${res.status}`);
+    const res = await authenticatedFetch(
+      `${API_BASE}/user/shares/${portfolioUuid}`
+    );
 
     if (!res.ok) {
       const errorText = await res.text();
-      console.error(`Holdings fetch failed with status ${res.status}:`, errorText);
+
       throw new Error(`Failed to load holdings (${res.status}): ${errorText}`);
     }
 
-    const data = await res.json().catch((e) => {
-      console.error("Failed to parse holdings JSON:", e);
+    const data = await res.json().catch(e => {
       return [];
     });
 
-    console.log(`Raw holdings response for portfolio ${portfolioUuid}:`, data);
-
     // Normalize to array
-    const normalizedData = Array.isArray(data) ? data : (data ? [data] : []);
-    console.log(`Normalized holdings for portfolio ${portfolioUuid}:`, normalizedData);
+    const normalizedData = Array.isArray(data) ? data : data ? [data] : [];
 
     return normalizedData;
   }
 
   async function searchStocksFinancial(query) {
-    const res = await fetch(`${API_BASE}/search/financial/${encodeURIComponent(query)}`);
+    const res = await fetch(
+      `${API_BASE}/search/financial/${encodeURIComponent(query)}`
+    );
     if (!res.ok) throw new Error(`Search failed (${res.status})`);
-    const items = await res.json().catch(() => ([]));
-    return (Array.isArray(items) ? items : []).filter(i => i.symbol && (i.displayName || i.shortName));
+    const items = await res.json().catch(() => []);
+    return (Array.isArray(items) ? items : []).filter(
+      i => i.symbol && (i.displayName || i.shortName)
+    );
   }
 
   async function fetchStockPrice(tag) {
-    console.log(`Fetching price for ${tag} from ${API_BASE}/price/${encodeURIComponent(tag)}`);
     const res = await fetch(`${API_BASE}/price/${encodeURIComponent(tag)}`);
-    console.log(`Price fetch response status: ${res.status}`);
+
     if (!res.ok) {
       const errorText = await res.text();
-      console.error(`Price fetch failed with status ${res.status}:`, errorText);
+
       throw new Error(`Price fetch failed (${res.status}): ${errorText}`);
     }
-    const data = await res.json().catch((e) => {
-      console.error("Failed to parse JSON response:", e);
+    const data = await res.json().catch(e => {
       return {};
     });
-    console.log(`Price data for ${tag}: ask=${data.ask}, bid=${data.bid}, currency=${data.currency}`);
-    return { ask: Number(data.ask || 0), bid: Number(data.bid || 0), currency: data.currency || 'usd' };
+
+    return {
+      ask: Number(data.ask || 0),
+      bid: Number(data.bid || 0),
+      currency: data.currency || 'usd',
+    };
   }
 
   // Trigger backend sync to update all stock prices in the database
   async function syncStockPrices() {
     try {
-      console.log('Syncing stock prices with backend...');
       const res = await fetch(`${API_BASE}/sync`);
       if (!res.ok) {
-        console.error('Failed to sync stock prices:', res.status);
         return false;
       }
       const result = await res.json().catch(() => null);
-      console.log('Stock prices synced successfully:', result);
+
       return true;
     } catch (error) {
-      console.error('Error syncing stock prices:', error);
       return false;
     }
   }
@@ -743,31 +728,31 @@ async function fetchTransactions() {
   // Fetch transaction logs for the user
   async function fetchTransactionLogs() {
     try {
-      console.log(`Fetching transaction logs from ${API_BASE}/user/logs`);
       const res = await authenticatedFetch(`${API_BASE}/user/logs`);
       if (!res.ok) {
-        console.error('Failed to fetch transaction logs:', res.status);
         return [];
       }
       const logs = await res.json().catch(() => []);
-      console.log('Transaction logs fetched:', logs);
+
       return Array.isArray(logs) ? logs : [];
     } catch (error) {
-      console.error('Error fetching transaction logs:', error);
       return [];
     }
   }
 
   // Get the latest transaction timestamp for a holding
-  function getLatestTransactionTimestamp(symbol, portfolioUuid, transactionLogs) {
+  function getLatestTransactionTimestamp(
+    symbol,
+    portfolioUuid,
+    transactionLogs
+  ) {
     if (!Array.isArray(transactionLogs) || transactionLogs.length === 0) {
       return null;
     }
 
     // Filter transactions for this specific stock and portfolio
-    const relevantLogs = transactionLogs.filter(log => 
-      log.stock_tag === symbol && 
-      log.portfolio_uuid === portfolioUuid
+    const relevantLogs = transactionLogs.filter(
+      log => log.stock_tag === symbol && log.portfolio_uuid === portfolioUuid
     );
 
     if (relevantLogs.length === 0) {
@@ -790,11 +775,11 @@ async function fetchTransactions() {
     try {
       const date = new Date(timestamp);
       if (isNaN(date.getTime())) return 'N/A';
-      
+
       const now = new Date();
       const diffMs = now - date;
       const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-      
+
       // If within last 7 days, show relative time
       if (diffDays === 0) {
         return 'Today';
@@ -806,11 +791,10 @@ async function fetchTransactions() {
         // Format as "MMM DD" for older dates
         return date.toLocaleDateString('en-US', {
           month: 'short',
-          day: 'numeric'
+          day: 'numeric',
         });
       }
     } catch (error) {
-      console.error('Error formatting timestamp:', error);
       return 'N/A';
     }
   }
@@ -818,31 +802,31 @@ async function fetchTransactions() {
   // Global function to refresh funds card (can be called from anywhere)
   async function refreshFundsCard() {
     try {
-      console.log('Refreshing funds card...');
-      const [balance] = await Promise.all([
-        fetchBalance()
-      ]);
+      const [balance] = await Promise.all([fetchBalance()]);
       await ensurePortfoliosLoaded();
-      const totalInvested = portfoliosData.reduce((sum, p) => sum + Number(p.invested || 0), 0);
+      const totalInvested = portfoliosData.reduce(
+        (sum, p) => sum + Number(p.invested || 0),
+        0
+      );
       const totalDeposited = balance + totalInvested;
 
-      const balanceEl = document.getElementById("available-balance-val");
-      const investedEl = document.getElementById("total-invested-val");
-      const depositedEl = document.getElementById("total-deposited-val");
-      const noteEl = document.getElementById("funds-note");
+      const balanceEl = document.getElementById('available-balance-val');
+      const investedEl = document.getElementById('total-invested-val');
+      const depositedEl = document.getElementById('total-deposited-val');
+      const noteEl = document.getElementById('funds-note');
       if (balanceEl) balanceEl.textContent = formatCurrency(balance);
       if (investedEl) investedEl.textContent = formatCurrency(totalInvested);
       if (depositedEl) depositedEl.textContent = formatCurrency(totalDeposited);
-      if (noteEl) noteEl.textContent = balance > 0 
-        ? `You have ${formatCurrency(balance)} available to invest in stocks.`
-        : `No funds available. Please deposit money to start investing.`;
-      console.log('Funds card refreshed:', { balance, totalInvested, totalDeposited });
+      if (noteEl)
+        noteEl.textContent =
+          balance > 0
+            ? `You have ${formatCurrency(balance)} available to invest in stocks.`
+            : `No funds available. Please deposit money to start investing.`;
     } catch (e) {
-      console.error('Error refreshing funds card:', e);
       // Show error state in UI
-      const balanceEl = document.getElementById("available-balance-val");
-      const investedEl = document.getElementById("total-invested-val");
-      const depositedEl = document.getElementById("total-deposited-val");
+      const balanceEl = document.getElementById('available-balance-val');
+      const investedEl = document.getElementById('total-invested-val');
+      const depositedEl = document.getElementById('total-deposited-val');
       if (balanceEl) balanceEl.textContent = 'Error';
       if (investedEl) investedEl.textContent = 'Error';
       if (depositedEl) depositedEl.textContent = 'Error';
@@ -851,82 +835,107 @@ async function fetchTransactions() {
 
   // Dashboard: funds card
   async function setupFundsCard() {
-    const openDepositBtn = document.getElementById("open-deposit-modal");
-    const openWithdrawBtn = document.getElementById("open-withdraw-modal");
-    const depositOverlay = document.getElementById("deposit-modal-overlay");
-    const withdrawOverlay = document.getElementById("withdraw-modal-overlay");
-    const depositClose = document.getElementById("deposit-close");
-    const withdrawClose = document.getElementById("withdraw-close");
-    const depositCancel = document.getElementById("deposit-cancel");
-    const withdrawCancel = document.getElementById("withdraw-cancel");
-    const depositForm = document.getElementById("deposit-form");
-    const withdrawForm = document.getElementById("withdraw-form");
+    const openDepositBtn = document.getElementById('open-deposit-modal');
+    const openWithdrawBtn = document.getElementById('open-withdraw-modal');
+    const depositOverlay = document.getElementById('deposit-modal-overlay');
+    const withdrawOverlay = document.getElementById('withdraw-modal-overlay');
+    const depositClose = document.getElementById('deposit-close');
+    const withdrawClose = document.getElementById('withdraw-close');
+    const depositCancel = document.getElementById('deposit-cancel');
+    const withdrawCancel = document.getElementById('withdraw-cancel');
+    const depositForm = document.getElementById('deposit-form');
+    const withdrawForm = document.getElementById('withdraw-form');
 
     function openOverlay(overlay) {
       if (!overlay) return;
-      overlay.style.display = "flex";
-      document.body.style.overflow = "hidden";
+      overlay.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
     }
     function closeOverlay(overlay) {
       if (!overlay) return;
-      overlay.style.display = "none";
-      document.body.style.overflow = "auto";
+      overlay.style.display = 'none';
+      document.body.style.overflow = 'auto';
       const form = overlay.querySelector('form');
       if (form) form.reset();
       const err = overlay.querySelector('.form-error');
       if (err) err.remove();
     }
 
-    openDepositBtn?.addEventListener('click', () => openOverlay(depositOverlay));
-    openWithdrawBtn?.addEventListener('click', () => openOverlay(withdrawOverlay));
+    openDepositBtn?.addEventListener('click', () =>
+      openOverlay(depositOverlay)
+    );
+    openWithdrawBtn?.addEventListener('click', () =>
+      openOverlay(withdrawOverlay)
+    );
     depositClose?.addEventListener('click', () => closeOverlay(depositOverlay));
-    withdrawClose?.addEventListener('click', () => closeOverlay(withdrawOverlay));
-    depositCancel?.addEventListener('click', () => closeOverlay(depositOverlay));
-    withdrawCancel?.addEventListener('click', () => closeOverlay(withdrawOverlay));
+    withdrawClose?.addEventListener('click', () =>
+      closeOverlay(withdrawOverlay)
+    );
+    depositCancel?.addEventListener('click', () =>
+      closeOverlay(depositOverlay)
+    );
+    withdrawCancel?.addEventListener('click', () =>
+      closeOverlay(withdrawOverlay)
+    );
 
-    depositOverlay?.addEventListener('click', (e) => { if (e.target === depositOverlay) closeOverlay(depositOverlay); });
-    withdrawOverlay?.addEventListener('click', (e) => { if (e.target === withdrawOverlay) closeOverlay(withdrawOverlay); });
+    depositOverlay?.addEventListener('click', e => {
+      if (e.target === depositOverlay) closeOverlay(depositOverlay);
+    });
+    withdrawOverlay?.addEventListener('click', e => {
+      if (e.target === withdrawOverlay) closeOverlay(withdrawOverlay);
+    });
 
-    depositForm?.addEventListener('submit', async (e) => {
+    depositForm?.addEventListener('submit', async e => {
       e.preventDefault();
       const amount = Number(document.getElementById('deposit-amount').value);
-      if (!(amount > 0)) { showFormError(depositForm, 'Enter a valid amount'); return; }
+      if (!(amount > 0)) {
+        showFormError(depositForm, 'Enter a valid amount');
+        return;
+      }
       const btn = document.getElementById('deposit-submit');
       if (btn) btn.disabled = true;
       try {
-        console.log(`Attempting to deposit ${amount} to ${API_BASE}/user/deposit`);
-        const res = await authenticatedFetch(`${API_BASE}/user/deposit`, { 
-          method: 'POST', 
+        const res = await authenticatedFetch(`${API_BASE}/user/deposit`, {
+          method: 'POST',
           body: JSON.stringify({ amount }),
           headers: {
-            'Content-Type': 'application/json'
-          }
+            'Content-Type': 'application/json',
+          },
         });
-        console.log('Deposit response status:', res.status);
+
         const payload = await res.json().catch(() => ({}));
-        console.log('Deposit response payload:', payload);
-        if (!res.ok) throw new Error(payload.error || payload.message || 'Deposit failed');
-        console.log('Deposit successful, refreshing funds card...');
+
+        if (!res.ok)
+          throw new Error(payload.error || payload.message || 'Deposit failed');
+
         await refreshFundsCard();
         closeOverlay(depositOverlay);
       } catch (err) {
-        console.error('Deposit error:', err);
         showFormError(depositForm, err.message || 'Deposit failed');
       } finally {
         if (btn) btn.disabled = false;
       }
     });
 
-    withdrawForm?.addEventListener('submit', async (e) => {
+    withdrawForm?.addEventListener('submit', async e => {
       e.preventDefault();
       const amount = Number(document.getElementById('withdraw-amount').value);
-      if (!(amount > 0)) { showFormError(withdrawForm, 'Enter a valid amount'); return; }
+      if (!(amount > 0)) {
+        showFormError(withdrawForm, 'Enter a valid amount');
+        return;
+      }
       const btn = document.getElementById('withdraw-submit');
       if (btn) btn.disabled = true;
       try {
-        const res = await authenticatedFetch(`${API_BASE}/user/withdraw`, { method: 'POST', body: JSON.stringify({ amount }) });
+        const res = await authenticatedFetch(`${API_BASE}/user/withdraw`, {
+          method: 'POST',
+          body: JSON.stringify({ amount }),
+        });
         const payload = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(payload.error || payload.message || 'Withdraw failed');
+        if (!res.ok)
+          throw new Error(
+            payload.error || payload.message || 'Withdraw failed'
+          );
         await refreshFundsCard();
         closeOverlay(withdrawOverlay);
       } catch (err) {
@@ -943,10 +952,11 @@ async function fetchTransactions() {
   async function setupHoldingsPage() {
     const listEl = document.getElementById('holdings-list');
     const emptyEl = document.getElementById('holdings-empty');
-    
+
     // Show loading state immediately
     if (listEl) {
-      listEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--color-muted);">Loading holdings...</div>';
+      listEl.innerHTML =
+        '<div style="padding: 20px; text-align: center; color: var(--color-muted);">Loading holdings...</div>';
     }
     const searchInput = document.getElementById('holdings-stock-search-input');
     const searchBtn = document.getElementById('holdings-stock-search-btn');
@@ -978,104 +988,98 @@ async function fetchTransactions() {
         return;
       }
       if (emptyEl) emptyEl.style.display = 'none';
-      
-      console.log(`Raw holdings data (${holdings.length} items):`);
-      holdings.forEach((h, i) => {
-        console.log(`Holding ${i+1}: ${h.tag || h.symbol} - amount_owned: ${h.amount_owned}, total_invested: ${h.total_invested}`);
-      });
 
       // Fetch transaction logs for timestamps
       const transactionLogs = await fetchTransactionLogs();
 
       // Fetch real-time prices for all holdings
-      const holdingsWithPrices = await Promise.all(holdings.map(async (h) => {
-        const symbol = h.tag || h.symbol || '';
-        let realTimeBidPrice = 0;
-        let realTimeAskPrice = 0;
+      const holdingsWithPrices = await Promise.all(
+        holdings.map(async h => {
+          const symbol = h.tag || h.symbol || '';
+          let realTimeBidPrice = 0;
+          let realTimeAskPrice = 0;
 
-        console.log(`Processing holding ${h.tag || h.symbol}:`, {
-          id: h.id,
-          tag: h.tag,
-          symbol: h.symbol,
-          name: h.name,
-          amount_owned: h.amount_owned,
-          total_invested: h.total_invested,
-          total_value: h.total_value,
-          current_ask: h.current_ask,
-          current_bid: h.current_bid
-        });
-        console.log(`Values for ${h.tag || h.symbol}: amount_owned=${h.amount_owned}, total_invested=${h.total_invested}`);
+          try {
+            const priceData = await fetchStockPrice(symbol);
+            // Store both bid and ask prices
+            realTimeBidPrice = priceData.bid || 0;
+            realTimeAskPrice = priceData.ask || 0;
+          } catch (error) {
+            // Fallback to database values
+            const dbAsk = Number(h.current_ask || 0);
+            const dbBid = Number(h.current_bid || 0);
+            const totalValue = Number(h.total_value || 0);
+            const amountOwned = Number(h.amount_owned || 0);
 
-        try {
-          const priceData = await fetchStockPrice(symbol);
-          // Store both bid and ask prices
-          realTimeBidPrice = priceData.bid || 0;
-          realTimeAskPrice = priceData.ask || 0;
-        } catch (error) {
-          console.error(`Failed to fetch real-time price for ${symbol}:`, error);
-          // Fallback to database values
-          const dbAsk = Number(h.current_ask || 0);
-          const dbBid = Number(h.current_bid || 0);
-          const totalValue = Number(h.total_value || 0);
-          const amountOwned = Number(h.amount_owned || 0);
+            // Try database prices first
+            if (dbBid > 0) {
+              realTimeBidPrice = dbBid;
+            } else if (totalValue > 0 && amountOwned > 0) {
+              // Calculate price from total value if available
+              realTimeBidPrice = totalValue / amountOwned;
+            }
 
-          // Try database prices first
-          if (dbBid > 0) {
-            realTimeBidPrice = dbBid;
-          } else if (totalValue > 0 && amountOwned > 0) {
-            // Calculate price from total value if available
-            realTimeBidPrice = totalValue / amountOwned;
+            if (dbAsk > 0) {
+              realTimeAskPrice = dbAsk;
+            } else if (realTimeBidPrice > 0) {
+              // Estimate ask price as slightly higher than bid (typical spread is 0.01-0.1%)
+              realTimeAskPrice = realTimeBidPrice * 1.001;
+            }
           }
 
-          if (dbAsk > 0) {
-            realTimeAskPrice = dbAsk;
-          } else if (realTimeBidPrice > 0) {
-            // Estimate ask price as slightly higher than bid (typical spread is 0.01-0.1%)
-            realTimeAskPrice = realTimeBidPrice * 1.001;
-          }
-        }
+          // Use bid price for current value (what you'd get if selling now)
+          return { ...h, realTimeBidPrice, realTimeAskPrice };
+        })
+      );
 
-        // Use bid price for current value (what you'd get if selling now)
-        return { ...h, realTimeBidPrice, realTimeAskPrice };
-      }));
-      
-      listEl.innerHTML = holdingsWithPrices.map(h => {
-        const amount = Number(h.amount_owned || 0);
-        const invested = Number(h.total_invested || 0);
-        // Use bid price for current value (what you'd get if selling now)
-        const currentBidPrice = h.realTimeBidPrice;
-        const currentValue = amount * currentBidPrice;
-        const avg = amount > 0 ? invested / amount : 0;
-        const returnAmount = currentValue - invested;
-        const returnPercent = invested > 0 ? ((returnAmount / invested) * 100) : 0;
-        const name = h.name || h.tag || h.symbol || '';
-        const symbol = h.tag || h.symbol || '';
+      listEl.innerHTML = holdingsWithPrices
+        .map(h => {
+          const amount = Number(h.amount_owned || 0);
+          const invested = Number(h.total_invested || 0);
+          // Use bid price for current value (what you'd get if selling now)
+          const currentBidPrice = h.realTimeBidPrice;
+          const currentValue = amount * currentBidPrice;
+          const avg = amount > 0 ? invested / amount : 0;
+          const returnAmount = currentValue - invested;
+          const returnPercent =
+            invested > 0 ? (returnAmount / invested) * 100 : 0;
+          const name = h.name || h.tag || h.symbol || '';
+          const symbol = h.tag || h.symbol || '';
 
-        console.log(`Calculating return for ${symbol}: amount=${amount}, invested=${invested}, bidPrice=${currentBidPrice}, currentValue=${currentValue}, returnAmount=${returnAmount}, returnPercent=${returnPercent}`);
+          const returnClass = returnAmount >= 0 ? 'positive' : 'negative';
+          const returnSign = returnAmount >= 0 ? '+' : '';
 
-        const returnClass = returnAmount >= 0 ? 'positive' : 'negative';
-        const returnSign = returnAmount >= 0 ? '+' : '';
-        
-        // Find portfolio name
-        const portfolio = portfoliosData.find(p => p.uuid === h.portfolio_uuid);
-        const portfolioName = portfolio ? portfolio.name : 'Unknown';
-        
-        // Display return or N/A if no price
-        const displayReturn = currentBidPrice > 0 
-          ? `${returnSign}${formatCurrency(returnAmount)} (${returnSign}${returnPercent.toFixed(1)}%)`
-          : 'N/A';
+          // Find portfolio name
+          const portfolio = portfoliosData.find(
+            p => p.uuid === h.portfolio_uuid
+          );
+          const portfolioName = portfolio ? portfolio.name : 'Unknown';
 
-        console.log(`Display values for ${symbol}: returnAmount=${returnAmount}, returnPercent=${returnPercent}, displayReturn="${displayReturn}", returnClass=${returnClass}`);
+          // Display return or N/A if no price
+          const displayReturn =
+            currentBidPrice > 0
+              ? `${returnSign}${formatCurrency(returnAmount)}`
+              : 'N/A';
+          const displayReturnPercent =
+            currentBidPrice > 0
+              ? `${returnSign}${returnPercent.toFixed(2)}%`
+              : '';
 
-        // Display bid price or N/A if not available
-        const priceDisplay = currentBidPrice > 0 ? formatCurrency(currentBidPrice) : 'N/A';
-        const valueDisplay = currentBidPrice > 0 ? formatCurrency(currentValue) : 'N/A';
+          // Display bid price or N/A if not available
+          const priceDisplay =
+            currentBidPrice > 0 ? formatCurrency(currentBidPrice) : 'N/A';
+          const valueDisplay =
+            currentBidPrice > 0 ? formatCurrency(currentValue) : 'N/A';
 
-        // Get the latest transaction timestamp for this holding
-        const latestTimestamp = getLatestTransactionTimestamp(symbol, h.portfolio_uuid, transactionLogs);
-        const timestampDisplay = formatTimestamp(latestTimestamp);
+          // Get the latest transaction timestamp for this holding
+          const latestTimestamp = getLatestTransactionTimestamp(
+            symbol,
+            h.portfolio_uuid,
+            transactionLogs
+          );
+          const timestampDisplay = formatTimestamp(latestTimestamp);
 
-        return `
+          return `
           <div class="table-row">
             <span>${symbol} <span class="muted">${name}</span></span>
             <span class="portfolio-cell">${portfolioName}</span>
@@ -1083,26 +1087,43 @@ async function fetchTransactions() {
             <span>${formatCurrency(avg)}</span>
             <span title="Bid price (sell price)">${priceDisplay}</span>
             <span>${valueDisplay}</span>
-            <span class="${returnClass}">${displayReturn}</span>
+            <span>
+              ${
+                currentBidPrice > 0
+                  ? `
+                <span class="return-chip ${returnClass}">
+                  <img class="return-icon" src="/images/${returnClass === 'positive' ? 'increase-icon' : 'decrease-icon'}.png" alt="${returnClass === 'positive' ? 'Increase' : 'Decrease'}" />
+                  <span class="return-text">
+                    <span class="return-amount ${returnClass}">${displayReturn}</span>
+                    <span class="return-percent ${returnClass}" style="font-size: 12px;">${displayReturnPercent}</span>
+                  </span>
+                </span>
+              `
+                  : 'N/A'
+              }
+            </span>
             <span class="timestamp-cell" title="Transaction created date">${timestampDisplay}</span>
             <span class="actions-cell">
               <button class="btn-edit-holding" data-symbol="${symbol}" data-name="${name}" data-current="${amount.toFixed(4)}" data-price="${currentBidPrice}" data-portfolio="${h.portfolio_uuid || ''}" data-holding-data='${JSON.stringify(h)}'>Edit</button>
             </span>
           </div>
         `;
-      }).join('');
-      
+        })
+        .join('');
+
       // Add event listeners to edit buttons
       listEl.querySelectorAll('.btn-edit-holding').forEach(btn => {
-        btn.addEventListener('click', (e) => {
+        btn.addEventListener('click', e => {
           e.preventDefault();
           const symbol = btn.getAttribute('data-symbol');
           const name = btn.getAttribute('data-name');
           const current = btn.getAttribute('data-current');
           const price = Number(btn.getAttribute('data-price') || 0);
           const portfolioUuid = btn.getAttribute('data-portfolio');
-          const holdingData = JSON.parse(btn.getAttribute('data-holding-data') || '{}');
-          
+          const holdingData = JSON.parse(
+            btn.getAttribute('data-holding-data') || '{}'
+          );
+
           openEditHoldingModal({
             symbol,
             name,
@@ -1112,7 +1133,7 @@ async function fetchTransactions() {
             holdingData,
             onSuccess: async () => {
               await refreshHoldings();
-            }
+            },
           });
         });
       });
@@ -1120,62 +1141,75 @@ async function fetchTransactions() {
 
     async function refreshHoldings() {
       try {
-        console.log("Refreshing holdings...");
         await ensurePortfoliosLoaded();
-        console.log("Portfolios loaded:", portfoliosData);
 
         const dropdown = document.getElementById('portfolio-filter');
         const selectedPortfolio = dropdown?.value || '';
 
         // Fetch holdings from selected portfolio or all portfolios
         const allHoldings = [];
-        const portfoliosToFetch = selectedPortfolio 
+        const portfoliosToFetch = selectedPortfolio
           ? portfoliosData.filter(p => p.uuid === selectedPortfolio)
           : portfoliosData;
 
-        for (const portfolio of portfoliosToFetch) {
-          try {
-            console.log(`Fetching holdings for portfolio: ${portfolio.name} (${portfolio.uuid})`);
+        // Fetch holdings for all portfolios concurrently to reduce wait time
+        const results = await Promise.allSettled(
+          portfoliosToFetch.map(async portfolio => {
             const holdings = await fetchHoldings(portfolio.uuid);
-            console.log(`Found ${holdings.length} holdings for ${portfolio.name}:`, holdings);
-
             // Add portfolio_uuid to each holding for reference
-            holdings.forEach(h => h.portfolio_uuid = portfolio.uuid);
+            holdings.forEach(h => (h.portfolio_uuid = portfolio.uuid));
+            return { portfolio, holdings };
+          })
+        );
+
+        for (const r of results) {
+          if (r.status === 'fulfilled') {
+            const { portfolio, holdings } = r.value;
+
             allHoldings.push(...holdings);
-          } catch (e) {
-            console.error(`Failed to fetch holdings for portfolio ${portfolio.name}:`, e);
+          } else {
           }
         }
-        console.log("All holdings:", allHoldings);
+
         await renderHoldings(allHoldings);
-      } catch (e) {
-        console.error("Error in refreshHoldings:", e);
-      }
+      } catch (e) {}
     }
 
     function renderSearchResults(items) {
       if (!resultsEl) return;
-      if (!items || items.length === 0) { resultsEl.innerHTML = '<div class="panel-empty">No results</div>'; return; }
-      resultsEl.innerHTML = items.slice(0, 10).map(i => {
-        const name = i.displayName || i.shortName || i.longName || i.symbol;
-        const price = Number(i.regularMarketPrice || 0);
-        return `
+      if (!items || items.length === 0) {
+        resultsEl.innerHTML = '<div class="panel-empty">No results</div>';
+        return;
+      }
+      resultsEl.innerHTML = items
+        .slice(0, 10)
+        .map(i => {
+          const name = i.displayName || i.shortName || i.longName || i.symbol;
+          const price = Number(i.regularMarketPrice || 0);
+          return `
           <button class="result-item" data-symbol="${i.symbol}" data-name="${name}" data-price="${price}">
             <div class="result-symbol">${i.symbol}</div>
             <div class="result-name">${name}</div>
             <div class="result-price">${price ? formatCurrency(price) : ''}</div>
           </button>
         `;
-      }).join('');
+        })
+        .join('');
 
       resultsEl.querySelectorAll('.result-item').forEach(btn => {
         btn.addEventListener('click', async () => {
           const symbol = btn.getAttribute('data-symbol');
           const name = btn.getAttribute('data-name');
           const priceHint = Number(btn.getAttribute('data-price') || 0);
-          openBuyModal({ symbol, name, priceHint, portfolioUuid: defaultPortfolioUuid, onSuccess: async () => {
-            await refreshHoldings();
-          }});
+          openBuyModal({
+            symbol,
+            name,
+            priceHint,
+            portfolioUuid: defaultPortfolioUuid,
+            onSuccess: async () => {
+              await refreshHoldings();
+            },
+          });
         });
       });
     }
@@ -1193,14 +1227,17 @@ async function fetchTransactions() {
     }
 
     searchBtn?.addEventListener('click', doSearch);
-    searchInput?.addEventListener('keypress', (e) => { if (e.key === 'Enter') doSearch(); });
+    searchInput?.addEventListener('keypress', e => {
+      if (e.key === 'Enter') doSearch();
+    });
 
     // Setup add first holding button
     addFirstHoldingBtn?.addEventListener('click', () => {
       // Focus on search input to encourage user to search
       if (searchInput) {
         searchInput.focus();
-        searchInput.placeholder = "Try searching for a stock like AAPL or Tesla";
+        searchInput.placeholder =
+          'Try searching for a stock like AAPL or Tesla';
       }
     });
 
@@ -1209,7 +1246,13 @@ async function fetchTransactions() {
     setTimeout(updateThemeImages, 100);
   }
 
-  function openBuyModal({ symbol, name, priceHint = 0, portfolioUuid, onSuccess }) {
+  function openBuyModal({
+    symbol,
+    name,
+    priceHint = 0,
+    portfolioUuid,
+    onSuccess,
+  }) {
     const overlay = document.getElementById('buy-modal-overlay');
     const closeBtn = document.getElementById('buy-close');
     const cancelBtn = document.getElementById('buy-cancel');
@@ -1239,7 +1282,7 @@ async function fetchTransactions() {
       symEl.value = symbol;
       priceEl.value = 'Loading...';
       submitBtn.disabled = true;
-      
+
       // Populate portfolio dropdown
       await ensurePortfoliosLoaded();
       portfolioEl.innerHTML = '<option value="">Select a portfolio...</option>';
@@ -1247,12 +1290,16 @@ async function fetchTransactions() {
         const selected = p.uuid === portfolioUuid ? 'selected' : '';
         portfolioEl.innerHTML += `<option value="${p.uuid}" ${selected}>${p.name}${p.isDefault ? ' (Default)' : ''}</option>`;
       });
-      
+
       try {
         currentBalance = await fetchBalance();
         const price = await fetchStockPrice(symbol).catch(() => ({ ask: 0 }));
         askPrice = Number(price.ask || priceHint || 0);
-        priceEl.value = askPrice ? formatCurrency(askPrice) : (priceHint ? formatCurrency(priceHint) : 'N/A');
+        priceEl.value = askPrice
+          ? formatCurrency(askPrice)
+          : priceHint
+            ? formatCurrency(priceHint)
+            : 'N/A';
       } catch {
         priceEl.value = priceHint ? formatCurrency(priceHint) : 'N/A';
       }
@@ -1271,20 +1318,36 @@ async function fetchTransactions() {
     portfolioEl?.addEventListener('change', recalc);
     closeBtn?.addEventListener('click', close);
     cancelBtn?.addEventListener('click', close);
-    overlay?.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+    overlay?.addEventListener('click', e => {
+      if (e.target === overlay) close();
+    });
 
-    form?.addEventListener('submit', async (e) => {
+    form?.addEventListener('submit', async e => {
       e.preventDefault();
       const qty = Number(amountEl.value || 0);
       const selectedPortfolio = portfolioEl.value;
-      if (!(qty > 0)) { showFormError(form, 'Enter a valid amount'); return; }
-      if (!selectedPortfolio) { showFormError(form, 'Please select a portfolio'); return; }
+      if (!(qty > 0)) {
+        showFormError(form, 'Enter a valid amount');
+        return;
+      }
+      if (!selectedPortfolio) {
+        showFormError(form, 'Please select a portfolio');
+        return;
+      }
       submitBtn.disabled = true;
       try {
-        const payload = { stockAmount: qty, currency: 'usd', portfolio_uuid: selectedPortfolio };
-        const res = await authenticatedFetch(`${API_BASE}/buy/${encodeURIComponent(symbol)}`, { method: 'POST', body: JSON.stringify(payload) });
+        const payload = {
+          stockAmount: qty,
+          currency: 'usd',
+          portfolio_uuid: selectedPortfolio,
+        };
+        const res = await authenticatedFetch(
+          `${API_BASE}/buy/${encodeURIComponent(symbol)}`,
+          { method: 'POST', body: JSON.stringify(payload) }
+        );
         const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data.error || data.message || 'Buy failed');
+        if (!res.ok)
+          throw new Error(data.error || data.message || 'Buy failed');
         close();
         // Refresh funds card to show updated balance
         await refreshFundsCard();
@@ -1299,7 +1362,15 @@ async function fetchTransactions() {
     init();
   }
 
-  function openEditHoldingModal({ symbol, name, current, price, portfolioUuid, holdingData, onSuccess }) {
+  function openEditHoldingModal({
+    symbol,
+    name,
+    current,
+    price,
+    portfolioUuid,
+    holdingData,
+    onSuccess,
+  }) {
     const overlay = document.getElementById('edit-holding-modal-overlay');
     const closeBtn = document.getElementById('edit-holding-close');
     const cancelBtn = document.getElementById('edit-holding-cancel');
@@ -1333,7 +1404,7 @@ async function fetchTransactions() {
       currentEl.value = `${current} shares`;
       priceEl.value = 'Loading...';
       submitBtn.disabled = true;
-      
+
       // Populate portfolio dropdown
       await ensurePortfoliosLoaded();
       portfolioEl.innerHTML = '<option value="">Select a portfolio...</option>';
@@ -1341,10 +1412,13 @@ async function fetchTransactions() {
         const selected = p.uuid === portfolioUuid ? 'selected' : '';
         portfolioEl.innerHTML += `<option value="${p.uuid}" ${selected}>${p.name}${p.isDefault ? ' (Default)' : ''}</option>`;
       });
-      
+
       try {
         currentBalance = await fetchBalance();
-        const priceData = await fetchStockPrice(symbol).catch(() => ({ ask: 0, bid: 0 }));
+        const priceData = await fetchStockPrice(symbol).catch(() => ({
+          ask: 0,
+          bid: 0,
+        }));
         askPrice = Number(priceData.ask || price || 0);
         bidPrice = Number(priceData.bid || price || 0);
         priceEl.value = `Ask: ${askPrice ? formatCurrency(askPrice) : 'N/A'} | Bid: ${bidPrice ? formatCurrency(bidPrice) : 'N/A'}`;
@@ -1357,10 +1431,10 @@ async function fetchTransactions() {
       const qty = Number(amountEl.value || 0);
       const action = actionEl.value;
       const selectedPortfolio = portfolioEl.value;
-      
+
       let cost = 0;
       let priceUsed = 0;
-      
+
       if (action === 'buy') {
         priceUsed = askPrice;
         cost = qty * priceUsed;
@@ -1369,12 +1443,14 @@ async function fetchTransactions() {
         priceUsed = bidPrice;
         cost = qty * priceUsed;
         const maxSell = Number(current || 0);
-        if (costHelp) costHelp.textContent = `Proceeds: ${formatCurrency(cost)} (Max: ${maxSell.toFixed(4)} shares)`;
+        if (costHelp)
+          costHelp.textContent = `Proceeds: ${formatCurrency(cost)} (Max: ${maxSell.toFixed(4)} shares)`;
         if (qty > maxSell) {
-          if (costHelp) costHelp.textContent += ` - Warning: Cannot sell more than you own!`;
+          if (costHelp)
+            costHelp.textContent += ` - Warning: Cannot sell more than you own!`;
         }
       }
-      
+
       // Enable submit if all required fields are filled and valid
       const isValid = qty > 0 && action && selectedPortfolio && priceUsed > 0;
       const sellValid = action !== 'sell' || qty <= Number(current || 0);
@@ -1386,39 +1462,62 @@ async function fetchTransactions() {
     actionEl?.addEventListener('change', recalc);
     closeBtn?.addEventListener('click', close);
     cancelBtn?.addEventListener('click', close);
-    overlay?.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+    overlay?.addEventListener('click', e => {
+      if (e.target === overlay) close();
+    });
 
-    form?.addEventListener('submit', async (e) => {
+    form?.addEventListener('submit', async e => {
       e.preventDefault();
       const qty = Number(amountEl.value || 0);
       const action = actionEl.value;
       const selectedPortfolio = portfolioEl.value;
-      
-      if (!(qty > 0)) { showFormError(form, 'Enter a valid amount'); return; }
-      if (!action) { showFormError(form, 'Please select an action'); return; }
-      if (!selectedPortfolio) { showFormError(form, 'Please select a portfolio'); return; }
-      
-      if (action === 'sell' && qty > Number(current || 0)) {
-        showFormError(form, 'Cannot sell more shares than you own'); 
-        return; 
+
+      if (!(qty > 0)) {
+        showFormError(form, 'Enter a valid amount');
+        return;
       }
-      
+      if (!action) {
+        showFormError(form, 'Please select an action');
+        return;
+      }
+      if (!selectedPortfolio) {
+        showFormError(form, 'Please select a portfolio');
+        return;
+      }
+
+      if (action === 'sell' && qty > Number(current || 0)) {
+        showFormError(form, 'Cannot sell more shares than you own');
+        return;
+      }
+
       submitBtn.disabled = true;
       try {
         let endpoint = '';
         let payload = {};
-        
+
         if (action === 'buy') {
           endpoint = `${API_BASE}/buy/${encodeURIComponent(symbol)}`;
-          payload = { stockAmount: qty, currency: 'usd', portfolio_uuid: selectedPortfolio };
+          payload = {
+            stockAmount: qty,
+            currency: 'usd',
+            portfolio_uuid: selectedPortfolio,
+          };
         } else if (action === 'sell') {
           endpoint = `${API_BASE}/sell/${encodeURIComponent(symbol)}`;
-          payload = { stockAmount: qty, currency: 'usd', portfolio_uuid: selectedPortfolio };
+          payload = {
+            stockAmount: qty,
+            currency: 'usd',
+            portfolio_uuid: selectedPortfolio,
+          };
         }
-        
-        const res = await authenticatedFetch(endpoint, { method: 'POST', body: JSON.stringify(payload) });
+
+        const res = await authenticatedFetch(endpoint, {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        });
         const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data.error || data.message || `${action} failed`);
+        if (!res.ok)
+          throw new Error(data.error || data.message || `${action} failed`);
         close();
         // Refresh funds card to show updated balance
         await refreshFundsCard();
@@ -1450,78 +1549,43 @@ async function fetchTransactions() {
 
       const portfolios = await response.json();
 
-      // Computed data for portfolios with real-time values
-      const enrichedPortfolios = await Promise.all(
-        portfolios.map(async (portfolio) => {
+      // Keep it fast: compute only lightweight fields; avoid per-holding price lookups
+      const mapped = await Promise.all(
+        portfolios.map(async portfolio => {
           const holdingsCount = await getHoldingsCount(portfolio.uuid);
-          
-          // Calculate real-time portfolio value
-          let realTimeValue = 0;
-          try {
-            const holdings = await fetchHoldings(portfolio.uuid);
-            for (const holding of holdings) {
-              const symbol = holding.tag || holding.symbol || '';
-              try {
-                const priceData = await fetchStockPrice(symbol);
-                // Use bid price for portfolio value (what you'd get if selling)
-                const currentPrice = priceData.bid || priceData.ask || 0;
-                const holdingValue = Number(holding.amount_owned || 0) * currentPrice;
-                realTimeValue += holdingValue;
-              } catch (error) {
-                // Fallback to database values with better logic
-                const dbAsk = Number(holding.current_ask || 0);
-                const dbBid = Number(holding.current_bid || 0);
-                const totalValue = Number(holding.total_value || 0);
-                const amountOwned = Number(holding.amount_owned || 0);
-
-                let fallbackPrice = 0;
-                if (dbAsk > 0) {
-                  fallbackPrice = dbAsk;
-                } else if (dbBid > 0) {
-                  fallbackPrice = dbBid;
-                } else if (totalValue > 0 && amountOwned > 0) {
-                  fallbackPrice = totalValue / amountOwned;
-                } else {
-                  fallbackPrice = 100; // Placeholder
-                }
-
-                realTimeValue += amountOwned * fallbackPrice;
-              }
-            }
-          } catch (error) {
-            // Fallback to database value
-            realTimeValue = portfolio.value || 0;
-          }
-          
-          const returnAmount = realTimeValue - portfolio.inputValue;
-          const returnPercent = portfolio.inputValue > 0
-            ? ((realTimeValue - portfolio.inputValue) / portfolio.inputValue) * 100
-            : 0;
-
+          const totalValue = Number(
+            portfolio.value || portfolio.totalValue || 0
+          );
+          const invested = Number(
+            portfolio.inputValue || portfolio.invested || 0
+          );
+          const returnAmount = totalValue - invested;
+          const returnPercent =
+            invested > 0 ? (returnAmount / invested) * 100 : 0;
           return {
             id: portfolio.uuid,
             uuid: portfolio.uuid,
             name: portfolio.name,
-            description: portfolio.description || "", 
-            totalValue: realTimeValue,
-            invested: portfolio.inputValue || 0,
-            returnAmount: returnAmount,
-            returnPercent: returnPercent,
-            riskProfile: portfolio.riskProfile || portfolio.risk_profile || "Moderate", 
+            description: portfolio.description || '',
+            totalValue,
+            invested,
+            returnAmount,
+            returnPercent,
+            riskProfile:
+              portfolio.riskProfile || portfolio.risk_profile || 'Moderate',
             holdings: holdingsCount,
-            lastUpdated: new Date().toISOString().split("T")[0], 
-            isDefault: portfolio.is_default, 
-              currency: portfolio.prefered_currency || portfolio.currency || "USD", 
-            initialCash: portfolio.initialCash || portfolio.initial_cash || 0 
+            lastUpdated: new Date().toISOString().split('T')[0],
+            isDefault: portfolio.is_default,
+            currency:
+              portfolio.prefered_currency || portfolio.currency || 'USD',
+            initialCash: portfolio.initialCash || portfolio.initial_cash || 0,
           };
         })
       );
 
-      // Populate portfolios data array which will be used to render the portfolios page
-      portfoliosData = enrichedPortfolios;
-      return enrichedPortfolios;
+      portfoliosData = mapped;
+      return mapped;
     } catch (error) {
-      console.error("Error fetching portfolios:", error);
       portfoliosError = error.message;
       throw error;
     } finally {
@@ -1537,7 +1601,9 @@ async function fetchTransactions() {
   async function getHoldingsCount(portfolioUuid) {
     try {
       // Use the shares endpoint to get actual holdings count
-      const response = await authenticatedFetch(`${API_BASE}/user/shares/${portfolioUuid}`);
+      const response = await authenticatedFetch(
+        `${API_BASE}/user/shares/${portfolioUuid}`
+      );
 
       if (response.ok) {
         const shares = await response.json();
@@ -1545,7 +1611,6 @@ async function fetchTransactions() {
       }
       return 0;
     } catch (error) {
-      console.error("Error getting holdings count:", error);
       return 0;
     }
   }
@@ -1557,22 +1622,26 @@ async function fetchTransactions() {
   */
   async function createPortfolioAPI(portfolioData) {
     try {
-      const response = await authenticatedFetch(`${API_BASE}/user/portfolio/create`, {
-        method: "POST",
-        body: JSON.stringify({
-          name: portfolioData.name,
-          isDefault: portfolioData.isDefault || false
-        })
-      });
+      const response = await authenticatedFetch(
+        `${API_BASE}/user/portfolio/create`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            name: portfolioData.name,
+            isDefault: portfolioData.isDefault || false,
+          }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Failed to create portfolio: ${response.status}`);
+        throw new Error(
+          errorData.error || `Failed to create portfolio: ${response.status}`
+        );
       }
 
       return await response.json();
     } catch (error) {
-      console.error("Error creating portfolio:", error);
       throw error;
     }
   }
@@ -1585,23 +1654,27 @@ async function fetchTransactions() {
   */
   async function updatePortfolioAPI(portfolioUuid, portfolioData) {
     try {
-      const response = await authenticatedFetch(`${API_BASE}/user/portfolio/update`, {
-        method: "PATCH",
-        body: JSON.stringify({
-          name: portfolioData.name,
-          isDefault: portfolioData.isDefault || false,
-          portfolio_uuid: portfolioUuid
-        })
-      });
+      const response = await authenticatedFetch(
+        `${API_BASE}/user/portfolio/update`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({
+            name: portfolioData.name,
+            isDefault: portfolioData.isDefault || false,
+            portfolio_uuid: portfolioUuid,
+          }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Failed to update portfolio: ${response.status}`);
+        throw new Error(
+          errorData.error || `Failed to update portfolio: ${response.status}`
+        );
       }
 
       return await response.json();
     } catch (error) {
-      console.error("Error updating portfolio:", error);
       throw error;
     }
   }
@@ -1613,21 +1686,32 @@ async function fetchTransactions() {
   */
   async function deletePortfolioAPI(portfolioUuid) {
     try {
-      const response = await authenticatedFetch(`${API_BASE}/user/portfolio/${portfolioUuid}`, {
-        method: "DELETE"
-      });
+      const response = await authenticatedFetch(
+        `${API_BASE}/user/portfolio/${portfolioUuid}`,
+        {
+          method: 'DELETE',
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        if (response.status === 400 && errorData.message?.includes("not empty")) {
-          throw new Error("Cannot delete portfolio with holdings. Please sell all stocks first.");
+        if (
+          response.status === 400 &&
+          errorData.message?.includes('not empty')
+        ) {
+          throw new Error(
+            'Cannot delete portfolio with holdings. Please sell all stocks first.'
+          );
         }
-        throw new Error(errorData.error || errorData.message || `Failed to delete portfolio: ${response.status}`);
+        throw new Error(
+          errorData.error ||
+            errorData.message ||
+            `Failed to delete portfolio: ${response.status}`
+        );
       }
 
       return await response.json();
     } catch (error) {
-      console.error("Error deleting portfolio:", error);
       throw error;
     }
   }
@@ -1635,9 +1719,9 @@ async function fetchTransactions() {
   /*
     Renders the portfolios page with laoding, error, empty or populated portfolio cards
     @return {void} - Renders the portfolios page
-  */  
+  */
   function renderPortfolios() {
-    const portfoliosGrid = document.getElementById("portfolios-grid");
+    const portfoliosGrid = document.getElementById('portfolios-grid');
     if (!portfoliosGrid) return;
 
     // Show loading state if portfolios are still loading
@@ -1680,8 +1764,9 @@ async function fetchTransactions() {
     }
 
     // Render portfolios with simplified stats
-    const cards = portfoliosData.map((portfolio) => {
-      return `
+    const cards = portfoliosData
+      .map(portfolio => {
+        return `
         <div class="portfolio-card" data-portfolio-id="${portfolio.id}">
           <div class="portfolio-card-header">
             <div class="portfolio-info">
@@ -1696,15 +1781,15 @@ async function fetchTransactions() {
             </div>
             <div class="stat-item">
               <span class="stat-label">Portfolio Value</span>
-              <span class="stat-value">$${(portfolio.totalValue||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
+              <span class="stat-value">$${(portfolio.totalValue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
             <div class="stat-item">
               <span class="stat-label">Invested</span>
-              <span class="stat-value">$${(portfolio.invested||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
+              <span class="stat-value">$${(portfolio.invested || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
             <div class="stat-item">
               <span class="stat-label">Returned</span>
-              <span class="stat-value">$${(portfolio.returnAmount||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
+              <span class="stat-value">$${(portfolio.returnAmount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
           </div>
           <div class="portfolio-actions">
@@ -1713,7 +1798,8 @@ async function fetchTransactions() {
             <button class="btn-delete" onclick="showDeleteConfirmation('${portfolio.uuid}', '${portfolio.name.replace(/'/g, "\\'")}')">Delete</button>
           </div>
         </div>`;
-    }).join("");
+      })
+      .join('');
 
     portfoliosGrid.innerHTML = cards;
   }
@@ -1724,26 +1810,28 @@ async function fetchTransactions() {
   */
   async function loadPortfoliosData() {
     // Show loading state
-    const portfoliosList = document.getElementById("portfolios-list");
-    const totalValueEl = document.getElementById("total-value");
-    const totalInvestedEl = document.getElementById("total-invested");
-    const totalReturnEl = document.getElementById("total-return");
-    const totalReturnPercentEl = document.getElementById("total-return-percent");
-    
+    const portfoliosList = document.getElementById('portfolios-list');
+    const totalValueEl = document.getElementById('total-value');
+    const totalInvestedEl = document.getElementById('total-invested');
+    const totalReturnEl = document.getElementById('total-return');
+    const totalReturnPercentEl = document.getElementById(
+      'total-return-percent'
+    );
+
     if (portfoliosList) {
-      portfoliosList.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--color-muted);">Loading portfolios...</div>';
+      portfoliosList.innerHTML =
+        '<div style="padding: 40px; text-align: center; color: var(--color-muted);">Loading portfolios...</div>';
     }
     if (totalValueEl) totalValueEl.textContent = 'Loading...';
     if (totalInvestedEl) totalInvestedEl.textContent = 'Loading...';
     if (totalReturnEl) totalReturnEl.textContent = 'Loading...';
     if (totalReturnPercentEl) totalReturnPercentEl.textContent = '';
-    
+
     try {
       await fetchPortfolios();
       renderPortfolios();
       updateThemeImages(); // Update theme images after rendering
     } catch (error) {
-      console.error("Failed to load portfolios:", error);
       renderPortfolios();
       updateThemeImages(); // Update theme images after rendering error state
     }
@@ -1759,7 +1847,7 @@ async function fetchTransactions() {
     if (holdingsNavItem) {
       holdingsNavItem.click();
     }
-  }
+  };
 
   /*
     Opens the edit modal
@@ -1769,49 +1857,50 @@ async function fetchTransactions() {
   window.openEditModal = function (portfolioUuid) {
     const portfolio = portfoliosData.find(p => p.uuid === portfolioUuid);
     if (!portfolio) {
-      console.error('Portfolio not found:', portfolioUuid);
       return;
     }
 
-    const editModal = document.getElementById("edit-portfolio-modal-overlay");
-    const editForm = document.getElementById("edit-portfolio-form");
+    const editModal = document.getElementById('edit-portfolio-modal-overlay');
+    const editForm = document.getElementById('edit-portfolio-form');
 
     if (!editModal || !editForm) return;
 
     // Populate form with current portfolio data
-    document.getElementById("edit-portfolio-name").value = portfolio.name || '';
-    document.getElementById("edit-portfolio-default").checked = portfolio.isDefault || false;
+    document.getElementById('edit-portfolio-name').value = portfolio.name || '';
+    document.getElementById('edit-portfolio-default').checked =
+      portfolio.isDefault || false;
 
     // Store the portfolio UUID for form submission
     editForm.dataset.portfolioUuid = portfolioUuid;
 
     // Show modal
-    editModal.style.display = "flex";
-    document.body.style.overflow = "hidden";
-  }
+    editModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  };
 
- /*
+  /*
     Shows the delete modal
     @param {string} portfolioUuid - The unique identifier of the portfolio
     @param {string} portfolioName - The name of the portfolio
     @return {void} - Shows the delete modal
   */
   window.showDeleteConfirmation = function (portfolioUuid, portfolioName) {
-    const deleteModal = document.getElementById("delete-modal-overlay");
-    const portfolioNameSpan = document.getElementById("delete-portfolio-name");
-    const confirmBtn = document.getElementById("confirm-delete-btn");
+    const deleteModal = document.getElementById('delete-modal-overlay');
+    const portfolioNameSpan = document.getElementById('delete-portfolio-name');
+    const confirmBtn = document.getElementById('confirm-delete-btn');
 
     if (!deleteModal || !portfolioNameSpan || !confirmBtn) return;
 
     portfolioNameSpan.textContent = portfolioName;
-    confirmBtn.onclick = () => handleDeleteConfirmation(portfolioUuid, portfolioName);
+    confirmBtn.onclick = () =>
+      handleDeleteConfirmation(portfolioUuid, portfolioName);
 
-    deleteModal.style.display = "flex";
-    document.body.style.overflow = "hidden";
+    deleteModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
 
     // Update theme images when modal is shown
     updateThemeImages();
-  }
+  };
 
   /*
     Handles the delete confirmation
@@ -1820,16 +1909,16 @@ async function fetchTransactions() {
     @return {void} - Handles the delete confirmation
   */
   async function handleDeleteConfirmation(portfolioUuid, portfolioName) {
-    const confirmBtn = document.getElementById("confirm-delete-btn");
+    const confirmBtn = document.getElementById('confirm-delete-btn');
     const originalText = confirmBtn.textContent;
 
     try {
       // Update button state
       confirmBtn.disabled = true;
-      confirmBtn.textContent = "Deleting...";
+      confirmBtn.textContent = 'Deleting...';
 
       // Clear any existing error messages
-      const existingError = document.querySelector("#delete-modal .form-error");
+      const existingError = document.querySelector('#delete-modal .form-error');
       if (existingError) existingError.remove();
 
       // Call delete API
@@ -1840,10 +1929,10 @@ async function fetchTransactions() {
 
       // Refresh portfolios list
       await loadPortfoliosData();
-
     } catch (error) {
-      console.error("Error deleting portfolio:", error);
-      showDeleteError(error.message || "Failed to delete portfolio. Please try again.");
+      showDeleteError(
+        error.message || 'Failed to delete portfolio. Please try again.'
+      );
 
       // Reset button state
       confirmBtn.disabled = false;
@@ -1856,20 +1945,20 @@ async function fetchTransactions() {
     @return {void} - Hides the delete modal
   */
   function hideDeleteModal() {
-    const deleteModal = document.getElementById("delete-modal-overlay");
+    const deleteModal = document.getElementById('delete-modal-overlay');
     if (deleteModal) {
-      deleteModal.style.display = "none";
-      document.body.style.overflow = "auto";
+      deleteModal.style.display = 'none';
+      document.body.style.overflow = 'auto';
 
       // Clear any error messages from the modal
-      const errorMsg = deleteModal.querySelector(".form-error");
+      const errorMsg = deleteModal.querySelector('.form-error');
       if (errorMsg) errorMsg.remove();
 
       // Reset button state to allow for future deletions
-      const confirmBtn = document.getElementById("confirm-delete-btn");
+      const confirmBtn = document.getElementById('confirm-delete-btn');
       if (confirmBtn) {
         confirmBtn.disabled = false;
-        confirmBtn.textContent = "Delete Portfolio";
+        confirmBtn.textContent = 'Delete Portfolio';
       }
     }
   }
@@ -1880,18 +1969,18 @@ async function fetchTransactions() {
     @return {void} - Shows an error message in the delete modal
   */
   function showDeleteError(message) {
-    const deleteModal = document.getElementById("delete-modal");
-    const existingError = deleteModal.querySelector(".form-error");
+    const deleteModal = document.getElementById('delete-modal');
+    const existingError = deleteModal.querySelector('.form-error');
     if (existingError) existingError.remove();
 
-    const errorDiv = document.createElement("div");
-    errorDiv.className = "form-error";
-    errorDiv.style.color = "#e74c3c";
-    errorDiv.style.marginTop = "10px";
-    errorDiv.style.fontSize = "14px";
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'form-error';
+    errorDiv.style.color = '#e74c3c';
+    errorDiv.style.marginTop = '10px';
+    errorDiv.style.fontSize = '14px';
     errorDiv.textContent = message;
 
-    const actions = deleteModal.querySelector(".modal-actions");
+    const actions = deleteModal.querySelector('.modal-actions');
     if (actions) {
       actions.parentNode.insertBefore(errorDiv, actions);
     }
@@ -1902,18 +1991,18 @@ async function fetchTransactions() {
     @return {void} - Sets up the portfolio modal
   */
   function setupPortfolioModal() {
-    const addPortfolioBtn = document.getElementById("add-portfolio-btn");
-    const modalOverlay = document.getElementById("portfolio-modal-overlay");
-    const modalCloseBtn = document.getElementById("modal-close-btn");
-    const cancelBtn = document.getElementById("cancel-portfolio-btn");
-    const portfolioForm = document.getElementById("portfolio-form");
+    const addPortfolioBtn = document.getElementById('add-portfolio-btn');
+    const modalOverlay = document.getElementById('portfolio-modal-overlay');
+    const modalCloseBtn = document.getElementById('modal-close-btn');
+    const cancelBtn = document.getElementById('cancel-portfolio-btn');
+    const portfolioForm = document.getElementById('portfolio-form');
 
     if (!addPortfolioBtn || !modalOverlay) return;
 
     // Show modal by displaying the modal overlay and setting the body overflow to hidden
-    addPortfolioBtn.addEventListener("click", () => {
-      modalOverlay.style.display = "flex";
-      document.body.style.overflow = "hidden";
+    addPortfolioBtn.addEventListener('click', () => {
+      modalOverlay.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
     });
 
     /*
@@ -1921,72 +2010,81 @@ async function fetchTransactions() {
       @return {void} - Hides the portfolio modal
     */
     function hideModal() {
-      modalOverlay.style.display = "none";
-      document.body.style.overflow = "auto";
+      modalOverlay.style.display = 'none';
+      document.body.style.overflow = 'auto';
       portfolioForm.reset();
       // Clear any error messages from the form
-      const errorMsg = portfolioForm.querySelector(".form-error");
+      const errorMsg = portfolioForm.querySelector('.form-error');
       if (errorMsg) errorMsg.remove();
       // Re-enable submit button to allow for future submissions
       const submitBtn = portfolioForm.querySelector('button[type="submit"]');
       if (submitBtn) {
         submitBtn.disabled = false;
-        submitBtn.textContent = "Create Portfolio";
+        submitBtn.textContent = 'Create Portfolio';
       }
     }
 
-    modalCloseBtn?.addEventListener("click", hideModal);
-    cancelBtn?.addEventListener("click", hideModal);
+    modalCloseBtn?.addEventListener('click', hideModal);
+    cancelBtn?.addEventListener('click', hideModal);
 
-    modalOverlay.addEventListener("click", (e) => {
+    modalOverlay.addEventListener('click', e => {
       if (e.target === modalOverlay) {
         hideModal();
       }
     });
 
     // Handle form submission by creating a new portfolio via the API
-    portfolioForm?.addEventListener("submit", async (e) => {
+    portfolioForm?.addEventListener('submit', async e => {
       e.preventDefault();
 
       const formData = new FormData(portfolioForm);
       const portfolioData = {
-        name: formData.get("name")?.trim(),
-        description: formData.get("description")?.trim(),
-        riskProfile: formData.get("riskProfile"),
-        initialCash: parseFloat(formData.get("initialCash")) || 0,
-        isDefault: portfoliosData.length === 0 // First portfolio is default
+        name: formData.get('name')?.trim(),
+        description: formData.get('description')?.trim(),
+        riskProfile: formData.get('riskProfile'),
+        initialCash: parseFloat(formData.get('initialCash')) || 0,
+        isDefault: portfoliosData.length === 0, // First portfolio is default
       };
 
       // Validate required fields
       if (!portfolioData.name) {
-        showFormError(portfolioForm, "Portfolio name is required");
+        showFormError(portfolioForm, 'Portfolio name is required');
         return;
       }
 
       if (portfolioData.name.length < 2) {
-        showFormError(portfolioForm, "Portfolio name must be at least 2 characters long");
+        showFormError(
+          portfolioForm,
+          'Portfolio name must be at least 2 characters long'
+        );
         return;
       }
 
       if (portfolioData.name.length > 100) {
-        showFormError(portfolioForm, "Portfolio name must be less than 100 characters");
+        showFormError(
+          portfolioForm,
+          'Portfolio name must be less than 100 characters'
+        );
         return;
       }
 
       if (portfolioData.description && portfolioData.description.length > 500) {
-        showFormError(portfolioForm, "Description must be less than 500 characters");
+        showFormError(
+          portfolioForm,
+          'Description must be less than 500 characters'
+        );
         return;
       }
 
       const submitBtn = portfolioForm.querySelector('button[type="submit"]');
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.textContent = "Creating...";
+        submitBtn.textContent = 'Creating...';
       }
 
       try {
         // Clear any previous error messages from the form
-        const errorMsg = portfolioForm.querySelector(".form-error");
+        const errorMsg = portfolioForm.querySelector('.form-error');
         if (errorMsg) errorMsg.remove();
 
         // Create portfolio via API and refresh portfolios list
@@ -1994,12 +2092,14 @@ async function fetchTransactions() {
         await loadPortfoliosData();
         hideModal();
       } catch (error) {
-        console.error("Error creating portfolio:", error);
-        showFormError(portfolioForm, error.message || "Failed to create portfolio. Please try again.");
+        showFormError(
+          portfolioForm,
+          error.message || 'Failed to create portfolio. Please try again.'
+        );
 
         if (submitBtn) {
           submitBtn.disabled = false;
-          submitBtn.textContent = "Create Portfolio";
+          submitBtn.textContent = 'Create Portfolio';
         }
       }
     });
@@ -2010,10 +2110,12 @@ async function fetchTransactions() {
     @return {void} - Sets up the edit modal
   */
   function setupEditModal() {
-    const editModalOverlay = document.getElementById("edit-portfolio-modal-overlay");
-    const editModalCloseBtn = document.getElementById("edit-modal-close-btn");
-    const cancelEditBtn = document.getElementById("cancel-edit-btn");
-    const editForm = document.getElementById("edit-portfolio-form");
+    const editModalOverlay = document.getElementById(
+      'edit-portfolio-modal-overlay'
+    );
+    const editModalCloseBtn = document.getElementById('edit-modal-close-btn');
+    const cancelEditBtn = document.getElementById('cancel-edit-btn');
+    const editForm = document.getElementById('edit-portfolio-form');
 
     if (!editModalOverlay || !editForm) return;
 
@@ -2022,74 +2124,77 @@ async function fetchTransactions() {
       @return {void} - Hides the edit modal
     */
     function hideEditModal() {
-      editModalOverlay.style.display = "none";
-      document.body.style.overflow = "auto";
+      editModalOverlay.style.display = 'none';
+      document.body.style.overflow = 'auto';
       editForm.reset();
       delete editForm.dataset.portfolioUuid;
       // Clear any error messages from the form
-      const errorMsg = editForm.querySelector(".form-error");
+      const errorMsg = editForm.querySelector('.form-error');
       if (errorMsg) errorMsg.remove();
       // Re-enable submit button to allow for future submissions
       const submitBtn = editForm.querySelector('button[type="submit"]');
       if (submitBtn) {
         submitBtn.disabled = false;
-        submitBtn.textContent = "Update Portfolio";
+        submitBtn.textContent = 'Update Portfolio';
       }
     }
 
     // Close modal handlers
-    editModalCloseBtn?.addEventListener("click", hideEditModal);
-    cancelEditBtn?.addEventListener("click", hideEditModal);
+    editModalCloseBtn?.addEventListener('click', hideEditModal);
+    cancelEditBtn?.addEventListener('click', hideEditModal);
 
-    editModalOverlay.addEventListener("click", (e) => {
+    editModalOverlay.addEventListener('click', e => {
       if (e.target === editModalOverlay) {
         hideEditModal();
       }
     });
 
     // Handle form submission
-    editForm?.addEventListener("submit", async (e) => {
+    editForm?.addEventListener('submit', async e => {
       e.preventDefault();
 
       const portfolioUuid = editForm.dataset.portfolioUuid;
       if (!portfolioUuid) {
-        console.error("No portfolio UUID found");
         return;
       }
 
       const formData = new FormData(editForm);
       const portfolioData = {
-        name: formData.get("name")?.trim(),
-        isDefault: formData.get("isDefault") === "on"
+        name: formData.get('name')?.trim(),
+        isDefault: formData.get('isDefault') === 'on',
       };
 
       // Validate required fields
       if (!portfolioData.name) {
-        showFormError(editForm, "Portfolio name is required");
+        showFormError(editForm, 'Portfolio name is required');
         return;
       }
 
       if (portfolioData.name.length < 2) {
-        showFormError(editForm, "Portfolio name must be at least 2 characters long");
+        showFormError(
+          editForm,
+          'Portfolio name must be at least 2 characters long'
+        );
         return;
       }
 
       if (portfolioData.name.length > 100) {
-        showFormError(editForm, "Portfolio name must be less than 100 characters");
+        showFormError(
+          editForm,
+          'Portfolio name must be less than 100 characters'
+        );
         return;
       }
-
-
 
       const submitBtn = editForm.querySelector('button[type="submit"]');
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.textContent = "Updating...";
+        submitBtn.textContent = 'Updating...';
       }
 
       try {
         // Clear any previous error messages
-        const errorMsg = editForm.querySelector(".form-error");
+        const errorMsg = editForm.querySelector('.form-error');
         if (errorMsg) errorMsg.remove();
 
         // Update portfolio via API
@@ -2100,12 +2205,14 @@ async function fetchTransactions() {
 
         hideEditModal();
       } catch (error) {
-        console.error("Error updating portfolio:", error);
-        showFormError(editForm, error.message || "Failed to update portfolio. Please try again.");
+        showFormError(
+          editForm,
+          error.message || 'Failed to update portfolio. Please try again.'
+        );
 
         if (submitBtn) {
           submitBtn.disabled = false;
-          submitBtn.textContent = "Update Portfolio";
+          submitBtn.textContent = 'Update Portfolio';
         }
       }
     });
@@ -2116,17 +2223,19 @@ async function fetchTransactions() {
     @return {void} - Sets up the delete modal
   */
   function setupDeleteModal() {
-    const deleteModalOverlay = document.getElementById("delete-modal-overlay");
-    const deleteModalCloseBtn = document.getElementById("delete-modal-close-btn");
-    const cancelDeleteBtn = document.getElementById("cancel-delete-btn");
+    const deleteModalOverlay = document.getElementById('delete-modal-overlay');
+    const deleteModalCloseBtn = document.getElementById(
+      'delete-modal-close-btn'
+    );
+    const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
 
     if (!deleteModalOverlay) return;
 
     // Close modal handlers by hiding the modal overlay and resetting the button state
-    deleteModalCloseBtn?.addEventListener("click", hideDeleteModal);
-    cancelDeleteBtn?.addEventListener("click", hideDeleteModal);
+    deleteModalCloseBtn?.addEventListener('click', hideDeleteModal);
+    cancelDeleteBtn?.addEventListener('click', hideDeleteModal);
 
-    deleteModalOverlay.addEventListener("click", (e) => {
+    deleteModalOverlay.addEventListener('click', e => {
       if (e.target === deleteModalOverlay) {
         hideDeleteModal();
       }
@@ -2141,18 +2250,18 @@ async function fetchTransactions() {
   */
   function showFormError(form, message) {
     // Remove any existing error message from the form
-    const existingError = form.querySelector(".form-error");
+    const existingError = form.querySelector('.form-error');
     if (existingError) existingError.remove();
 
     // Create and insert error message into the form
-    const errorDiv = document.createElement("div");
-    errorDiv.className = "form-error";
-    errorDiv.style.color = "#e74c3c";
-    errorDiv.style.marginTop = "10px";
-    errorDiv.style.fontSize = "14px";
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'form-error';
+    errorDiv.style.color = '#e74c3c';
+    errorDiv.style.marginTop = '10px';
+    errorDiv.style.fontSize = '14px';
     errorDiv.textContent = message;
 
-    const actions = form.querySelector(".modal-actions");
+    const actions = form.querySelector('.modal-actions');
     if (actions) {
       actions.parentNode.insertBefore(errorDiv, actions);
     }
@@ -2168,13 +2277,12 @@ async function fetchTransactions() {
       mainContent.innerHTML = pageTemplates[page];
       updatePageTitle(page);
 
-      if (page === "transactions") {
+      if (page === 'transactions') {
         renderTransactions();
       }
 
-
       // If portfolios page, set up portfolio functionality
-      if (page === "portfolios") {
+      if (page === 'portfolios') {
         setupPortfolioModal();
         setupEditModal();
         setupDeleteModal();
@@ -2184,29 +2292,28 @@ async function fetchTransactions() {
       }
 
       // If dashboard, wire funds card and modals
-      if (page === "dashboard") {
+      if (page === 'dashboard') {
         setupFundsCard();
       }
 
       // If holdings, wire summary, list, search and buy
-      if (page === "holdings") {
-        console.log("Setting up holdings page...");
+      if (page === 'holdings') {
         setupHoldingsPage();
       }
     }
   }
 
   // Set up navigation
-  navItems.forEach((item) => {
-    item.addEventListener("click", function (e) {
+  navItems.forEach(item => {
+    item.addEventListener('click', function (e) {
       e.preventDefault();
 
-      navItems.forEach((nav) => nav.classList.remove("active"));
+      navItems.forEach(nav => nav.classList.remove('active'));
 
-      this.classList.add("active");
+      this.classList.add('active');
 
       const pageText =
-        this.querySelector(".nav-text").textContent.toLowerCase();
+        this.querySelector('.nav-text').textContent.toLowerCase();
       loadPage(pageText);
     });
   });
@@ -2218,27 +2325,27 @@ async function fetchTransactions() {
   */
   function showView(view) {
     if (loginSection)
-      loginSection.style.display = view === "login" ? "block" : "none";
+      loginSection.style.display = view === 'login' ? 'block' : 'none';
     if (registerSection)
-      registerSection.style.display = view === "register" ? "block" : "none";
+      registerSection.style.display = view === 'register' ? 'block' : 'none';
     if (dashboardSection)
-      dashboardSection.style.display = view === "dashboard" ? "block" : "none";
+      dashboardSection.style.display = view === 'dashboard' ? 'block' : 'none';
 
-    if (view === "login" || view === "register") {
-      document.body.classList.add("auth-page");
+    if (view === 'login' || view === 'register') {
+      document.body.classList.add('auth-page');
     } else {
-      document.body.classList.remove("auth-page");
+      document.body.classList.remove('auth-page');
     }
   }
 
   const API_BASE =
-    location.port === "5500" || location.port === "5173"
-      ? "http://localhost:3000"
-      : "";
+    location.port === '5500' || location.port === '5173'
+      ? 'http://localhost:3000'
+      : '';
 
   // Authentication
-  const AUTH_TOKEN_KEY = "auth_token";
-  const USER_DATA_KEY = "user_data";
+  const AUTH_TOKEN_KEY = 'auth_token';
+  const USER_DATA_KEY = 'user_data';
 
   /*
     Checks if the user is authenticated
@@ -2249,7 +2356,7 @@ async function fetchTransactions() {
     if (!token) return false;
 
     try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
+      const payload = JSON.parse(atob(token.split('.')[1]));
       const currentTime = Date.now() / 1000;
       return payload.exp > currentTime;
     } catch {
@@ -2294,7 +2401,7 @@ async function fetchTransactions() {
     @return {string} - The capitalised word
   */
   function capitalizeWord(str) {
-    if (!str || typeof str !== "string") return "";
+    if (!str || typeof str !== 'string') return '';
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   }
 
@@ -2308,7 +2415,7 @@ async function fetchTransactions() {
     const parts = [];
     if (firstName) parts.push(capitalizeWord(firstName));
     if (lastName) parts.push(capitalizeWord(lastName));
-    return parts.join(" ");
+    return parts.join(' ');
   }
 
   /*
@@ -2317,11 +2424,8 @@ async function fetchTransactions() {
   */
   function getDisplayFirstName() {
     const userData = getUserData();
-    if (!userData) return "";
-    const first =
-      userData.fname ||
-      userData.username ||
-      "";
+    if (!userData) return '';
+    const first = userData.fname || userData.username || '';
     return capitalizeWord(first);
   }
 
@@ -2342,11 +2446,11 @@ async function fetchTransactions() {
   async function authenticatedFetch(url, options = {}) {
     const token = getAuthToken();
     if (!token) {
-      throw new Error("No authentication token");
+      throw new Error('No authentication token');
     }
 
     const headers = {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
       ...options.headers,
     };
@@ -2361,14 +2465,14 @@ async function fetchTransactions() {
   function updateUserDisplay() {
     const userData = getUserData();
     if (userData) {
-      const greeting = document.querySelector(".greeting");
+      const greeting = document.querySelector('.greeting');
       if (greeting) {
         const firstName = getDisplayFirstName();
-        greeting.textContent = firstName ? `Hello ${firstName}` : "Hello";
+        greeting.textContent = firstName ? `Hello ${firstName}` : 'Hello';
       }
 
       // Update profile name
-      const profileName = document.querySelector(".profile-name");
+      const profileName = document.querySelector('.profile-name');
       if (profileName) {
         const firstName =
           userData.firstName || userData.fName || userData.fname;
@@ -2381,7 +2485,7 @@ async function fetchTransactions() {
       }
 
       // Update avatar initial
-      const avatar = document.querySelector(".avatar");
+      const avatar = document.querySelector('.avatar');
       if (avatar) {
         const firstName =
           userData.firstName || userData.fName || userData.fname;
@@ -2401,9 +2505,9 @@ async function fetchTransactions() {
     if (!isAuthenticated()) {
       clearAuthData();
       if (
-        document.getElementById("dashboard-section").style.display !== "none"
+        document.getElementById('dashboard-section').style.display !== 'none'
       ) {
-        showView("login");
+        showView('login');
       }
     }
   }
@@ -2424,39 +2528,39 @@ async function fetchTransactions() {
   }, 60 * 1000); // Every 60 seconds
 
   const isAuthed = isAuthenticated();
-  
+
   // Sync stock prices on initial load if authenticated
   if (isAuthed) {
-    syncStockPrices().catch(console.error);
-  }
-  
-  showView(isAuthed ? "dashboard" : "login");
-  if (isAuthed) {
-    loadPage("dashboard");
+    syncStockPrices().catch(() => {});
   }
 
-  const goToRegister = document.getElementById("go-to-register");
+  showView(isAuthed ? 'dashboard' : 'login');
+  if (isAuthed) {
+    loadPage('dashboard');
+  }
+
+  const goToRegister = document.getElementById('go-to-register');
   if (goToRegister)
-    goToRegister.addEventListener("click", (e) => {
+    goToRegister.addEventListener('click', e => {
       e.preventDefault();
-      showView("register");
+      showView('register');
     });
 
-  const goToLogin = document.getElementById("go-to-login");
+  const goToLogin = document.getElementById('go-to-login');
   if (goToLogin)
-    goToLogin.addEventListener("click", (e) => {
+    goToLogin.addEventListener('click', e => {
       e.preventDefault();
-      showView("login");
+      showView('login');
     });
 
   // Login submit
-  const loginForm = document.getElementById("loginForm");
-  const loginErrorEl = document.getElementById("loginError");
+  const loginForm = document.getElementById('loginForm');
+  const loginErrorEl = document.getElementById('loginError');
   if (loginForm) {
-    loginForm.addEventListener("submit", async (e) => {
+    loginForm.addEventListener('submit', async e => {
       e.preventDefault();
       loginErrorEl.hidden = true;
-      loginErrorEl.textContent = "";
+      loginErrorEl.textContent = '';
 
       const data = {
         username: loginForm.username.value.trim(),
@@ -2464,7 +2568,7 @@ async function fetchTransactions() {
       };
 
       if (!data.username || !data.password) {
-        loginErrorEl.textContent = "Please enter username and password.";
+        loginErrorEl.textContent = 'Please enter username and password.';
         loginErrorEl.hidden = false;
         return;
       }
@@ -2473,26 +2577,26 @@ async function fetchTransactions() {
       btn.disabled = true;
       try {
         const res = await fetch(`${API_BASE}/auth/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),
         });
         const payload = await res.json().catch(() => ({}));
         if (!res.ok)
-          throw new Error(payload.error || payload.message || "Login failed");
+          throw new Error(payload.error || payload.message || 'Login failed');
 
         if (payload.token) {
           // Store user data for display
           const userData = { username: data.username };
           storeAuthData(payload.token, userData);
-          showView("dashboard");
-          loadPage("dashboard");
+          showView('dashboard');
+          loadPage('dashboard');
           updateUserDisplay();
         } else {
-          throw new Error("No token received");
+          throw new Error('No token received');
         }
       } catch (err) {
-        loginErrorEl.textContent = err.message || "Login failed";
+        loginErrorEl.textContent = err.message || 'Login failed';
         loginErrorEl.hidden = false;
       } finally {
         btn.disabled = false;
@@ -2501,13 +2605,13 @@ async function fetchTransactions() {
   }
 
   // Register submit
-  const registerForm = document.getElementById("registerForm");
-  const registerErrorEl = document.getElementById("registerError");
+  const registerForm = document.getElementById('registerForm');
+  const registerErrorEl = document.getElementById('registerError');
   if (registerForm) {
-    registerForm.addEventListener("submit", async (e) => {
+    registerForm.addEventListener('submit', async e => {
       e.preventDefault();
       registerErrorEl.hidden = true;
-      registerErrorEl.textContent = "";
+      registerErrorEl.textContent = '';
 
       // Collect form data
       const firstName = registerForm.firstName.value.trim();
@@ -2524,17 +2628,17 @@ async function fetchTransactions() {
         !password ||
         !confirmPassword
       ) {
-        registerErrorEl.textContent = "All fields are required.";
+        registerErrorEl.textContent = 'All fields are required.';
         registerErrorEl.hidden = false;
         return;
       }
       if (password.length < 6) {
-        registerErrorEl.textContent = "Password must be at least 6 characters.";
+        registerErrorEl.textContent = 'Password must be at least 6 characters.';
         registerErrorEl.hidden = false;
         return;
       }
       if (password !== confirmPassword) {
-        registerErrorEl.textContent = "Passwords do not match.";
+        registerErrorEl.textContent = 'Passwords do not match.';
         registerErrorEl.hidden = false;
         return;
       }
@@ -2550,21 +2654,21 @@ async function fetchTransactions() {
       btn.disabled = true;
       try {
         const res = await fetch(`${API_BASE}/auth/register`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),
         });
         const payload = await res.json().catch(() => ({}));
         if (!res.ok)
           throw new Error(
-            payload.error || payload.message || "Registration failed"
+            payload.error || payload.message || 'Registration failed'
           );
 
         // After successful registration, automatically log in
         const loginData = { username: username, password: password };
         const loginRes = await fetch(`${API_BASE}/auth/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(loginData),
         });
         const loginPayload = await loginRes.json().catch(() => ({}));
@@ -2577,15 +2681,15 @@ async function fetchTransactions() {
             lastName: lastName,
           };
           storeAuthData(loginPayload.token, userData);
-          showView("dashboard");
-          loadPage("dashboard");
+          showView('dashboard');
+          loadPage('dashboard');
           updateUserDisplay();
         } else {
           // Registration successful but auto-login failed, redirect to login
-          showView("login");
+          showView('login');
         }
       } catch (err) {
-        registerErrorEl.textContent = err.message || "Registration failed";
+        registerErrorEl.textContent = err.message || 'Registration failed';
         registerErrorEl.hidden = false;
       } finally {
         btn.disabled = false;
@@ -2594,62 +2698,15 @@ async function fetchTransactions() {
   }
 
   // Logout
-  const logoutLink = document.querySelector(".logout-item");
+  const logoutLink = document.querySelector('.logout-item');
   if (logoutLink) {
-    logoutLink.addEventListener("click", (e) => {
+    logoutLink.addEventListener('click', e => {
       e.preventDefault();
       clearAuthData();
-      showView("login");
+      showView('login');
     });
   }
 
-  // Debug function for testing price fetching
-  window.debugPriceFetch = async (symbol) => {
-    console.log(`Testing price fetch for ${symbol}...`);
-    try {
-      const priceData = await fetchStockPrice(symbol);
-      console.log("Price data received:", priceData);
-      return priceData;
-    } catch (error) {
-      console.error("Price fetch failed:", error);
-      return null;
-    }
-  };
-
-  // Debug function for testing holdings fetch
-  window.debugHoldingsFetch = async (portfolioUuid) => {
-    console.log(`Testing holdings fetch for ${portfolioUuid}...`);
-    try {
-      const holdings = await fetchHoldings(portfolioUuid);
-      console.log("Holdings data received:", holdings);
-      return holdings;
-    } catch (error) {
-      console.error("Holdings fetch failed:", error);
-      return null;
-    }
-  };
-
-  // Debug function to test return calculations
-  window.testReturnCalculation = () => {
-    console.log("Testing return calculation with sample data...");
-
-    // Sample data that should show returns
-    const testHoldings = [
-      { amount_owned: 1, total_invested: 100, current_ask: 150, tag: "TEST" },
-      { amount_owned: 2, total_invested: 200, current_ask: 80, tag: "TEST2" }
-    ];
-
-    testHoldings.forEach(h => {
-      const amount = Number(h.amount_owned || 0);
-      const invested = Number(h.total_invested || 0);
-      const currentPrice = Number(h.current_ask || 0);
-      const currentValue = amount * currentPrice;
-      const returnAmount = currentValue - invested;
-      const returnPercent = invested > 0 ? ((returnAmount / invested) * 100) : 0;
-
-      console.log(`${h.tag}: amount=${amount}, invested=${invested}, currentPrice=${currentPrice}, currentValue=${currentValue}, returnAmount=${returnAmount}, returnPercent=${returnPercent}`);
-    });
-  };
   // Initial setup
   if (isAuthed) {
     updateUserDisplay();
