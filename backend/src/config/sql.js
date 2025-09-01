@@ -18,7 +18,8 @@ const Users = seq.define('user', {
     uuid: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
-        primaryKey: true
+        primaryKey: true,
+        foreignKey: true
     },
     username: {
         type: DataTypes.STRING,
@@ -61,7 +62,8 @@ const Portfolio = seq.define('portfolio', {
     uuid: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
-        primaryKey: true
+        primaryKey: true,
+        foreignKey: true
     },
     owner_uuid: {
         type: DataTypes.UUID,
@@ -194,11 +196,13 @@ const TransactionLog = seq.define('transaction_log', {
     },
     portfolio_uuid: {
         type: DataTypes.UUID,
-        allowedNull: false
+        allowedNull: false,
+        foreignKey: true
     },
     owner_uuid: {
         type: DataTypes.UUID,
-        allowedNull: false
+        allowedNull: false,
+        foreignKey: true
     }
 },
 {
