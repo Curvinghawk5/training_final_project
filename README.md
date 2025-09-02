@@ -2,7 +2,7 @@
 
 A comprehensive financial portfolio management system. It provides a REST API (backend) and a modern frontend (HTML/CSS/JS) to manage portfolios, holdings, transactions and view portfolio performance with real-time data integration.
 
-## 🚀 Features
+## Features
 
 ### Core Functionality
 - **User Management**: Registration, authentication and user profiles
@@ -21,7 +21,7 @@ A comprehensive financial portfolio management system. It provides a REST API (b
 - **Code Quality**: Prettier formatting and linting
 - **Modern UI**: Responsive design with dark/light mode support
 
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 training_final_project/
@@ -76,7 +76,7 @@ training_final_project/
     └── docker-compose.yml        # Docker configuration
 ```
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 ### Backend
 - **Node.js** - Runtime environment
@@ -100,7 +100,7 @@ training_final_project/
 - **http-server** - Development server
 - **Supertest** - API testing
 
-## 📦 Installation & Setup
+## Installation & Setup
 
 ### Prerequisites
 - Node.js (v14 or higher)
@@ -156,7 +156,7 @@ npm run start:frontend
 npm start
 ```
 
-## 🧪 Testing
+## Testing
 
 Run the comprehensive test suite:
 ```bash
@@ -169,7 +169,7 @@ The test suite includes:
 - **Error Handling Tests**: 500 error scenarios
 - **Validation Tests**: Input validation testing
 
-## 📚 API Documentation
+## API Documentation
 
 The API is fully documented with Swagger/OpenAPI. Once the server is running, visit:
 - **Swagger UI**: `http://localhost:3000/api-docs`
@@ -181,13 +181,13 @@ The API is fully documented with Swagger/OpenAPI. Once the server is running, vi
 - **Buy/Sell**: `/api/buy-sell/*`
 - **Middleware**: `/api/middleware/*`
 
-## 🎨 Frontend Features
+## Frontend Features
 
 ### User Interface
 - **Responsive Design**: Works on desktop and mobile
 - **Dark/Light Mode**: Toggle between themes
 - **Modern Typography**: Custom Trap font family
-- **Interactive Charts**: Portfolio performance visualization
+- **Interactive Charts**: Portfolio performance visualisation
 - **Real-time Updates**: Live stock price integration
 
 ### Key Pages
@@ -195,28 +195,3 @@ The API is fully documented with Swagger/OpenAPI. Once the server is running, vi
 - **Holdings**: Manage portfolio holdings
 - **Transactions**: View transaction history
 - **Settings**: User preferences and configuration
-
-## 🔧 Development
-
-### Code Formatting
-```bash
-# Format all code
-npm run format
-
-# Check formatting
-npm run format:check
-```
-
-### Project Scripts
-- `npm start` - Start production server
-- `npm run dev` - Start development environment
-- `npm test` - Run test suite
-- `npm run format` - Format code with Prettier
-
-## 📄 License
-
-ISC License
-
-## 🤝 Contributing
-
-This is a training project. For questions or issues, please contact the development team.
