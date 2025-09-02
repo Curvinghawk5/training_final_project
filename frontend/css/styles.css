@@ -620,12 +620,14 @@ body.auth-page {
   justify-content: center;
   cursor: pointer;
   border-radius: 6px;
-  transition: background 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.2s ease;
   background: rgba(255, 255, 255, 0.1);
 }
 
 .sidebar-toggle-btn:hover {
   background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .sidebar-toggle-btn img {
@@ -811,7 +813,7 @@ body.auth-page {
   padding: 5px;
   cursor: pointer;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
   transition: background-color 0.2s linear;
 }
@@ -840,7 +842,6 @@ body.auth-page {
   height: 18px;
   object-fit: contain;
   display: block;
-  margin-right: 5px;
 }
 
 .theme-toggle .checkbox-label .ball {
@@ -3703,6 +3704,16 @@ body[data-theme='dark'] {
 [data-theme='dark'] .sidebar {
   background: var(--color-sidebar);
   border-right: 1px solid var(--color-border);
+}
+
+[data-theme='dark'] .sidebar-toggle-btn {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme='dark'] .sidebar-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 [data-theme='dark'] .main {

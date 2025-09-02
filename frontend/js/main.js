@@ -554,7 +554,10 @@ document.addEventListener('DOMContentLoaded', function () {
     `,
   };
 
-  // Fetch transactions from the backend
+  /*
+    Fetches transactions from the backend
+    @returns {Promise<Array>} - An array of transactions
+  */
   async function fetchTransactions() {
     try {
       const response = await authenticatedFetch(`${API_BASE}/user/logs`);
@@ -571,8 +574,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Function to render transactions
-
+  /*
+    Renders the transactions table
+    @returns {void} - Renders the transactions table
+  */
   async function renderTransactions() {
     const transactionsList = document.getElementById('transactions-list');
     const transactionsEmpty = document.getElementById('transactions-empty');
@@ -704,18 +709,24 @@ document.addEventListener('DOMContentLoaded', function () {
   let portfoliosLoading = false;
   let portfoliosError = null;
   let portfoliosLastFetch = 0;
-  const PORTFOLIOS_CACHE_DURATION = 60000; // 30 seconds cache
-
-  // Holdings cache
+  const PORTFOLIOS_CACHE_DURATION = 60000;
   const holdingsCache = new Map();
-  const HOLDINGS_CACHE_DURATION = 60000; // 30 seconds cache
+  const HOLDINGS_CACHE_DURATION = 60000;
 
-  // Cache invalidation functions
+  /*
+    Invalidates the portfolios cache by clearing the portfolios data and setting the last fetch time to 0
+    @returns {void} - Invalidates the portfolios cache
+  */
   function invalidatePortfoliosCache() {
     portfoliosData = [];
     portfoliosLastFetch = 0;
   }
 
+  /*
+    Invalidates the holdings cache by clearing the holdings data for a specific portfolio or all portfolios
+    @param {string} portfolioUuid - The UUID of the portfolio to invalidate the cache for
+    @returns {void} - Invalidates the holdings cache
+  */
   function invalidateHoldingsCache(portfolioUuid = null) {
     if (portfolioUuid) {
       holdingsCache.delete(portfolioUuid);
@@ -724,6 +735,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  /*
+    Invalidates all caches by clearing the portfolios and holdings data
+    @returns {void} - Invalidates all caches
+  */
   function invalidateAllCaches() {
     invalidatePortfoliosCache();
     invalidateHoldingsCache();
@@ -731,8 +746,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Background update system
   let backgroundUpdateInterval = null;
-  const BACKGROUND_UPDATE_INTERVAL = 60000; // 1 minute
+  const BACKGROUND_UPDATE_INTERVAL = 60000; 
 
+  /*
+    Performs a background update of the portfolios
+    @returns {void} - Performs a background update of the portfolios
+  */
   async function performBackgroundUpdate() {
     try {
       // Only update if user is authenticated and on dashboard
@@ -752,7 +771,11 @@ document.addEventListener('DOMContentLoaded', function () {
       console.warn('Background update failed:', error);
     }
   }
-
+  
+  /*
+    Starts the background updates by setting up an interval to perform the background update
+    @returns {void} - Starts the background updates
+  */
   function startBackgroundUpdates() {
     if (backgroundUpdateInterval) {
       clearInterval(backgroundUpdateInterval);
@@ -803,7 +826,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /*
-    Reinitializes all charts with updated theme colors
+    Reinitialises all charts with updated theme colors
   */
   function reinitializeCharts() {
     // Destroy existing portfolio chart if it exists
@@ -841,7 +864,11 @@ document.addEventListener('DOMContentLoaded', function () {
     return 'dashboard'; // default
   }
 
-  // Utils
+  /*
+    Formats a currency amount to two decimal places
+    @param {number} amount - The amount to format
+    @returns {string} - The formatted currency amount
+  */
   function formatCurrency(amount) {
     const value = Number(amount || 0);
     return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -869,20 +896,33 @@ document.addEventListener('DOMContentLoaded', function () {
     return balance;
   }
 
+  /*
+    Ensures that the portfolios data is loaded by fetching the portfolios if they are not already loaded
+    @returns {void} - Ensures that the portfolios data is loaded
+  */
   async function ensurePortfoliosLoaded() {
     if (!Array.isArray(portfoliosData) || portfoliosData.length === 0) {
       await fetchPortfolios();
     }
   }
 
+  /*
+    Gets the default portfolio UUID
+    @returns {string} - The default portfolio UUID
+  */
   async function getDefaultPortfolioUuid() {
     await ensurePortfoliosLoaded();
     const def = portfoliosData.find(p => p.isDefault);
     return (def || portfoliosData[0])?.uuid || null;
   }
 
+  /*
+    Fetches the holdings for a specific portfolio
+    @param {string} portfolioUuid - The UUID of the portfolio to fetch the holdings for
+    @param {boolean} forceRefresh - Whether to force a refresh of the holdings
+    @returns {Promise<Array>} - An array of holdings
+  */
   async function fetchHoldings(portfolioUuid, forceRefresh = false) {
-    // Check cache first
     const now = Date.now();
     const cacheKey = portfolioUuid;
     const cached = holdingsCache.get(cacheKey);
@@ -921,6 +961,11 @@ document.addEventListener('DOMContentLoaded', function () {
     return normalizedData;
   }
 
+  /*
+    Searches for stocks financial information
+    @param {string} query - The query to search for
+    @returns {Promise<Array>} - An array of stocks financial information
+  */
   async function searchStocksFinancial(query) {
     const res = await fetch(
       `${API_BASE}/search/financial/${encodeURIComponent(query)}`
@@ -932,6 +977,11 @@ document.addEventListener('DOMContentLoaded', function () {
     );
   }
 
+  /*
+    Fetches the stock price for a specific stock
+    @param {string} tag - The tag of the stock to fetch the price for
+    @returns {Promise<Object>} - An object containing the stock price and currency
+  */
   async function fetchStockPrice(tag) {
     const res = await fetch(`${API_BASE}/price/${encodeURIComponent(tag)}`);
 
@@ -951,7 +1001,10 @@ document.addEventListener('DOMContentLoaded', function () {
     };
   }
 
-  // Trigger backend sync to update all stock prices in the database
+  /*
+    Triggers a backend sync to update all stock prices in the database
+    @returns {Promise<boolean>} - Whether the sync was successful
+  */
   async function syncStockPrices() {
     try {
       const res = await fetch(`${API_BASE}/sync`);
@@ -966,7 +1019,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Fetch transaction logs for the user
+  /*
+    Fetches the transaction logs for the user
+    @returns {Promise<Array>} - An array of transaction logs
+  */
   async function fetchTransactionLogs() {
     try {
       const res = await authenticatedFetch(`${API_BASE}/user/logs`);
@@ -981,7 +1037,13 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Get the latest transaction timestamp for a holding
+  /*
+    Gets the latest transaction timestamp for a holding
+    @param {string} symbol - The symbol of the holding
+    @param {string} portfolioUuid - The UUID of the portfolio
+    @param {Array} transactionLogs - An array of transaction logs
+    @returns {string} - The latest transaction timestamp
+  */
   function getLatestTransactionTimestamp(
     symbol,
     portfolioUuid,
@@ -991,7 +1053,6 @@ document.addEventListener('DOMContentLoaded', function () {
       return null;
     }
 
-    // Filter transactions for this specific stock and portfolio
     const relevantLogs = transactionLogs.filter(
       log => log.stock_tag === symbol && log.portfolio_uuid === portfolioUuid
     );
@@ -1000,7 +1061,6 @@ document.addEventListener('DOMContentLoaded', function () {
       return null;
     }
 
-    // Find the most recent transaction
     const latestLog = relevantLogs.reduce((latest, current) => {
       const currentDate = new Date(current.createdAt);
       const latestDate = new Date(latest.createdAt);
@@ -1010,7 +1070,11 @@ document.addEventListener('DOMContentLoaded', function () {
     return latestLog.createdAt;
   }
 
-  // Format timestamp for display
+  /*
+    Formats a timestamp for display
+    @param {string} timestamp - The timestamp to format
+    @returns {string} - The formatted timestamp
+  */
   function formatTimestamp(timestamp) {
     if (!timestamp) return 'N/A';
     try {
@@ -1040,7 +1104,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Global function to refresh funds card (can be called from anywhere)
+  /*
+    Refreshes the funds card
+    @returns {Promise<void>} - Refreshes the funds card
+  */
   async function refreshFundsCard() {
     try {
       const [balance] = await Promise.all([fetchBalance()]);
@@ -1074,7 +1141,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Dashboard: funds card
+  /*
+    Sets up the funds card
+    @returns {Promise<void>} - Sets up the funds card
+  */
   async function setupFundsCard() {
     const openDepositBtn = document.getElementById('open-deposit-modal');
     const openWithdrawBtn = document.getElementById('open-withdraw-modal');
@@ -1191,12 +1261,14 @@ document.addEventListener('DOMContentLoaded', function () {
     await refreshFundsCard();
   }
 
-  // Holdings page
+  /*
+    Sets up the holdings page
+    @returns {Promise<void>} - Sets up the holdings page
+  */
   async function setupHoldingsPage() {
     const listEl = document.getElementById('holdings-list');
     const emptyEl = document.getElementById('holdings-empty');
 
-    // Show loading state immediately
     if (listEl) {
       listEl.innerHTML =
         '<div style="padding: 20px; text-align: center; color: var(--color-muted);">Loading holdings...</div>';
@@ -1222,7 +1294,12 @@ document.addEventListener('DOMContentLoaded', function () {
         });
       }
     }
-
+    
+    /*
+      Renders the holdings table
+      @param {Array} holdings - An array of holdings
+      @returns {void} - Renders the holdings table
+    */
     async function renderHoldings(holdings) {
       if (!listEl) return;
       if (!holdings || holdings.length === 0) {
@@ -1232,10 +1309,8 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       if (emptyEl) emptyEl.style.display = 'none';
 
-      // Fetch transaction logs for timestamps
       const transactionLogs = await fetchTransactionLogs();
 
-      // Fetch real-time prices for all holdings
       const holdingsWithPrices = await Promise.all(
         holdings.map(async h => {
           const symbol = h.tag || h.symbol || '';
@@ -1244,33 +1319,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
           try {
             const priceData = await fetchStockPrice(symbol);
-            // Store both bid and ask prices
             realTimeBidPrice = priceData.bid || 0;
             realTimeAskPrice = priceData.ask || 0;
           } catch (error) {
-            // Fallback to database values
             const dbAsk = Number(h.current_ask || 0);
             const dbBid = Number(h.current_bid || 0);
             const totalValue = Number(h.total_value || 0);
             const amountOwned = Number(h.amount_owned || 0);
 
-            // Try database prices first
             if (dbBid > 0) {
               realTimeBidPrice = dbBid;
             } else if (totalValue > 0 && amountOwned > 0) {
-              // Calculate price from total value if available
               realTimeBidPrice = totalValue / amountOwned;
             }
 
             if (dbAsk > 0) {
               realTimeAskPrice = dbAsk;
             } else if (realTimeBidPrice > 0) {
-              // Estimate ask price as slightly higher than bid (typical spread is 0.01-0.1%)
               realTimeAskPrice = realTimeBidPrice * 1.001;
             }
           }
 
-          // Use bid price for current value (what you'd get if selling now)
           return { ...h, realTimeBidPrice, realTimeAskPrice };
         })
       );
@@ -1279,7 +1348,6 @@ document.addEventListener('DOMContentLoaded', function () {
         .map(h => {
           const amount = Number(h.amount_owned || 0);
           const invested = Number(h.total_invested || 0);
-          // Use bid price for current value (what you'd get if selling now)
           const currentBidPrice = h.realTimeBidPrice;
           const currentValue = amount * currentBidPrice;
           const avg = amount > 0 ? invested / amount : 0;
@@ -1292,13 +1360,11 @@ document.addEventListener('DOMContentLoaded', function () {
           const returnClass = returnAmount >= 0 ? 'positive' : 'negative';
           const returnSign = returnAmount >= 0 ? '+' : '';
 
-          // Find portfolio name
           const portfolio = portfoliosData.find(
             p => p.uuid === h.portfolio_uuid
           );
           const portfolioName = portfolio ? portfolio.name : 'Unknown';
 
-          // Display return or N/A if no price
           const displayReturn =
             currentBidPrice > 0
               ? `${returnSign}${formatCurrency(returnAmount)}`
@@ -1308,13 +1374,11 @@ document.addEventListener('DOMContentLoaded', function () {
               ? `${returnSign}${returnPercent.toFixed(2)}%`
               : '';
 
-          // Display bid price or N/A if not available
           const priceDisplay =
             currentBidPrice > 0 ? formatCurrency(currentBidPrice) : 'N/A';
           const valueDisplay =
             currentBidPrice > 0 ? formatCurrency(currentValue) : 'N/A';
 
-          // Get the latest transaction timestamp for this holding
           const latestTimestamp = getLatestTransactionTimestamp(
             symbol,
             h.portfolio_uuid,
@@ -1354,7 +1418,11 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .join('');
 
-      // Add event listeners to edit buttons
+      /*
+      Add event listeners to edit buttons
+      @param {HTMLElement} btn - The edit button
+      @returns {void} - Adds event listeners to the edit button
+    */
       listEl.querySelectorAll('.btn-edit-holding').forEach(btn => {
         btn.addEventListener('click', e => {
           e.preventDefault();
@@ -1382,6 +1450,10 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
 
+    /*
+      Refreshes the holdings
+      @returns {Promise<void>} - Refreshes the holdings
+    */
     async function refreshHoldings() {
       try {
         await ensurePortfoliosLoaded();
@@ -1389,13 +1461,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const dropdown = document.getElementById('portfolio-filter');
         const selectedPortfolio = dropdown?.value || '';
 
-        // Fetch holdings from selected portfolio or all portfolios
         const allHoldings = [];
         const portfoliosToFetch = selectedPortfolio
           ? portfoliosData.filter(p => p.uuid === selectedPortfolio)
           : portfoliosData;
 
-        // Fetch holdings for all portfolios concurrently to reduce wait time
         const results = await Promise.allSettled(
           portfoliosToFetch.map(async portfolio => {
             const holdings = await fetchHoldings(portfolio.uuid);
@@ -1418,6 +1488,11 @@ document.addEventListener('DOMContentLoaded', function () {
       } catch (e) {}
     }
 
+    /*
+      Renders the search results
+      @param {Array} items - An array of items
+      @returns {void} - Renders the search results
+    */
     function renderSearchResults(items) {
       if (!resultsEl) return;
       if (!items || items.length === 0) {
@@ -1457,6 +1532,10 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
 
+    /*
+      Performs a search
+      @returns {Promise<void>} - Performs a search
+    */
     async function doSearch() {
       const q = (searchInput?.value || '').trim();
       if (!q) return;
@@ -1474,7 +1553,10 @@ document.addEventListener('DOMContentLoaded', function () {
       if (e.key === 'Enter') doSearch();
     });
 
-    // Setup add first holding button
+    /*
+      Sets up the add first holding button
+      @returns {void} - Sets up the add first holding button
+    */
     addFirstHoldingBtn?.addEventListener('click', () => {
       // Focus on search input to encourage user to search
       if (searchInput) {
@@ -1489,6 +1571,11 @@ document.addEventListener('DOMContentLoaded', function () {
     setTimeout(updateThemeImages, 100);
   }
 
+  /*
+    Opens the buy modal
+    @param {Object} params - The parameters for the buy modal
+    @returns {void} - Opens the buy modal
+  */
   function openBuyModal({
     symbol,
     name,
@@ -1553,7 +1640,6 @@ document.addEventListener('DOMContentLoaded', function () {
       const cost = qty * (askPrice || 0);
       const selectedPortfolio = portfolioEl.value;
       if (costHelp) costHelp.textContent = `Cost: ${formatCurrency(cost)}`;
-      // Require positive qty, known price, and selected portfolio
       submitBtn.disabled = !(qty > 0 && askPrice > 0 && selectedPortfolio);
     }
 
@@ -1592,7 +1678,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!res.ok)
           throw new Error(data.error || data.message || 'Buy failed');
         close();
-        // Refresh funds card to show updated balance
         await refreshFundsCard();
         if (typeof onSuccess === 'function') await onSuccess();
       } catch (err) {
@@ -1605,6 +1690,11 @@ document.addEventListener('DOMContentLoaded', function () {
     init();
   }
 
+  /*
+    Opens the edit holding modal
+    @param {Object} params - The parameters for the edit holding modal
+    @returns {void} - Opens the edit holding modal
+  */
   function openEditHoldingModal({
     symbol,
     name,
@@ -1648,7 +1738,10 @@ document.addEventListener('DOMContentLoaded', function () {
       priceEl.value = 'Loading...';
       submitBtn.disabled = true;
 
-      // Populate portfolio dropdown
+      /*
+        Populate portfolio dropdown
+        @returns {Promise<void>} - Populates the portfolio dropdown
+      */
       await ensurePortfoliosLoaded();
       portfolioEl.innerHTML = '<option value="">Select a portfolio...</option>';
       portfoliosData.forEach(p => {
@@ -1694,7 +1787,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
 
-      // Enable submit if all required fields are filled and valid
+      /*
+        Enable submit if all required fields are filled and valid
+        @returns {void} - Enables the submit button
+      */
       const isValid = qty > 0 && action && selectedPortfolio && priceUsed > 0;
       const sellValid = action !== 'sell' || qty <= Number(current || 0);
       submitBtn.disabled = !(isValid && sellValid);
@@ -1762,7 +1858,10 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!res.ok)
           throw new Error(data.error || data.message || `${action} failed`);
         close();
-        // Refresh funds card to show updated balance
+          /*
+          Refresh funds card to show updated balance
+          @returns {Promise<void>} - Refreshes the funds card
+        */
         await refreshFundsCard();
         if (typeof onSuccess === 'function') await onSuccess();
       } catch (err) {
@@ -1850,9 +1949,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
 
-      totalDeposited += totalInvested; // Add invested amount to total deposited
+      totalDeposited += totalInvested;
 
-      // Update dashboard values
+      /*
+        Update dashboard values
+        @returns {void} - Updates the dashboard values
+      */
       const totalPortfolioEl = document.getElementById('total-portfolio-value');
       const totalInvestedEl = document.getElementById('total-invested-val');
       const totalDepositedEl = document.getElementById('total-deposited-val');
@@ -1902,7 +2004,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const chartCanvas = document.getElementById('portfolio-chart');
     if (!chartCanvas) return;
 
-    // Destroy existing portfolio chart if it exists
+    /*
+      Destroy existing portfolio chart if it exists
+      @returns {void} - Destroys the portfolio chart
+    */
     if (portfolioChart) {
       portfolioChart.destroy();
       portfolioChart = null;
@@ -1910,14 +2015,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const ctx = chartCanvas.getContext('2d');
 
-    // Generate dummy data for the past year
+    /*
+      Generate dummy data for the past year
+      @returns {void} - Generates the dummy data
+    */
     const labels = [];
     const data = [];
     const monthlyChanges = [];
     const startDate = new Date();
     startDate.setFullYear(startDate.getFullYear() - 1);
 
-    let currentValue = 10000; // Starting value
+    let currentValue = 10000;
     const initialValue = currentValue;
 
     for (let i = 0; i < 12; i++) {
@@ -1925,14 +2033,20 @@ document.addEventListener('DOMContentLoaded', function () {
       date.setMonth(date.getMonth() + i);
       labels.push(date.toLocaleDateString('en-US', { month: 'short' }));
 
-      // Add some realistic variance
+      /*
+        Add some realistic variance
+        @returns {void} - Adds the realistic variance
+      */
       const changePercent = (Math.random() - 0.4) * 0.15; // -6% to +9% monthly change
       monthlyChanges.push(changePercent * 100);
       currentValue *= 1 + changePercent;
       data.push(Math.round(currentValue));
     }
 
-    // Calculate stats
+    /*
+      Calculate stats
+      @returns {void} - Calculates the stats
+    */
     const totalReturn = (
       ((currentValue - initialValue) / initialValue) *
       100
@@ -1947,7 +2061,10 @@ document.addEventListener('DOMContentLoaded', function () {
         monthlyChanges.length) **
       0.5;
 
-    // Update chart stats
+    /*
+      Update chart stats
+      @returns {void} - Updates the chart stats
+    */
     const totalReturnEl = document.getElementById('chart-total-return');
     const bestMonthEl = document.getElementById('chart-best-month');
     const worstMonthEl = document.getElementById('chart-worst-month');
@@ -1959,7 +2076,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (worstMonthEl) worstMonthEl.textContent = `${worstMonth}%`;
     if (volatilityEl) volatilityEl.textContent = `${volatility.toFixed(1)}%`;
 
-    // Get theme colors
+    /*
+      Get theme colors
+      @returns {void} - Gets the theme colors
+    */
     const isDark = document.body.getAttribute('data-theme') === 'dark';
     const brandColor = isDark ? '#9c80ff' : '#299d91'; // Purple for dark mode, teal for light mode
     const textColor = isDark ? '#ffffff' : '#191919';
@@ -2029,8 +2149,7 @@ document.addEventListener('DOMContentLoaded', function () {
     Initializes the portfolio allocation pie chart
     @return {void} - Initializes the allocation chart
   */
-  // Guard to prevent race conditions across rapid re-inits (e.g., theme toggle)
-  let allocationChartRequestIdCounter = 0;
+  let allocationChartRequestIdCounter = 0;                
 
   async function initializeAllocationChart() {
     const myRequestId = ++allocationChartRequestIdCounter;
