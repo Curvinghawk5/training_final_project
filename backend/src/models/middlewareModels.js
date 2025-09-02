@@ -17,45 +17,47 @@ const userModels = require("./userModels");
     @return {number} - The amount of money in the target currency
 */
 async function convertCurrency(amount, current, target) {
-    try {
-        // Validate input parameters
-        if (isNaN(amount) || !current || !target) {
-            console.log('Invalid currency conversion parameters:', { amount, current, target });
-            return null;
-        }
-
-        // If amount is 0, return 0 without API call
-        if (amount === 0 || parseFloat(amount) === 0) {
-            return 0;
-        }
-
-        // If currencies are the same, return original amount
-        if (current.toLowerCase() === target.toLowerCase()) {
-            return parseFloat(amount);
-        }
-
-        const response = await axios.get(`https://2024-03-06.currency-api.pages.dev/v1/currencies/${current}.json`);
-        const rate = response.data[current][target];
-        
-        // Validate the exchange rate
-        if (!rate || isNaN(rate) || rate <= 0) {
-            console.log('Invalid exchange rate received:', rate);
-            return null;
-        }
-
-        const returnAmount = parseFloat(amount) * parseFloat(rate);
-        
-        // Validate the result
-        if (isNaN(returnAmount)) {
-            console.log('Currency conversion resulted in NaN:', { amount, rate, returnAmount });
-            return null;
-        }
-
-        return returnAmount;
-    } catch (err) {
-        console.log('Error in currency conversion:', err);
-        return null;
+    // Validate input parameters
+    if (isNaN(amount) || !current || !target) {
+        console.log('Invalid currency conversion parameters:', { amount, current, target });
+        return;
     }
+
+    // If amount is 0, return 0 without API call
+    if (amount === 0 || parseFloat(amount) === 0) {
+        return 0;
+    }
+
+    // If currencies are the same, return original amount
+    if (current.toLowerCase() === target.toLowerCase()) {
+        return parseFloat(amount);
+    }
+
+    let response;
+    try {
+        response = await axios.get(`https://2024-03-06.currency-api.pages.dev/v1/currencies/${current}.json`);
+    }
+    catch (err) {
+        console.log('Error in currency conversion:', err);
+        return;
+    }
+    const rate = response.data[current][target];
+        
+    // Validate the exchange rate
+    if (!rate || isNaN(rate) || rate <= 0) {
+        console.log('Invalid exchange rate received:', rate);
+        return;
+    }
+
+    const returnAmount = parseFloat(amount) * parseFloat(rate);
+        
+    // Validate the result
+    if (isNaN(returnAmount)) {
+        console.log('Currency conversion resulted in NaN:', { amount, rate, returnAmount });
+        return;
+    }
+
+    return returnAmount;
 }
 
 /*
@@ -158,14 +160,14 @@ async function updateShareValue(share_id){
             ask = (convertedAsk !== null && !isNaN(convertedAsk)) ? convertedAsk : ask;
         } catch(err) {
             console.error("Error converting ask currency: ", err);
-            // Keep original ask value on conversion error
+            return;
         }
         try {
             let convertedBid = await convertCurrency(bid, buyCurrency, userCurrency);
             bid = (convertedBid !== null && !isNaN(convertedBid)) ? convertedBid : bid;
         } catch(err) {
             console.error("Error converting bid currency: ", err);
-            // Keep original bid value on conversion error
+            return;
         }
 
         if(share.currency != userCurrency) {
@@ -174,7 +176,7 @@ async function updateShareValue(share_id){
                 share.total_invested = (convertedInvested !== null && !isNaN(convertedInvested)) ? convertedInvested : share.total_invested;
             } catch(err) {
                 console.error("Error converting invested currency: ", err);
-                // Keep original invested value on conversion error
+                return;
             }
         }
     }

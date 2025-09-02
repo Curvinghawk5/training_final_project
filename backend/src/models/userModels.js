@@ -146,10 +146,14 @@ async function getBalance(uuid) {
             attributes: ['money'],
             where: {uuid: uuid}
         });
-        return user ? user.money : 0;
+        if(!user) {
+            console.error("Error getting user money: ", err);
+            return;
+        }
+        return user.money;
     } catch (err) {
         console.error("Error getting balance: ", err);
-        return 0;
+        return;
     }
 }
 

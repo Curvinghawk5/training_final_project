@@ -37,10 +37,10 @@ describe('userModels', () => {
     });
 
     test('getBalance uses findAll with money attribute', async () => {
-        sql5.Users.findAll.mockResolvedValue([{ money: 42 }]);
+        sql5.Users.findOne.mockResolvedValue({ money: 42 });
         const out = await getBalance('u');
-        expect(sql5.Users.findAll).toHaveBeenCalledWith({ attributes: ['money'], where: { uuid: 'u' } });
-        expect(out).toEqual([{ money: 42 }]);
+        expect(sql5.Users.findOne).toHaveBeenCalledWith({ attributes: ['money'], where: { uuid: 'u' } });
+        expect(out).toEqual(42);
     });
 
     test('getAllShares filters by owner and portfolio when provided / not provided', async () => {

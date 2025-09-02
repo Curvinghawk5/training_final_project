@@ -45,6 +45,15 @@ describe('middlewareModels (error)', () => {
       await expect(mod.convertCurrency(100, 'usd', 'gbp')).resolves.toBeUndefined();
     });
 
+    test('convertCurrency -> input amount is NaN', async () => {
+      await expect(mod.convertCurrency('u', 'usd', 'gbp')).resolves.toBeUndefined();
+    });
+
+    test('convertCurrency -> rate amount is NaN', async () => {
+      axios.get.mockResolvedValue({ data: { usd: { gbp: 'u' } } });
+      await expect(mod.convertCurrency(100, 'usd', 'gbp')).resolves.toBeUndefined();
+    });
+
     // cleanDb
     test('cleanDb -> Users.destroy fails => early return undefined (others not called)', async () => {
       sql.Users.destroy.mockRejectedValue(new Error('boom'));

@@ -77,13 +77,6 @@ describe('userControllers (500 paths)', () => {
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({ error: 'Internal Server Error' });
   });
-  test('getShares -> 500 when updateOwnersPortfolios fails', async () => {
-    const res = mkRes();
-    midModels.updateOwnersPortfolios.mockRejectedValue(new Error('boom'));
-    await ctrl.getShares({ user: { uuid: 'u' }, params: { portfolio_uuid: 'p' } }, res);
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Internal Server Error' });
-  });
   test('getShares -> 500 when fetching shares fails', async () => {
     const res = mkRes();
     midModels.updateOwnersPortfolios.mockResolvedValue('ok');

@@ -57,7 +57,7 @@ describe('userModels (error paths)', () => {
 
     // Getters
     test('getBalance -> undefined on DB error', async () => {
-      sql.Users.findAll.mockRejectedValue(new Error('boom'));
+      sql.Users.findOne.mockRejectedValue(new Error('boom'));
       await expect(m.getBalance('u')).resolves.toBeUndefined();
     });
 

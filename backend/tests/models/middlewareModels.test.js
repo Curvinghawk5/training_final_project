@@ -48,6 +48,16 @@ describe('middlewareModels (success)', () => {
       expect(out).toBeCloseTo(80);
     });
 
+    test('convertCurrency -> returns 0 if input is 0', async () => {
+      const out = await mod.convertCurrency(0, 'usd', 'gbp');
+      expect(out).toBe(0);
+    });
+
+    test('convertCurrency -> returns amount if conversion is the same', async () => {
+      const out = await mod.convertCurrency(200, 'gbp', 'gbp');
+      expect(out).toBe(200);
+    });
+
     test('cleanDb -> calls all destroys and resolves undefined', async () => {
       sql.Users.destroy.mockResolvedValue(1);
       sql.Portfolio.destroy.mockResolvedValue(1);
@@ -64,7 +74,7 @@ describe('middlewareModels (success)', () => {
 
     test('updateShareValue -> same-currency path updates share and returns total_value', async () => {
       sql.Shares.findOne.mockResolvedValue({
-        id: 1, tag: 'AAPL', owner_uuid: 'u1', total_invested: 500, amount_owned: 10
+        id: 1, tag: 'AAPL', owner_uuid: 'u1', total_invested: 500, amount_owned: 10, closed:false
       });
       YF.quote.mockResolvedValue({ ask: 11, bid: 10, currency: 'USD' });
       userModels.getUserPreferedCurrencyUUID.mockResolvedValue('usd');
@@ -72,7 +82,7 @@ describe('middlewareModels (success)', () => {
 
       const out = await mod.updateShareValue(1);
       expect(sql.Shares.update).toHaveBeenCalledWith(
-        { ask: 11, bid: 10, total_value: 100, total_invested: 500, currency: 'usd' },
+        { ask: 11, bid: 10, total_value: 100, total_invested: 500, currency: 'usd', closed: false },
         { where: { id: 1 } }
       );
       expect(out).toBe(100);
@@ -80,9 +90,9 @@ describe('middlewareModels (success)', () => {
 
     test('updateShareValue -> with currency conversion (EUR→USD)', async () => {
       sql.Shares.findOne.mockResolvedValue({
-        id: 2, tag: 'SAP', owner_uuid: 'u2', total_invested: 200, amount_owned: 5,
+        id: 2, tag: 'SAP', owner_uuid: 'u2', total_invested: 200, amount_owned: 5, currency: 'eur', closed: false,
       });
-      YF.quote.mockResolvedValue({ ask: 2, bid: 1, currency: 'EUR' });
+      YF.quote.mockResolvedValue({ ask: 2, bid: 1, currency: 'eur' });
       userModels.getUserPreferedCurrencyUUID.mockResolvedValue('usd');
       // First conversion (ask) then (bid) then (total_invested)
       axios.get.mockResolvedValue({ data: { eur: { usd: 2 } } });
@@ -91,7 +101,7 @@ describe('middlewareModels (success)', () => {
       const out = await mod.updateShareValue(2);
       // ask 2 EUR -> 4 USD; bid 1 EUR -> 2 USD; invested 200 EUR -> 400 USD; total_value 2*5 = 10
       expect(sql.Shares.update).toHaveBeenCalledWith(
-        { ask: 4, bid: 2, total_value: 10, total_invested: 400, currency: 'usd' },
+        { ask: 4, bid: 2, total_value: 10, total_invested: 400, currency: 'usd', closed: false },
         { where: { id: 2 } }
       );
       expect(out).toBe(10);

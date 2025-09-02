@@ -11,6 +11,7 @@ jest.mock('../../src/controllers/userControllers', () => ({
   getShares: jest.fn((req, res) => res.status(200).json({ ok: true, route: 'getShares', id: req.params.portfolio_uuid })),
   getLogs: jest.fn((req, res) => res.status(200).json({ ok: true, route: 'getLogs' })),
   changePreferredCurrency: jest.fn((req, res) => res.status(200).json({ ok: true, route: 'changePreferredCurrency' })),
+  updateUserPortfolios: jest.fn((req, res) => res.status(200).json({ ok: true, route: 'updateUserPortfolios' })),
 }));
 const ctrl = require('../../src/controllers/userControllers');
 
@@ -81,6 +82,12 @@ describe('userRoutes (success)', () => {
   test('POST /user/currency', async () => {
     const res = await request(app).post('/user/currency').set('Authorization', 'Bearer t').send({ currency: 'gbp' });
     expect(ctrl.changePreferredCurrency).toHaveBeenCalled();
+    expect(res.status).toBe(200);
+  });
+
+  test('POST /user/update-portfolios', async () => {
+    const res = await request(app).post('/user/update-portfolios').set('Authorization', 'Bearer t');
+    expect(ctrl.updateUserPortfolios).toHaveBeenCalled();
     expect(res.status).toBe(200);
   });
 });

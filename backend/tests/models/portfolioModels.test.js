@@ -62,13 +62,9 @@ describe('userModels (success)', () => {
     // Getters
     test('getBalance -> returns rows array of money', async () => {
       const rows = [{ money: 42 }];
-      sql.Users.findAll.mockResolvedValue(rows);
+      sql.Users.findOne.mockResolvedValue({money: 42});
       const out = await m.getBalance('u');
-      expect(sql.Users.findAll).toHaveBeenCalledWith({
-        attributes: ['money'],
-        where: { uuid: 'u' }
-      });
-      expect(out).toBe(rows);
+      expect(out).toBe(42);
     });
 
     test('getAllShares -> by specific portfolio', async () => {

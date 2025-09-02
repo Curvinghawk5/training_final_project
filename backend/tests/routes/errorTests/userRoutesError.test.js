@@ -11,6 +11,7 @@ jest.mock('../../../src/controllers/userControllers', () => ({
   getShares: jest.fn((req, res) => res.status(200).json({ ok: true })),
   getLogs: jest.fn((req, res) => res.status(200).json({ ok: true })),
   changePreferredCurrency: jest.fn((req, res) => res.status(200).json({ ok: true })),
+  updateUserPortfolios: jest.fn((req, res) => res.status(200).json({ ok: true })),
 }));
 const ctrl = require('../../../src/controllers/userControllers');
 

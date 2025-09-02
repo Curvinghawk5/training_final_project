@@ -54,11 +54,9 @@ describe('userControllers', () => {
 
 
     test('getShares -> 200 list', async () => {
-        middlewareModel.updateOwnersPortfolios.mockResolvedValue('ok');
         userModel.getAllShares.mockResolvedValue([{ id: 1 }]);
         const r = res();
         await userCtrl.getShares({ user: { uuid: 'u' }, params: { portfolio_uuid: 'p' } }, r);
-        expect(middlewareModel.updateOwnersPortfolios).toHaveBeenCalledWith('u');
         expect(userModel.getAllShares).toHaveBeenCalledWith('u', 'p');
         expect(r.status).toHaveBeenCalledWith(200);
         expect(r.json).toHaveBeenCalledWith([{ id: 1 }]);

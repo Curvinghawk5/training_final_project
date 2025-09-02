@@ -4,7 +4,7 @@
 
 # GET http://localhost:3000/search/news/Nvidia HTTP/1.1
 
-# GET http://localhost:3000/search/financial/BARC.L HTTP/1.1
+GET http://localhost:3000/search/financial/GOOG HTTP/1.1
 
 # GET http://localhost:3000/search/financial/TCO0.F HTTP/1.1
 
@@ -12,15 +12,15 @@
 
 # GET http://localhost:3000/convert HTTP/1.1
 
-POST http://localhost:3000/buy/HSBA HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQ5YjAwNzUzLTBiNTctNGJlNi1hZTA1LTJiYWM1MmMxZDhhZSIsInVzZXJuYW1lIjoiYWRtaW5Vc2VybmFtZSIsImlhdCI6MTc1NjgwMDEzNSwiZXhwIjoxNzU2ODg2NTM1fQ.q4cv4YNLvf-R1mCgx1MMzHDMCRWu121I5YgKVL5vjD4
-Content-Type: application/json
+# POST http://localhost:3000/buy/TCO0.F HTTP/1.1
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQ5YjAwNzUzLTBiNTctNGJlNi1hZTA1LTJiYWM1MmMxZDhhZSIsInVzZXJuYW1lIjoiYWRtaW5Vc2VybmFtZSIsImlhdCI6MTc1NjgwMDEzNSwiZXhwIjoxNzU2ODg2NTM1fQ.q4cv4YNLvf-R1mCgx1MMzHDMCRWu121I5YgKVL5vjD4
+# Content-Type: application/json
 
-{
-    "stockAmount": "",
-    "priceAmount": 4000,
-    "currency": "usd"
-}
+# {
+#     "stockAmount": "",
+#     "priceAmount": 4000,
+#     "currency": "usd"
+# }
 
 # POST http://localhost:3000/auth/register HTTP/1.1
 # Content-Type: application/json
