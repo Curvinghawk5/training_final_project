@@ -57,7 +57,7 @@ async function buyStocks(req, res) {
         return;
     }
 
-    if(result.ask == 0 && result.bid == 0){
+    if((result.ask == 0 || result.ask == undefined) && (result.bid == 0 || result.bid == undefined)){
         res.status(400).json({error: "Market Closed"});
         return;
     }
@@ -168,7 +168,7 @@ async function sellStocks(req, res) {
         return;
     }
 
-    if(result.ask == 0 && result.bid == 0){
+    if((result.ask == 0 || result.ask == undefined) && (result.bid == 0 || result.bid == undefined)){
         res.status(400).json({error: "Market Closed"});
         return;
     }

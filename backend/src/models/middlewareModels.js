@@ -143,7 +143,7 @@ async function updateShareValue(share_id){
 
     let closed = false;
 
-    if(ask == 0 && bid == 0) {
+    if((ask == 0 || ask == undefined) && (bid == 0 || bid == undefined)) {
         closed = true;
         // Use stored values, but ensure they're valid numbers
         ask = share.ask && !isNaN(share.ask) ? share.ask : 0;
