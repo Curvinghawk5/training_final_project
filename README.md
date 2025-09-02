@@ -134,6 +134,7 @@ training_final_project/
 4. **Environment Configuration**
    - Create a `.env` file in the root directory
    - Add your database credentials and JWT secret
+   - Set your admin account username
 
 ### Running the Application
 
